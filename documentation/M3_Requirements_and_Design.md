@@ -9,8 +9,7 @@ It allows people to keep a history of all the places they have traveled to and a
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram**
-
-
+![Use Case Diagram](./images/use_case_diagram.png)
 ### **3.2. Actors Description**
 1. **User**: The application’s customer who will be creating and deleting posts,  using the chat and viewing other user’s posts on the app.
 2. **Google Maps API**: The API the app will call in order to display the interactive maps of each user.
@@ -31,7 +30,7 @@ It allows people to keep a history of all the places they have traveled to and a
             - **Main success scenario**:
                 1. User allows the app to access their location
                 2. App successfully connects to Google Maps API
-	        3. App opens the map to the user’s general location
+                3. App opens the map to the user’s general location
             - **Failure scenario(s)**:
                 - 1a. User has not allowed the app to see their location
                     - 1a1. Makes a request to the user to allow the app to access their location
