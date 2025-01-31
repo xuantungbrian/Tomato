@@ -321,17 +321,17 @@ It allows people to keep a history of all the places they have traveled to and a
 
 ### **4.6. Functional Requirements Sequence Diagram**
 1. [**Display an Interactive Map**](#fr1)\
-![Interactive Map](./out/plantUML/display_map/display_map.png)
+![Interactive Map](./images/display_map.png)
 2. [**Authenticate User**](#fr2)\
-![Authenticate User](./out/plantUML/authenticate_user/authenticate_user.png)
+![Authenticate User](./images/authenticate_user.png)
 3. [**Manage Posts**](#fr3)\
-![Manage Posts](./out/plantUML/manage_posts/manage_posts.png)
+![Manage Posts](./images/manage_posts.png)
 4. [**Search by Location**](#fr4)\
-![Logout User](./out/plantUML/search_location/search_location.png)
+![Logout User](./images/search_location.png)
 5. [**Suggest Locations**](#fr5)\
-![Suggest Locations](./out/plantUML/recommend/recommend.png)
+![Suggest Locations](./images/recommend.png)
 6. [**Chat with Users**](#fr6)\
-![Chat Functions](./out/plantUML/chat/chat.png)
+![Chat Functions](./images/chat.png)
 
 
 
