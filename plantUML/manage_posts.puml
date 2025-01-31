@@ -1,0 +1,65 @@
+@startuml
+
+' Sequence Diagram: Create Post
+actor User
+participant "Tomato" as App
+participant ":Post" as Post
+participant "Google Maps API" as Maps
+participant "Database" as DB
+
+activate User
+== Create Post ==
+opt 
+    User -> App: Click Create Post Button
+    activate App
+    App -> User: Request post details (image, description, location)
+    User -> App: Provide post details
+    App -> Post: uploadPost(username, description, location, images, isPrivate)
+    activate Post
+    Post -> DB: Save post
+    activate DB
+    DB -> Post: Confirm post saved
+    deactivate DB
+    Post -> App: Return postID
+    deactivate Post
+    App -> Maps: Display new post as pin
+    activate Maps
+    Maps -> App: Return map
+    deactivate Maps
+end 
+
+== Edit Post ==
+opt 
+    User -> App: Select post to update
+    App -> User: Request updated details
+    User -> App: Provide new details
+    App -> Post: editPost(postID, newImages, newDescription)
+    activate Post
+    Post -> DB: Update post
+    activate DB
+    DB -> Post: Confirm update
+    deactivate DB
+    Post -> App: Confirm update
+    deactivate Post
+    App -> User: Update post display
+end 
+
+== List Posts ==
+opt 
+    User -> App: Request posts near current location
+    App -> Post: getPostNearLocation(location, radius)
+    activate Post
+    Post -> DB: Retrieve posts
+    activate DB
+    DB -> Post: Return posts
+    deactivate DB
+    Post -> App: Return posts
+    deactivate Post
+    App -> Maps: Get post data as pins
+    activate Maps
+    Maps -> App: Return map
+    deactivate Maps
+    App -> User: Display map
+end
+
+@enduml

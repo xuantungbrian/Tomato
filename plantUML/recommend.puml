@@ -1,0 +1,34 @@
+@startuml
+
+' Sequence Diagram: Display Posted Pictures as Pins
+actor User
+participant "Tomato" as App
+participant ":Recommendations" as Rec
+participant "Google Maps API" as Maps
+participant "Database" as DB
+' participant "Database" as DB
+
+activate User
+User -> App: Open App
+activate App
+App->Rec: getPostRecommendation(username, userLocation)
+activate Rec
+Rec -> DB: Fetch user's history
+activate DB
+DB -> Rec: Return user's history
+deactivate DB
+Rec -> DB: Fetch other users' history
+activate DB
+DB -> Rec: Return other users' history
+deactivate DB
+Rec -> Rec: Generate recommendations
+Rec -> App: Return recommendations
+deactivate Rec
+
+App -> Maps: Get post data as pins
+activate Maps
+Maps -> App: Return map
+deactivate Maps
+App -> User: Display map
+
+@enduml

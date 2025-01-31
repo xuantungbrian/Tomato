@@ -1,0 +1,42 @@
+@startuml
+
+' Sequence Diagram: Start New Chat from Post
+actor User
+participant "Mobile App" as App
+participant "Database" as DB
+
+opt [Start New Chat]
+' Start New Chat
+    User -> App: Click on post
+    App -> User: Show chat option
+    User -> App: Click Chat button
+    App -> DB: Create new chat room
+    DB -> App: Confirm chat room created
+    App -> User: Open chat interface
+end
+
+' Sequence Diagram: Start New Chat from Chat Activity
+opt  [From Chat Activity]
+    User -> App: Open Chat Activity
+    App -> User: Show Start New Chat option
+    User -> App: Click Start New Chat
+    App -> DB: Fetch user list
+    DB -> App: Return user list
+    User -> App: Select user
+    App -> DB: Create new chat room
+    DB -> App: Confirm chat room created
+    App -> User: Open chat interface
+end
+
+opt [View Existing Chat]
+    ' Sequence Diagram: View Existing Chat
+    User -> App: Open Chat Activity
+    App -> DB: Fetch chat list
+    DB -> App: Return chat list
+    User -> App: Select chat
+    App -> DB: Fetch chat messages
+    DB -> App: Return messages
+    App -> User: Display chat
+end 
+
+@enduml

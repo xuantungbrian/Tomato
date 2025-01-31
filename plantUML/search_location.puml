@@ -1,0 +1,26 @@
+@startuml
+
+' Sequence Diagram: Search Locations
+actor User
+participant "Mobile App" as App
+participant "Google Maps API" as Maps
+participant "Database" as DB
+
+activate User
+User -> App: Enter search query
+activate App
+App -> Maps: Search for location
+activate Maps
+Maps -> App: Return location data
+deactivate Maps
+App -> DB: Fetch posts for location
+activate DB
+DB -> App: Return posts
+deactivate DB
+App -> Maps: Display posts as pins
+activate Maps
+Maps -> App: Return map
+deactivate Maps
+App -> User: Display map
+
+@enduml

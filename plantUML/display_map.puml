@@ -1,0 +1,35 @@
+@startuml
+
+' Sequence Diagram: Show Map at User's Location
+actor User
+participant "Tomato" as App
+participant "Google Maps API" as Maps
+
+activate User
+User -> App: Open App
+activate App
+App -> User: Request location permission
+alt User grants permission
+    App -> Maps: Request user location
+    activate Maps
+    Maps -> App: Return user location
+    deactivate Maps
+    App -> Maps: Load map centered at user location
+    activate Maps
+else User denies permission
+    App -> Maps: Load map centered at Vancouver
+end
+
+App -> DB: Fetch posts with locations
+alt Posts available
+    DB -> App: Return posts
+    App -> Maps: Display posts as pins
+else No posts available
+    App -> Maps: Display empty map
+end
+
+Maps -> App: Return map
+    deactivate Maps
+App -> User: Display map
+
+@enduml
