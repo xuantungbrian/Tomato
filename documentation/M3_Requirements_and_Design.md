@@ -425,9 +425,9 @@ It allows people to keep a history of all the places they have traveled to and a
 
 
 ## 5. Contributions
-- ...
-- ...
-- ...
+- Rumbi Chinamo: Functional Requirements
+- Bryan Tanady: Main components and interface, Presentation Slides
+- Xuan Tung Luu: Review, Components diagram, Presentation Slides
 - James: Sequence Diagrams, Non-Functional Requirements Design and Complex Design
 
 
