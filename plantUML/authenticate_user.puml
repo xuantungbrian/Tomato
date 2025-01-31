@@ -12,15 +12,15 @@ User -> App: Click on Login
 activate App
 App->UserClass: Request Authentication
 activate UserClass
-UserClass -> UserDB: Request token
-activate UserDB
-UserDB -> UserClass: Return token
-deactivate UserDB
 UserClass -> Google: authenticateUser(token)
 activate Google
 alt Authentication Successful
     Google -> UserClass: Return Success
     deactivate Google
+    UserClass -> UserDB: Save User Token
+    activate UserDB
+    UserDB -> UserClass: Return Success
+    deactivate UserDB
     UserClass -> App: Return Success
     App -> User: Grant access
 else Authentication Failed
