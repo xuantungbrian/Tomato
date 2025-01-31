@@ -28,9 +28,9 @@ It allows people to keep a history of all the places they have traveled to and a
             - **Description**: Opens the map to the user’s general location when the app starts
             - **Primary actor(s)**: User, Google Maps API 
             - **Main success scenario**:
-                1/. User allows the app to access their location
-                2/. App successfully connects to Google Maps API
-                3/. App opens the map to the user’s general location
+                1\. User allows the app to access their location
+                2\. App successfully connects to Google Maps API
+                3\. App opens the map to the user’s general location
             - **Failure scenario(s)**:
                 - 1a. User has not allowed the app to see their location
                     - 1a1. Makes a request to the user to allow the app to access their location
