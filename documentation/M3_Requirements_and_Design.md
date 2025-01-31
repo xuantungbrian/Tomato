@@ -243,13 +243,19 @@ It allows people to keep a history of all the places they have traveled to and a
 ### **4.1. Main Components**
 1. **User**
     - **Purpose**: Manages user authentication and user data.
+    - **Rationale**: Our backend may involve repetitive operations on querying User's database. This module provides a wrapper to the query and aligns with Dont Repeat Yourself principle.
+
 
     - **Interfaces**: 
         1. `public static bool authenticateUser (String token)`
             - **Purpose**: Verifies user's Google ID token. Returns true If user is successfully authenticated, otherwise returns false.
+        2. `public static User getUser(String userID)`
+            - **Purpose**: Wrapper for database query to get User information, given userID.
+
 
 2. **Post**
     - **Purpose**: Manages posts data and allows posts retrieval based on location range or user's map view.
+    - **Rationale**: Post is the main contents of our app, defining a "Post" component that interacts specificly with Post promotes Single Responsibility Principle.
     - **Interfaces**: 
         1. `public static String uploadPost (String userID, String description, Location location, List<Image> images, bool isPrivate)`
             - **Purpose**: upload post where user explicitly provides the locations associated to the images. If isPrivate is True, the post is only visible to the user, otherwise it's visible to the public
@@ -268,6 +274,8 @@ It allows people to keep a history of all the places they have traveled to and a
 
 3. **Chat**
     - **Purpose**: Manages chat data and sends user a notification on new message.
+    - **Rationale**: Chat is defined as its own component, as chat is a specific feature of our app. Separating this from User or Post component aligns with Single Responsibility Principle
+    
 
     - **Interfaces**: 
         1. `public static void sendMessage (String senderUserID, String receiverUserID String message)`
@@ -277,10 +285,10 @@ It allows people to keep a history of all the places they have traveled to and a
 
 4. **Recommendation System**
     - **Purpose**: Recommend posts based on user's history or current trend.
-
+    - **Rationale**: Recommendation system is made as its own component for better separation of concern in developing recommendation system algorithm.
     - **Interfaces**: 
         1. `public static List<Post> getPostRecommendation(String userID, Location userLocation)`
-            - **Purpose**: Recommend posts based on user's travel history and user's current location. Recommendation system is made as its own component for better separation of concern in developing recommendation system algorithm.
+            - **Purpose**: Recommend posts based on user's travel history and user's current location. 
 
 
 
