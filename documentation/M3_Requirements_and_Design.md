@@ -312,13 +312,16 @@ It allows people to keep a history of all the places they have traveled to and a
 ### **4.4. Frameworks**
 1. **AWS EC2**
     - **Purpose**: Cloud Provider
-    - **Reason**: EC2 has free trial and there is a clear setup tutorial provided by the teaching team.
+    - **Reason**: EC2 has free trial and there is a clear setup tutorial provided by the teaching team.  
+2. **ExpressJs**
+    - **Purpose**: Backend  
+    - **Reason**: ExpressJS is simple to use and everyone in the team is familiar with it.
 
 
 
 
 ### **4.5. Dependencies Diagram**
-
+![Components Dependencies](./images/components_dependencies.png)
 
 ### **4.6. Functional Requirements Sequence Diagram**
 1. [**Display an Interactive Map**](#fr1)\
