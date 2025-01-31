@@ -2,43 +2,30 @@
 
 ' Sequence Diagram: User Authentication
 actor User
-participant "Tomato" as App
-participant ":User" as AuthService
-participant "Database" as DB
+participant ":Frontend" as App
+participant ":User" as UserClass
+participant ":UserDB" as UserDB
+participant "Google Authentication API" as Google
 
-== User Registration ==
 activate User
-User -> App: Register (username, password)
+User -> App: Click on Login
 activate App
-App -> AuthService: register(username, password)
-activate AuthService
-AuthService -> DB: Store (hashed-password)
-activate DB
-alt Registration Successful
-    DB -> AuthService: Confirm stored
-    deactivate DB
-    AuthService -> App: Return registered username
-    App -> User: Registration Successful
-else Registration Failed
-    AuthService -> App: Throw UserRegistrationFailedException
-    deactivate AuthService
-    App -> User: Show error message
-end
-
-== User Login ==
-User -> App: Key Login Details (username, password)
-App -> AuthService: login(username, password)
-activate AuthService
-AuthService -> DB: Validate credentials
-activate DB
+App->UserClass: Request Authentication
+activate UserClass
+UserClass -> UserDB: Request token
+activate UserDB
+UserDB -> UserClass: Return token
+deactivate UserDB
+UserClass -> Google: authenticateUser(token)
+activate Google
 alt Authentication Successful
-    DB -> AuthService: Return valid user data
-    deactivate DB
-    AuthService -> App: Return AuthResponse (token, username)
+    Google -> UserClass: Return Success
+    deactivate Google
+    UserClass -> App: Return Success
     App -> User: Grant access
 else Authentication Failed
-    AuthService -> App: Throw AuthException
-    deactivate AuthService
+    UserClass -> App: Throw error
+    deactivate UserClass
     App -> User: Show error message
 end
 

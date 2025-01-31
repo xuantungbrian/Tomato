@@ -2,8 +2,9 @@
 
 ' Sequence Diagram: Show Map at User's Location
 actor User
-participant "Tomato" as App
+participant ":Frontend" as App
 participant "Google Maps API" as Maps
+participant ":Post" as DB
 
 activate User
 User -> App: Open App
@@ -21,8 +22,10 @@ else User denies permission
 end
 
 App -> DB: Fetch posts with locations
+activate DB
 alt Posts available
     DB -> App: Return posts
+    deactivate DB
     App -> Maps: Display posts as pins
 else No posts available
     App -> Maps: Display empty map

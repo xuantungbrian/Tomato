@@ -2,10 +2,10 @@
 
 ' Sequence Diagram: Create Post
 actor User
-participant "Tomato" as App
+participant ":Fronend" as App
 participant ":Post" as Post
 participant "Google Maps API" as Maps
-participant "Database" as DB
+participant "PostDB" as DB
 
 activate User
 == Create Post ==

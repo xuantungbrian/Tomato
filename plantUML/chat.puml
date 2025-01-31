@@ -2,40 +2,55 @@
 
 ' Sequence Diagram: Start New Chat from Post
 actor User
-participant "Mobile App" as App
-participant "Database" as DB
+participant ":Frontend" as App
+participant ":ChatDB" as DB
+participant ":UserDB" as UserDB
 
-opt [Start New Chat]
+activate User
+== Start New Chat from Post ==
+opt 
 ' Start New Chat
     User -> App: Click on post
+    activate App
     App -> User: Show chat option
     User -> App: Click Chat button
     App -> DB: Create new chat room
+    activate DB
     DB -> App: Confirm chat room created
+    deactivate DB
     App -> User: Open chat interface
 end
 
-' Sequence Diagram: Start New Chat from Chat Activity
-opt  [From Chat Activity]
+== Start New Chat from Chats page ==
+opt 
     User -> App: Open Chat Activity
     App -> User: Show Start New Chat option
     User -> App: Click Start New Chat
-    App -> DB: Fetch user list
-    DB -> App: Return user list
+    App -> UserDB: Fetch user list
+    activate UserDB
+    UserDB -> App: Return user list
+    deactivate UserDB
     User -> App: Select user
     App -> DB: Create new chat room
+    activate DB
     DB -> App: Confirm chat room created
+    deactivate DB
     App -> User: Open chat interface
 end
 
-opt [View Existing Chat]
+== View Existing Chats ==
+opt 
     ' Sequence Diagram: View Existing Chat
     User -> App: Open Chat Activity
     App -> DB: Fetch chat list
+    activate DB
     DB -> App: Return chat list
+    deactivate DB
     User -> App: Select chat
     App -> DB: Fetch chat messages
+    activate DB
     DB -> App: Return messages
+    deactivate DB
     App -> User: Display chat
 end 
 

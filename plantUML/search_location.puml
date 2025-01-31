@@ -2,9 +2,9 @@
 
 ' Sequence Diagram: Search Locations
 actor User
-participant "Mobile App" as App
+participant ":Frontend" as App
 participant "Google Maps API" as Maps
-participant "Database" as DB
+participant ":Post" as DB
 
 activate User
 User -> App: Enter search query

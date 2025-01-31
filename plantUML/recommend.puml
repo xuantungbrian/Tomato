@@ -2,10 +2,10 @@
 
 ' Sequence Diagram: Display Posted Pictures as Pins
 actor User
-participant "Tomato" as App
+participant ":Frontend" as App
 participant ":Recommendations" as Rec
 participant "Google Maps API" as Maps
-participant "Database" as DB
+participant ":Post" as DB
 ' participant "Database" as DB
 
 activate User
