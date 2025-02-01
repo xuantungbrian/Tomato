@@ -17,7 +17,7 @@ Our app allows people to keep a history of all the places they have traveled to 
 ### **3.3. Functional Requirements**
 <a name="fr1"></a>
 
-1. **Display an interactive map** 
+1. **Display Map** 
     - **Overview**:
         1. Shows the map at the user’s general location
         2. Displays posted pictures as pins on the map
@@ -49,7 +49,7 @@ Our app allows people to keep a history of all the places they have traveled to 
                     - a1a. If the user is yet to post anything, the map opens as is with no pins
                     - a1b. Else if the user’s posts were not able to retrieved from the database, a toast will appear telling the user that the posts were unable to be retrieved and to try again later
 
-2. **Authenticate User**
+2. **Login User**
     - **Overview**:
         1. Authenticates the user in the app
     
@@ -172,7 +172,7 @@ Our app allows people to keep a history of all the places they have traveled to 
                 - e1. Posts could not be fetched
                     - e1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
 
-6. **Chat with users**
+6. **Chat**
     - **Overview**:
         1. Start new chat from post
         2. Start new chat from Chat activity
