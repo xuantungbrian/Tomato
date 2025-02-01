@@ -147,7 +147,7 @@ It allows people to keep a history of all the places they have traveled to and a
             - **Description**: Allows the user to search specific locations to see the posts from there
             - **Primary actor(s)**: User, Google Maps API
             - **Main success scenario**:
-                1. User goes to the search bar at the top of the screen
+              1. User goes to the search bar at the top of the screen
                 2. User inputs the location they want to see
                 3. User clicks on the Search icon
                 4. App displays all the available posts in that area on the map
@@ -155,7 +155,7 @@ It allows people to keep a history of all the places they have traveled to and a
                 - 4a. Posts could not be fetched
                     - 4a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
 
-5. **Suggests Locations**
+5. **Get Location Recommendations**
     - **Overview**:
         1. Suggests travel locations for the user
     
