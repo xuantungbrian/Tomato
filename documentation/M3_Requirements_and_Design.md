@@ -4,8 +4,7 @@
 <!-- Leave blank for M3 -->
 
 ## 2. Project Description
-Our target audiences are young people who like to travel and take photos. Such users typically will have a large amount of photos compiled chronologically in a photo app i.e. Google Photos, but without much sense of where they were taken. As such, our solution involves viewing and navigating around a map with pins that show the user’s past images, as well as small optional notes that they can add. Furthermore, users can receive recommendations for future travel locations based on their travel history. When viewing other people's notes, they can optionally chat with the person taking a photo to ask about the logistics of traveling there (i.e. do they accept cash? How much equipment did you bring?)
-It allows people to keep a history of all the places they have traveled to and add notes to each place, which act as travel advisories for others. Users will also receive suggestions on some interesting travel locations based on all user history (recommendation system algorithm). Since the app also allows a chatting feature, people can contact other users who have traveled there for advice easily.	
+Our app allows people to keep a history of all the places they have traveled to and thus acts as a travel advisory for others and a travel journal for themselves. Our target audience is young people who like to travel and take photos. Such users typically will have a large amount of photos compiled chronologically in a photo app i.e. Google Photos, but without much sense of where they were taken. As such, our solution involves viewing and navigating around a map with pins that show the user’s past images, as well as small optional notes that they can add. Furthermore, users can receive recommendations for future travel locations based on their travel history. When viewing other people's notes, they can optionally chat with the person taking a photo to ask about the logistics of traveling there (i.e. Do they accept cash? How much equipment did you bring?)
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram**
@@ -32,12 +31,12 @@ It allows people to keep a history of all the places they have traveled to and a
                 2. App successfully connects to Google Maps API
                 3. App opens the map to the user’s general location
             - **Failure scenario(s)**:
-                - 1a. User has not allowed the app to see their location
-                    - 1a1. Makes a request to the user to allow the app to access their location
-                    - 1a2. If users agrees, the map will open showing the user’s general location
-                    - 1a3. Otherwise opens the map to Vancouver as opposed to their current location
-                - 2a. Google Maps API is not available
-                    - 2a1. A toast will appear telling the user that Google Maps is unavailable and to try again later
+                - a1. User has not allowed the app to see their location
+                    - a1a. Makes a request to the user to allow the app to access their location
+                    - a1b. If users agrees, the map will open showing the user’s general location
+                    - a1c. Otherwise opens the map to Vancouver as opposed to their current location
+                - b1. Google Maps API is not available
+                    - b1a. A toast will appear telling the user that Google Maps is unavailable and to try again later
 
         2. **Displays posted pictures as pins on the map**
             - **Description**: Displays pictures posted by the user and others users as pins on the map
@@ -46,9 +45,9 @@ It allows people to keep a history of all the places they have traveled to and a
                 1. App displays all the posts as pins on the map
                 2. App allows the users to scroll to different areas and view more posts
             - **Failure scenario(s)**:
-                - 1a. Unable to retrieve posts
-                    - 1a1. If the user is yet to post anything, the map opens as is with no pins
-                    - 1a2. Else if the user’s posts were not able to retrieved from the database, a toast will appear telling the user that the posts were unable to be retrieved and to try again later
+                - a1. Unable to retrieve posts
+                    - a1a. If the user is yet to post anything, the map opens as is with no pins
+                    - a1b. Else if the user’s posts were not able to retrieved from the database, a toast will appear telling the user that the posts were unable to be retrieved and to try again later
 
 2. **Authenticate User**
     - **Overview**:
@@ -64,9 +63,9 @@ It allows people to keep a history of all the places they have traveled to and a
                 3. User enters their account information and signs in
                 4. App continues as normal
             - **Failure scenario(s)**:
-                - 3a. User is unable to login
-                    - 3a1. A toast appears telling the user they were unable to login, along with the reason why and to try again
-                    - 3a2. User can try again later after fixing the problem
+                - c1. User is unable to login
+                    - c1a. A toast appears telling the user they were unable to login, along with the reason why and to try again
+                    - c1b. User can try again later after fixing the problem
  
 3. **Manage Posts**
     - **Overview**:
@@ -87,12 +86,12 @@ It allows people to keep a history of all the places they have traveled to and a
                 4. User confirms that they want to create the post
                 5. App shows the newly created post as a pin on the map
             - **Failure scenario(s)**:
-                - 2a. Could not access the user’s gallery
-                    - 2a1. Makes a request to the user to allow the app to access their photos
-                    - 2a2. If users agrees, the other steps will carry on as normal
-                    - 2a3. Otherwise a toast will appear telling the user that it cannot add a picture without gallery permissions
-                - 5a. Post could not be created
-                    - 5a1. A toast will appear telling the user that a post was unable to created at this time along with the reason why
+                - b1. Could not access the user’s gallery
+                    - b1a. Makes a request to the user to allow the app to access their photos
+                    - b1b. If users agrees, the other steps will carry on as normal
+                    - b1c. Otherwise a toast will appear telling the user that it cannot add a picture without gallery permissions
+                - e1. Post could not be created
+                    - e1a. A toast will appear telling the user that a post was unable to created at this time along with the reason why
 
         2. **Delete Posts**
             - **Description**: Allows user to delete posts from their map that they no longer want to see
@@ -103,10 +102,10 @@ It allows people to keep a history of all the places they have traveled to and a
                 3. User confirms that they want to delete the post
                 4. App removes the delete post as a pin on the map 
             - **Failure scenario(s)**:
-                - 1a. Post could not be fetched
-                    - 1a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
-                - 5a. Post could not be deleted
-                    - 5a1. A toast will appear telling the user that the post was unable to delete at this time along with the reason why
+                - a1. Post could not be fetched
+                    - a1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
+                - d1. Post could not be deleted
+                    - d1a. A toast will appear telling the user that the post was unable to delete at this time along with the reason why
 
         3. **Update Posts**:
             - **Description**: User is able to update an existing post by changing the picture or description
@@ -119,14 +118,14 @@ It allows people to keep a history of all the places they have traveled to and a
                 5. User confirms that they want to update the post
                 6. App shows the newly updated post on the map
             - **Failure scenario(s)**:
-                - 1a. Post could not be fetched
-                    - 1a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
-                - 3a. Could not access the user’s gallery
-                    - 3a1. Makes a request to the user to allow the app to access their photos
-                    - 3a2. If users agrees, the other steps will carry on as normal
-                    - 3a3. Otherwise a toast will appear telling the user that it cannot add a picture without gallery permissions
-                - 6a. Post could not be updated
-                    - 6a1. A toast will appear telling the user that the post was unable to updated at this time along with the reason why
+                - a1. Post could not be fetched
+                    - a1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
+                - c1. Could not access the user’s gallery
+                    - c1a. Makes a request to the user to allow the app to access their photos
+                    - c1b. If users agrees, the other steps will carry on as normal
+                    - c1c. Otherwise a toast will appear telling the user that it cannot add a picture without gallery permissions
+                - f1. Post could not be updated
+                    - f1a. A toast will appear telling the user that the post was unable to updated at this time along with the reason why
 
         4. **View Posts**:
             - **Description**: User is able to view an existing post
@@ -135,8 +134,8 @@ It allows people to keep a history of all the places they have traveled to and a
                 1. User clicks on the pin of post they want to view
                 2. User is able to see the post and the description of the post
             - **Failure scenario(s)**:
-                - 2a. Post could not be fetched
-                    - 2a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
+                - b1. Post could not be fetched
+                    - b1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
 
 4. **Search Locations**
     - **Overview**:
@@ -147,13 +146,13 @@ It allows people to keep a history of all the places they have traveled to and a
             - **Description**: Allows the user to search specific locations to see the posts from there
             - **Primary actor(s)**: User, Google Maps API
             - **Main success scenario**:
-              1. User goes to the search bar at the top of the screen
+                1. User goes to the search bar at the top of the screen
                 2. User inputs the location they want to see
                 3. User clicks on the Search icon
                 4. App displays all the available posts in that area on the map
             - **Failure scenario(s)**:
-                - 4a. Posts could not be fetched
-                    - 4a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
+                - d1. Posts could not be fetched
+                    - d1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
 
 5. **Get Location Recommendations**
     - **Overview**:
@@ -170,8 +169,8 @@ It allows people to keep a history of all the places they have traveled to and a
                 4. User clicks away from the popup
                 5. App navigates to the location on the map and shows posts from users who have been there
             - **Failure scenario(s)**:
-                - 5a. Posts could not be fetched
-                    - 5a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
+                - e1. Posts could not be fetched
+                    - e1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
 
 6. **Chat with users**
     - **Overview**:
@@ -189,12 +188,12 @@ It allows people to keep a history of all the places they have traveled to and a
                 3. App creates a new chat room with both users in it
                 4. User sends a message to the other user
             - **Failure scenario(s)**:
-                - 1a. Post could not be fetched
-                    - 1a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
-                - 3a. Unable to create a new chat room
-                    - 3a1. A toast will appear telling the user that a new chat room was unable to created at this time along with the reason why
-                - 4a. Unable to send message
-                    - 4a1. A toast will appear telling the user that a message was unable to sent at this time along with the reason why
+                - a1. Post could not be fetched
+                    - a1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
+                - c1. Unable to create a new chat room
+                    - c1a. A toast will appear telling the user that a new chat room was unable to created at this time along with the reason why
+                - d1. Unable to send message
+                    - d1a. A toast will appear telling the user that a message was unable to sent at this time along with the reason why
 
         2. **Start new chat from Chat activity**
             - **Description**: Allows user to start a new chat with a user from the Chat activity page
@@ -207,12 +206,12 @@ It allows people to keep a history of all the places they have traveled to and a
                 5. App creates a new chat room with both users in it
                 6. User sends a message to the other users
             - **Failure scenario(s)**:
-                - 3a. Unable to fetch users
-                    - 3a1. A toast will appear telling the user that a list of users was not able to retrieved at this time along with the reason why
-                - 5a. Unable to create a new chat room
-                    - 5a1. A toast will appear telling the user that a new chat room was unable to created at this time along with the reason why
-                - 6a. Unable to send message
-                    - 6a1. A toast will appear telling the user that a message was unable to sent at this time along with the reason why
+                - c1. Unable to fetch users
+                    - c1a. A toast will appear telling the user that a list of users was not able to retrieved at this time along with the reason why
+                - e1. Unable to create a new chat room
+                    - e1a. A toast will appear telling the user that a new chat room was unable to created at this time along with the reason why
+                - f1. Unable to send message
+                    - f1a. A toast will appear telling the user that a message was unable to sent at this time along with the reason why
 
 
         3. **View existing chat**:
@@ -224,10 +223,10 @@ It allows people to keep a history of all the places they have traveled to and a
                 3. User clicks on the chat they want to view
                 4. App opens that chat with all its messages
             - **Failure scenario(s)**:
-                - 2a. Unable to fetch chats
-                    - 2a1. A toast will appear telling the user that a list of chats was not able to retrieved at this time along with the reason why
-                - 4a. Unable to fetch messages
-                    - 4a1. A toast will appear telling the user that the chat’s messages were not able to retrieved at this time along with the reason why
+                - b1. Unable to fetch chats
+                    - b1a. A toast will appear telling the user that a list of chats was not able to retrieved at this time along with the reason why
+                - d1. Unable to fetch messages
+                    - d1a. A toast will appear telling the user that the chat’s messages were not able to retrieved at this time along with the reason why
 
 ### **3.4. Non-Functional Requirements**
 <a name="nfr1"></a>
