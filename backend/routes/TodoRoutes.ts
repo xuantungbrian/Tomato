@@ -37,12 +37,6 @@ export const TodoRoutes = [
     },
     {
         method: "get",
-        route: "/ip",
-        action: controller.getIP,
-        validation: []
-    },    
-    {
-        method: "get",
         route: "/serverlocaltime",
         action: controller.getServerLocalTime,
         validation: []

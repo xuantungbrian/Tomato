@@ -1,7 +1,6 @@
 {
   "name": "android-backend-v3",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "start": "ts-node index.ts",
@@ -24,5 +23,6 @@
     "dotenv": "^16.4.7",
     "dotenv-cli": "^8.0.0",
     "nodemon": "^3.1.9"
-  }
+  },
+  "description": ""
 }

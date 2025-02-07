@@ -32,21 +32,6 @@ export class TodoController {
         }
     }
 
-    async getIP(req: Request, res: Response, next: NextFunction) {
-        var os = require('os');
-        var ip = '0.0.0.0';
-        var ips = os.networkInterfaces();
-        Object
-            .keys(ips)
-            .forEach(function (_interface) {
-                ips[_interface]
-                    .forEach(function (_dev: { family: string; internal: any; address: string; }) {
-                        if (_dev.family === 'IPv4' && !_dev.internal) ip = _dev.address
-                    })
-            });
-        res.status(200).send(ip);
-    }
-
     async getServerLocalTime(req: Request, res: Response, next: NextFunction) {
         const now = new Date();
         const offset = -now.getTimezoneOffset();
