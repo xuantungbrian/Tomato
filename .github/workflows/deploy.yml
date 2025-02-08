@@ -41,8 +41,8 @@ jobs:
             npm install
             # Write secrets into .env
             cat > .env << EOF
-            PORT=$PROD_PORT
-            DB_URI=$PROD_DB_URI
+            PORT= ${{ vars.PROD_PORT }}
+            DB_URI= ${{ vars.PROD_DB_URI }}
             EOF
 
             # Give .env permissions
