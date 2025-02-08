@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Test
-        run: echo ${{ vars.EC2_HOST }}
+        run: echo ${{ vars.EC2_USER }}
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -24,7 +24,7 @@ jobs:
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ vars.EC2_HOST }}
+          username: ${{ vars.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           source: "."
           target: "/home/ubuntu/tomato/backend"
@@ -33,7 +33,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ vars.EC2_HOST }}
+          username: ${{ vars.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
             cd /home/ubuntu/tomato/backend
