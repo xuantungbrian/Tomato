@@ -27,7 +27,7 @@ jobs:
           username: ${{ vars.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           source: "."
-          target: "/home/ubuntu/tomato/backend"
+          target: "/home/ubuntu/tomato"
       
       - name: Rebuild and Deploy
         uses: appleboy/ssh-action@master
