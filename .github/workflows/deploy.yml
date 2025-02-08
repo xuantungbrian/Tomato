@@ -7,12 +7,16 @@ on:
       - dev
       - james_dev
     paths:
+      - '.github/workflows/deploy.yml'
       - 'backend/**'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Test
+        run: echo $EC2_USER
+
       - name: Checkout
         uses: actions/checkout@v3
       
