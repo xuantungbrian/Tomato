@@ -3,11 +3,16 @@ import { validationResult } from 'express-validator';
 import { TodoRoutes } from './routes/TodoRoutes';
 import { client } from "./services";
 import morgan from 'morgan'
+import { verifyGoogleToken } from './middleware/authMiddleware';
+import { config } from 'dotenv';
+
+config();
 
 const app = express();
 
 app.use(express.json());
 app.use(morgan('tiny'))
+app.use(verifyGoogleToken) // If anything happens, use the TodoRoutes below
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
