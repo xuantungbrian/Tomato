@@ -1,17 +1,18 @@
-import { UserService } from "../service/userService";
+import { UserService } from "../service/UserService";
+import { NextFunction } from "express"
 
 export class UserController {
     private userService: UserService;
 
     constructor() {
-        const userService = new UserService();
+        this.userService = new UserService();
     }
 
     async createUser(req: Request, res: Response, next: NextFunction) {
-        return userService.createUser();
+        return this.userService.createUser();
     }
 
     async getUser(req: Request, res: Response, next: NextFunction) {
-        return userService.getUser();
+        return this.userService.getUser();
     }
 }

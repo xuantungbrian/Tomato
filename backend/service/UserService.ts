@@ -3,11 +3,11 @@ export class UserService {
         //Database connection
     }
 
-    async createUser(req: Request, res: Response, next: NextFunction) {
+    async createUser() {
         // Database call
     }
 
-    async getUser(req: Request, res: Response, next: NextFunction) {
+    async getUser() {
         // Database call
     }
 }
