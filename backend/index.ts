@@ -3,7 +3,7 @@ import { validationResult } from 'express-validator';
 import { TodoRoutes } from './routes/TodoRoutes';
 import { client } from "./services";
 import morgan from 'morgan'
-import { verifyGoogleToken } from './middleware/authMiddleware';
+import { verifyGoogleToken } from './middleware/verifyGoogleToken';
 import { config } from 'dotenv';
 
 config();
