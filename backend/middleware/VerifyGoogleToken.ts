@@ -8,7 +8,7 @@ const verifyGoogleToken = async (req: Request, res: Response, next: NextFunction
         const token = req.headers.authorization
 
         if (!token) {
-            res.status(401).json({ message: 'No token provided' }); // Need to change this
+            return await res.status(401).json({ message: 'No token provided' });
         }
 
         const ticket = await client.verifyIdToken({
@@ -17,7 +17,7 @@ const verifyGoogleToken = async (req: Request, res: Response, next: NextFunction
         });
 
         const payload = ticket.getPayload();
-        req.user = {
+        (req as any).user = {
             googleId: payload.sub,
             email: payload.email,
             name: payload.name,
@@ -28,7 +28,7 @@ const verifyGoogleToken = async (req: Request, res: Response, next: NextFunction
         next();
     } catch (error) {
         console.error('Google token verification failed:', error);
-        res.status(403).json({ message: 'Invalid token' }); // Need to change this too
+        res.status(403).json({ message: 'Invalid token' });
     }
 };
 
