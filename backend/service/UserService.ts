@@ -3,8 +3,8 @@ export class UserService {
         //Database connection
     }
 
-    async createUser() {
-        // Database call
+    async createUser(googleId, name) {
+        
     }
 
     async getUser() {

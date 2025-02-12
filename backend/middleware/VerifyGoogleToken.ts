@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
+import { UserService } from "../service/UserService"
 
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const userService = new UserService();
 
 const verifyGoogleToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -23,7 +25,8 @@ const verifyGoogleToken = async (req: Request, res: Response, next: NextFunction
             name: payload.name,
             picture: payload.picture,
         };
-        // TODO: Add user to database if not exists
+        
+        await userService.createUser(payload.sub, payload.name,)
 
         next();
     } catch (error) {

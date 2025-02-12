@@ -9,7 +9,7 @@ export class UserController {
     }
 
     async createUser(req: Request, res: Response, next: NextFunction) {
-        return this.userService.createUser();
+        return this.userService.createUser(req.user.googleId, req.user.name);
     }
 
     async getUser(req: Request, res: Response, next: NextFunction) {
