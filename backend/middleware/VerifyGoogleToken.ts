@@ -1,12 +1,14 @@
+import { NextFunction } from "express";
+
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const verifyGoogleToken = async (req, res, next) => {
+const verifyGoogleToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const token = req.header('Authorization');
+        const token = req.headers.get('authorization');
 
         if (!token) {
-            return res.status(401).json({ message: 'No token provided' });
+            return res.status(401).json({ message: 'No token provided' }); // Need to change this
         }
 
         const ticket = await client.verifyIdToken({
@@ -26,8 +28,8 @@ const verifyGoogleToken = async (req, res, next) => {
         next();
     } catch (error) {
         console.error('Google token verification failed:', error);
-        res.status(403).json({ message: 'Invalid token' });
+        res.status(403).json({ message: 'Invalid token' }); // Need to change this too
     }
 };
 
-module.exports = verifyGoogleToken;
+export default verifyGoogleToken;
