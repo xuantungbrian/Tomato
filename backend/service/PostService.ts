@@ -1,23 +1,24 @@
 import mongoose from "mongoose";
 import { PostModel } from "../model/PostModel";
 
+interface Post {
+    latitude: number,
+    longtitude: number,
+    fileData: Buffer, 
+    fileType: string, 
+    userId: string,
+    date: Date,
+    note: string,
+}
+
 export class PostService {
     async getPostById(postId: string) {
         return PostModel.findOne({ _id: new mongoose.Types.ObjectId(postId) })
     }
 
-    async createPost(latitude: number, longitude: number, fileData: Buffer, fileType: string, userId: string, note?: string) {
+    async createPost(post: Post) {
         try {
-            const newPost = new PostModel({
-                latitude,
-                longitude,
-                fileData,
-                fileType,
-                userId,
-                date: new Date(),
-                note: note || "",
-            });
-    
+            const newPost = new PostModel(post);
             await newPost.save();
             return newPost;
         } catch (error) {
@@ -27,19 +28,9 @@ export class PostService {
     }
     
 
-    async updatePost(latitude: number, longitude: number, fileData: Buffer, fileType: string, userId: string, postId: string, note?: string)  {
+    async updatePost(postId: string, post: Post)  {
         try {
-            const updatePost = new PostModel({
-                latitude,
-                longitude,
-                fileData,
-                fileType,
-                userId: new mongoose.Types.ObjectId(userId),
-                date: new Date(),
-                note: note || "",
-            });
-    
-            await PostModel.findByIdAndUpdate(new mongoose.Types.ObjectId(postId), updatePost)
+            await PostModel.findByIdAndUpdate(new mongoose.Types.ObjectId(postId), post)
         } catch (error) {
             console.error("Error updating post:", error);
             throw new Error("Failed to update post");

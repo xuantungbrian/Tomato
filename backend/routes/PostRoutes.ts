@@ -5,7 +5,7 @@ import { UserController } from "../controllers/UserController";
 
 const postController = new PostController();
 
-export const TodoRoutes = [
+export const PostRoutes = [
     {
         method: "get",
         route: "/posts",            

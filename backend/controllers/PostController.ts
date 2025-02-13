@@ -9,23 +9,28 @@ export class PostController {
     }
 
     async createPost(req: Request, res: Response, next: NextFunction) {
-        return this.postService.createPost();
+        let post = (req as any).body.post
+        return this.postService.createPost(post);
     }
 
     async getPosts(req: Request, res: Response, next: NextFunction) {
-        return this.postService.getPosts();
+        const postId = (req as any).param.id
+        return this.postService.getPosts(postId);
     }
 
     async getPostById(req: Request, res: Response, next: NextFunction) {
-        const postId = (req as any).param.postId
+        const postId = (req as any).param.id
         return this.postService.getPostById(postId);
     }
 
     async updatePost(req: Request, res: Response, next: NextFunction) {
-        return this.postService.updatePost();
+        const postId = (req as any).param.id
+        const updatedPost = (req as any).body.post
+        return this.postService.updatePost(postId, updatedPost);
     }
 
     async deletePost(req: Request, res: Response, next: NextFunction) {
-        return this.postService.deletePost();
+        const postId = (req as any).param.id
+        return this.postService.deletePost(postId);
     }
 }
