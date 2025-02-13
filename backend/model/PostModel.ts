@@ -12,4 +12,4 @@ const PostModelSchema = new Schema({
   note: String,
 });
 
-export const PostModel = mongoose.model("PostModel", PostModelSchema); // Something about adding interfaces right here, might need to structure interfaces somehow
+export const PostModel = mongoose.model("Post", PostModelSchema); // Something about adding interfaces right here, might need to structure interfaces somehow

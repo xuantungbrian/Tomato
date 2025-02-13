@@ -7,4 +7,4 @@ const UserModelSchema = new Schema({
   name: String,
 });
 
-export const UserModel = mongoose.model("UserModel", UserModelSchema);
+export const UserModel = mongoose.model("User", UserModelSchema);

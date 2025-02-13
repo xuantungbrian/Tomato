@@ -1,7 +1,5 @@
-import { body, param } from "express-validator";
-import { TodoController } from "../controllers/TodoController";
+
 import { PostController } from "../controllers/PostController";
-import { UserController } from "../controllers/UserController";
 
 const postController = new PostController();
 
