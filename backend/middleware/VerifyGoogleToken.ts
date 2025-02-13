@@ -2,7 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { UserService } from "../service/UserService"
 
 const { OAuth2Client } = require('google-auth-library');
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const clientId = process.env.WEB_CLIENT_ID
+const client = new OAuth2Client(clientId);
 const userService = new UserService();
 
 const verifyGoogleToken = async (req: Request, res: Response, next: NextFunction) => {
@@ -10,12 +11,13 @@ const verifyGoogleToken = async (req: Request, res: Response, next: NextFunction
         const token = req.headers.authorization
 
         if (!token) {
-            return await res.status(401).json({ message: 'No token provided' });
+            res.status(401).json({ message: 'No token provided' });
+            return
         }
 
         const ticket = await client.verifyIdToken({
             idToken: token.replace('Bearer ', ''),
-            audience: process.env.GOOGLE_CLIENT_ID,
+            audience: clientId,
         });
 
         const payload = ticket.getPayload();
@@ -26,7 +28,7 @@ const verifyGoogleToken = async (req: Request, res: Response, next: NextFunction
             picture: payload.picture,
         };
         
-        await userService.createUser(payload.sub, payload.name,)
+        await userService.createUser(payload.sub, payload.name)
 
         next();
     } catch (error) {

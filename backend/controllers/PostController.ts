@@ -13,10 +13,12 @@ export class PostController {
     }
 
     async getPosts(req: Request, res: Response, next: NextFunction) {
-        return this.postService.getPost();
+        return this.postService.getPosts();
     }
 
     async getPostById(req: Request, res: Response, next: NextFunction) {
+        const postId = (req as any).param.postId
+        return this.postService.getPostById(postId);
     }
 
     async updatePost(req: Request, res: Response, next: NextFunction) {

@@ -1,7 +1,7 @@
 import express, {NextFunction, Request, Response} from 'express';
 import { validationResult } from 'express-validator';
 import { TodoRoutes } from './routes/TodoRoutes';
-import { client } from "./services";
+import connectDB  from "./services";
 import morgan from 'morgan'
 import verifyGoogleToken from './middleware/VerifyGoogleToken';
 import { config } from 'dotenv';
@@ -12,7 +12,7 @@ const app = express();
 
 app.use(express.json());
 app.use(morgan('tiny'))
-app.use(verifyGoogleToken) // If anything happens, use the TodoRoutes below
+app.use(verifyGoogleToken)
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
@@ -48,13 +48,10 @@ app.get('/', (req: Request, res: Response) => {
 
 const PORT = process.env.PORT || 3000;
 
-client.connect().then(() => {
-    console.log('Connected to MongoDB');
-
+connectDB().then(() => {
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });
 }).catch((err) => {
     console.error(err);
-    client.close();
 })
