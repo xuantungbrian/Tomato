@@ -1,0 +1,7 @@
+SERVER_=localhost
+SERVER_PORT=3000
+
+MONGODB_URI=mongodb://127.0.0.1:27017/
+MONGODB_UPLOAD_BUCKET=uploads
+
+WEB_CLIENT_ID=<same web application client id for frontend)
