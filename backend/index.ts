@@ -5,6 +5,7 @@ import connectDB  from "./services";
 import morgan from 'morgan'
 import verifyGoogleToken from './middleware/VerifyGoogleToken';
 import { config } from 'dotenv';
+import { ChatRoutes } from './routes/ChatRoutes';
 
 config();
 
@@ -23,6 +24,30 @@ app.get('/', (req: Request, res: Response) => {
 // }
 
 PostRoutes.forEach((route) => {
+    (app as any)[route.method](
+        route.route,
+        route.validation,
+        async (req: Request, res: Response, next: NextFunction) => {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                /* If there are validation errors, send a response with the error messages */
+                return res.status(400).send({ errors: errors.array() });
+            }
+            try {
+                await route.action(
+                    req as any,
+                    res as any,
+                    next,
+                );
+            } catch (err) {
+                console.log(err)
+                return res.sendStatus(500); // Don't expose internal server workings
+            }
+        },
+    );
+});
+
+ChatRoutes.forEach((route) => {
     (app as any)[route.method](
         route.route,
         route.validation,

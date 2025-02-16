@@ -1,4 +1,3 @@
-
 import { PostController } from "../controllers/PostController";
 
 const postController = new PostController();
