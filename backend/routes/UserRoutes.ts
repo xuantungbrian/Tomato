@@ -10,5 +10,5 @@ export const UserRoutes = [
         route: "/user/auth",    
         action: userController.handleGoogleSignIn,
         validation: []
-    }
+    },
 ]

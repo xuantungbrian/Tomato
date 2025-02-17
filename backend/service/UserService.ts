@@ -48,8 +48,10 @@ export class UserService {
         }
 
         // Generate JWT
+        console.log("SECRET: ", JWT_SECRET)
         const jwtToken = jwt.sign({ id: payload.sub, name: payload.name }, JWT_SECRET, {
-            expiresIn: "7d",
+            expiresIn: "999d",
+            algorithm: "HS256"
         });
 
         return { token: jwtToken, user };

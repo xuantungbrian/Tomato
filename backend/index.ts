@@ -7,6 +7,7 @@ import { PostRoutes } from './routes/PostRoutes';
 import connectDB  from "./db";
 import morgan from 'morgan'
 import verifyGoogleToken from './middleware/VerifyGoogleToken';
+import verifyToken from './middleware/verifyToken'
 import UploadFile from './middleware/UploadFile';
 import { FileRoutes } from './routes/FileRoutes';
 import { UserRoutes } from './routes/UserRoutes';
@@ -15,7 +16,6 @@ const app = express();
 
 app.use(express.json());
 app.use(morgan('tiny'))
-// app.use(verifyGoogleToken)
 app.use(UploadFile) // TODO: Add this for one route only
 // TODO: Cleanup as any
 
@@ -25,8 +25,11 @@ app.get('/', (req: Request, res: Response) => {
 
 const allRoutes = [...PostRoutes, ...FileRoutes, ...UserRoutes]
 allRoutes.forEach((route) => {
+    const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
+
     (app as any)[route.method](
         route.route,
+        ...middlewares,
         route.validation,
         async (req: express.Request, res: Response, next: NextFunction) => {
             const errors = validationResult(req);

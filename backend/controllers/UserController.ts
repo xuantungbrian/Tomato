@@ -18,6 +18,7 @@ export class UserController {
         return this.userService.createUser(id, name);
     }
 
+
     async getUser(req: Request, res: Response, next: NextFunction) { // TODO: Likely not be used so I have not tested this, cleanup later
         return this.userService.getUser((req as any).user.id);
     }
@@ -30,10 +31,8 @@ export class UserController {
                 return res.status(400).json({message: "No Token provided"});
             }
 
-            console.log("TOKEN: ", token)
             const result = await this.userService.signInWithGoogle(token);
-            console.log("RESULT: ", result)
-            return res.status(200).json({result: result})
+            return res.status(200).json(result)
 
         }
         catch(err){
