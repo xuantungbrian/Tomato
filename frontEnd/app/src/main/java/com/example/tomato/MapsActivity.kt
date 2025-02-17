@@ -1,5 +1,6 @@
 package com.example.tomato
 
+import JwtManager
 import android.content.ContentValues.TAG
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,7 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.lifecycle.lifecycleScope
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -28,11 +30,27 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.android.libraries.places.api.Places
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.gson.Gson
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import java.io.IOException
 import java.security.MessageDigest
 import java.util.UUID
+
+
+data class SignInResponse(val token: String)
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -108,8 +126,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         // Use googleIdTokenCredential and extract id to validate and
                         // authenticate on your server.
                         val googleIdTokenCredential = GoogleIdTokenCredential
-                            .createFrom(credential.data)
-                        Log.d(TAG, "Received Google ID token: $googleIdTokenCredential")
+                            .createFrom(credential.data).idToken
+                        sendSignInRequest(googleIdTokenCredential)
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Received an invalid google id token response", e)
                     }
@@ -123,6 +141,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
+
+    private fun sendSignInRequest(token: String) {
+        Log.d(TAG, "sendPostRequest: $token")
+        // JSON string to send in the POST request
+        val json = """{"token": "$token"}"""
+
+        lifecycleScope.launch {
+            val response = HTTPRequest.sendPostRequest("http://10.0.2.2:3000/user/auth", json)
+            Log.d(TAG, "sendPostRequest: $response")
+        }
+    }
+
 
     private fun generateHashedNonce(): String {
         val rawNonce = UUID.randomUUID().toString()
