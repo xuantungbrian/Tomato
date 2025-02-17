@@ -9,12 +9,13 @@ import morgan from 'morgan'
 import verifyGoogleToken from './middleware/VerifyGoogleToken';
 import UploadFile from './middleware/UploadFile';
 import { FileRoutes } from './routes/FileRoutes';
+import { UserRoutes } from './routes/UserRoutes';
 
 const app = express();
 
 app.use(express.json());
 app.use(morgan('tiny'))
-app.use(verifyGoogleToken)
+// app.use(verifyGoogleToken)
 app.use(UploadFile) // TODO: Add this for one route only
 // TODO: Cleanup as any
 
@@ -22,12 +23,12 @@ app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
 });
 
-const allRoutes = [...PostRoutes, ...FileRoutes]
+const allRoutes = [...PostRoutes, ...FileRoutes, ...UserRoutes]
 allRoutes.forEach((route) => {
     (app as any)[route.method](
         route.route,
         route.validation,
-        async (req: Request, res: Response, next: NextFunction) => {
+        async (req: express.Request, res: Response, next: NextFunction) => {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 /* If there are validation errors, send a response with the error messages */
@@ -43,12 +44,13 @@ allRoutes.forEach((route) => {
     );
 });
 
-const PORT = process.env.PORT || 3000
+const PORT = Number(process.env.PORT) || 3000
 
 connectDB().then(() => {
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0' as any, () => {
         console.log(`Server is running on port ${PORT}`);
-    });
+      });
+
 }).catch((err) => {
     console.error(err);
 })
