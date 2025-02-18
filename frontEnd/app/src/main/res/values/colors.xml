@@ -3,6 +3,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="tomatoRed">#EA4750</color>
+    <color name="lightTomatoRed">#EF777D</color>
+    <color name="darkTomatoRed">#A2212C</color>
     <color name="tomatoGreen">#4CAF50</color>
     <color name="gray">#F0EEEE</color>
     <color name="darkGray">#BDBCBC</color>

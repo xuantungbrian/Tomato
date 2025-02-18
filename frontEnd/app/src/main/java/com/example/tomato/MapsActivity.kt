@@ -105,13 +105,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        // Event listener to album button
-        findViewById<LinearLayout>(R.id.bottom_navbar_album_button).setOnClickListener {
-            lifecycleScope.launch {
-                val response = HTTPRequest.sendGetRequest("http://10.0.2.2:3000/test2", this@MapsActivity)
-                Log.d(TAG, "onCreate: $response")
-            }
-
+        // Event listener to profile button
+        findViewById<LinearLayout>(R.id.bottom_navbar_profile_button).setOnClickListener {
+            val intent = Intent(this, ProfileActivity::class.java)
+            startActivity(intent)
         }
 
     }

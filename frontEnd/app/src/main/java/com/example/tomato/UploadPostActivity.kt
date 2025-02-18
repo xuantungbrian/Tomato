@@ -187,6 +187,8 @@ class UploadPostActivity : AppCompatActivity() {
                 body, this@UploadPostActivity)
             Log.d(TAG, "Response: $response")
             Log.d(TAG, "JSON Body: $body")
+
+            //TODO: Handle response
         }
     }
     /**
@@ -256,7 +258,6 @@ class UploadPostActivity : AppCompatActivity() {
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         imageAdapter = ImageAdapter(imageUris, ::updateViewSwitch)
         recyclerView.adapter = imageAdapter
-
 
     }
 
@@ -343,7 +344,7 @@ class UploadPostActivity : AppCompatActivity() {
 }
 
 /**
- * Manages the uploaded images of the RecyclerView (the horizontal scrollable view of uploaded images).
+ * Manages the uploaded imageps of the RecyclerView (the horizontal scrollable view of uploaded images).
  */
 class ImageAdapter(private val imageUris: MutableList<Uri>, private val updateUI: () -> Unit) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
