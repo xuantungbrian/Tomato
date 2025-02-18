@@ -189,6 +189,12 @@ class UploadPostActivity : AppCompatActivity() {
             Log.d(TAG, "JSON Body: $body")
 
             //TODO: Handle response
+            if(response != null){
+                Toast.makeText(this@UploadPostActivity, "Post uploaded successfully", Toast.LENGTH_SHORT).show()
+            }
+            else{
+                Toast.makeText(this@UploadPostActivity, "Post upload failed", Toast.LENGTH_SHORT).show()
+            }
         }
     }
     /**
