@@ -8,7 +8,7 @@ interface ImageData{
 
 interface Post {
     latitude: number,
-    longtitude: number,
+    longitude: number,
     images: ImageData[], 
     userId: string,
     date: Date,
@@ -59,7 +59,7 @@ export class PostService {
 
     async getPosts(userId: string) {
         try {
-            return PostModel.find({ userId: new mongoose.Types.ObjectId(userId) })
+            return PostModel.find({ userId: userId})
         } catch(error) {
             console.log("Error getting all posts of this user", error)
             return null

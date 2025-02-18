@@ -9,7 +9,7 @@ interface ImageData {
 
 const PostModelSchema = new Schema({
   latitude: Number,
-  longtitude: Number,
+  longitude: Number,
   userId: String,
   images: [{
     fileData: Buffer,
