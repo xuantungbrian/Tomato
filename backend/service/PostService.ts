@@ -1,14 +1,19 @@
 import mongoose from "mongoose";
 import { PostModel } from "../model/PostModel";
 
+interface ImageData{
+    fileData: Buffer,
+    fileType: string,
+}
+
 interface Post {
     latitude: number,
-    longtitude: number,
-    fileData: Buffer, 
-    fileType: string, 
+    longitude: number,
+    images: ImageData[], 
     userId: string,
     date: Date,
     note: string,
+    private: boolean,
 }
 
 export class PostService {
@@ -54,7 +59,7 @@ export class PostService {
 
     async getPosts(userId: string) {
         try {
-            return PostModel.find({ userId: new mongoose.Types.ObjectId(userId) })
+            return PostModel.find({ userId: userId})
         } catch(error) {
             console.log("Error getting all posts of this user", error)
             return null

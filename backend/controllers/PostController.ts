@@ -1,6 +1,10 @@
 import { FileService } from "../service/FileService";
 import { PostService } from "../service/PostService";
 import { Request, Response, NextFunction } from "express";
+interface ImageData {
+    fileData: Buffer;
+    fileType: string;
+  }
 
 export class PostController {
     private postService: PostService;
@@ -12,8 +16,13 @@ export class PostController {
     }
 
     createPost = async (req: Request, res: Response, next: NextFunction) => {
-        const post = req.body
-        post.userId = (req as any).user.id
+        const post = req.body;
+        post.userId = (req as any).user.id;
+        post.images = (post.images as string[]).map((str: string): ImageData => ({
+            fileData: Buffer.from(str, 'base64'),
+            fileType: 'image/jpeg' 
+          }));
+
         res.json(await this.postService.createPost(post))
     }
 

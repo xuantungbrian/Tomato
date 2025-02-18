@@ -1,4 +1,3 @@
-
 import { PostController } from "../controllers/PostController";
 
 const postController = new PostController();
@@ -8,7 +7,8 @@ export const PostRoutes = [
         method: "get",
         route: "/posts",            
         action: postController.getPosts,
-        validation: []
+        validation: [],
+        protected: true
     },
     {
         method: "get",
@@ -20,7 +20,8 @@ export const PostRoutes = [
         method: "post",
         route: "/posts",             
         action: postController.createPost,
-        validation: []
+        validation: [],
+        protected: true
     },
     {
         method: "put",
