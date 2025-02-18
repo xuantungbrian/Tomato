@@ -5,37 +5,37 @@ const chatController = new ChatController();
 export const ChatRoutes = [
     {
         method: "get",
-        route: "/:usr_id/chats",            
+        route: "/chats/:usr_id",            
         action: chatController.getChats,
         validation: []
     },
     {
         method: "get",
-        route: "/:usr_id/chats/:id",    
+        route: "/chats/:usr_id/messages/:id",    
         action: chatController.getChatMessages,
         validation: []
     },
     {
         method: "post",
-        route: "/:usr_id/chats",             
+        route: "/chats/:usr_id",             
         action: chatController.createChat,
         validation: []
     },
     {
         method: "put",
-        route: "/:usr_id/chats/",          
+        route: "/chats/:usr_id",          
         action: chatController.addMessage,
         validation: []
     },
     {
         method: "delete",
-        route: "/:usr_id/chats/:id",          
+        route: "/chats/:usr_id/messages/:id",          
         action: chatController.deleteChat,
         validation: []
     },
     {
         method: "delete",
-        route: "/:usr_id/chats/:id/:message_id",          
+        route: "/chats/:usr_id/messages/:id/:message_id",   
         action: chatController.deleteMessage,
         validation: []
     }
