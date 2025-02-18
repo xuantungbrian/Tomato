@@ -20,7 +20,8 @@ export const PostRoutes = [
         method: "post",
         route: "/posts",             
         action: postController.createPost,
-        validation: []
+        validation: [],
+        protected: true
     },
     {
         method: "put",

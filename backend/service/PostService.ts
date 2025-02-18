@@ -1,14 +1,19 @@
 import mongoose from "mongoose";
 import { PostModel } from "../model/PostModel";
 
+interface ImageData{
+    fileData: Buffer,
+    fileType: string,
+}
+
 interface Post {
     latitude: number,
     longtitude: number,
-    fileData: Buffer, 
-    fileType: string, 
+    images: ImageData[], 
     userId: string,
     date: Date,
     note: string,
+    private: boolean,
 }
 
 export class PostService {

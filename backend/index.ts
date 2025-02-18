@@ -6,7 +6,6 @@ import { validationResult } from 'express-validator';
 import { PostRoutes } from './routes/PostRoutes';
 import connectDB  from "./db";
 import morgan from 'morgan'
-import verifyGoogleToken from './middleware/VerifyGoogleToken';
 import verifyToken from './middleware/verifyToken'
 import UploadFile from './middleware/UploadFile';
 import { FileRoutes } from './routes/FileRoutes';
@@ -14,9 +13,9 @@ import { UserRoutes } from './routes/UserRoutes';
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json({limit: '100mb'}));
 app.use(morgan('tiny'))
-app.use(UploadFile) // TODO: Add this for one route only
+// app.use(UploadFile) // TODO: Add this for one route only
 // TODO: Cleanup as any
 
 app.get('/', (req: Request, res: Response) => {

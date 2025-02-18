@@ -43,12 +43,13 @@ export class UserService {
 
         // Check if user exists, otherwise create a new one
         let user = await this.getUser(payload.sub);
+        console.log("USER: ", user)
         if (!user) {
             user = await this.createUser(payload.sub, payload.name);
+            console.log("CREATED NEW USER")
         }
 
         // Generate JWT
-        console.log("SECRET: ", JWT_SECRET)
         const jwtToken = jwt.sign({ id: payload.sub, name: payload.name }, JWT_SECRET, {
             expiresIn: "999d",
             algorithm: "HS256"
