@@ -9,7 +9,7 @@ export class FileService {
     async createFile(id: string, postId: string) {
         try {
             if (!this.bucket) {
-                this.bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+                this.bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db as any, {
                     bucketName: process.env.MONGODB_UPLOAD_BUCKET
                 });
             }
@@ -24,7 +24,7 @@ export class FileService {
     async getFile(id: string) {
         try {
             if (!this.bucket) {
-                this.bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+                this.bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db as any, {
                     bucketName: process.env.MONGODB_UPLOAD_BUCKET
                 });
             }
@@ -38,7 +38,7 @@ export class FileService {
     async getFileInPost(postId: string) {
         try {
             if (!this.bucket) {
-                this.bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+                this.bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db as any, {
                     bucketName: process.env.MONGODB_UPLOAD_BUCKET
                 });
             }
