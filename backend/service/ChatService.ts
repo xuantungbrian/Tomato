@@ -1,35 +1,70 @@
+import mongoose from "mongoose"
 import { ChatModel } from "../model/ChatModel"
 import { MessageModel } from "../model/MessageModel"
 
 export class ChatService {
-    async createChat(_id: string, member_1: string, member_2: string) {
-        const newChat = new ChatModel({_id, member_1, member_2})
-        await newChat.save()
+    async createChat( member_1: string, member_2: string ) {
+        try {
+            const newChat = new ChatModel({ member_1, member_2})
+            await newChat.save()
+            return newChat
+        } catch(err) {
+            console.error("Error creating chat: " + err)
+            return null
+        }
     }
 
-    async getChatMessages(_id: string) {
-        const messages = await MessageModel.find({ chatroom_id: _id })
-        return messages
+    async getChatMessages(id: string) {
+        try {
+            const messages = await MessageModel.find({ chatroom_id: new mongoose.Types.ObjectId(id) })
+            return messages
+        } catch(err) {
+            console.error("Error getting chat messages: " + err)
+            return null
+        }
     }
 
-    async getChats(_id: string) {
-        const chats = await ChatModel.find().or([{ member_1 : _id}, {member_2: _id}])
-        return chats
+    async getChats(id: string) {
+        try {
+            const chats = await ChatModel.find().or([{ member_1 : new mongoose.Types.ObjectId(id)}, {member_2: new mongoose.Types.ObjectId(id)}])
+            return chats
+        } catch(err) {
+            console.error("Error getting chats: " + err)
+            return null
+        }
     }
 
     async deleteChat(id: string) {
-        await MessageModel.deleteMany({ chatroom_id: id })
-        const chat = await ChatModel.findById(id)
-        await chat?.deleteOne()
+        try {
+            await MessageModel.deleteMany({ chatroom_id: new mongoose.Types.ObjectId(id) })
+            const chat = await ChatModel.findById(id)
+            await chat?.deleteOne()
+            return chat
+        } catch(err) {
+            console.error("Error deleting chat: " + err)
+            return null
+        }
     }
 
-    async addMessage(id: string, chatroom_id: string, sender: string, message: string) {
-        const newMessage = new MessageModel({_id: id, chatroom_id: chatroom_id, sender: sender, message: message})
-        await newMessage.save()
+    async addMessage(chatroom_id: string, sender: string, message: string) {
+        try {    
+            const newMessage = new MessageModel({ chatroom_id: chatroom_id, sender: sender, message: message })
+            await newMessage.save()
+            return newMessage
+        } catch(err) {
+            console.error("Error adding message: " + err)
+            return null
+        }
     }
 
     async deleteMessage(id: string) {
-        const message = await MessageModel.findById(id)
-        await message?.deleteOne()
+        try {
+            const message = await MessageModel.findById(id)
+            await message?.deleteOne()
+            return message
+        } catch(err) {
+            console.error("Error deleting message: " + err)
+            return null
+        }
     }
 }

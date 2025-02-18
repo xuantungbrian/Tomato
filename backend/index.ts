@@ -1,6 +1,3 @@
-import { config } from 'dotenv';
-config();
-
 import express, {NextFunction, Request, Response} from 'express';
 import { validationResult } from 'express-validator';
 import { PostRoutes } from './routes/PostRoutes';
@@ -10,6 +7,8 @@ import verifyGoogleToken from './middleware/VerifyGoogleToken';
 import UploadFile from './middleware/UploadFile';
 import { FileRoutes } from './routes/FileRoutes';
 import { ChatRoutes } from './routes/ChatRoutes';
+import { config } from 'dotenv';
+config();
 
 const app = express();
 
@@ -28,7 +27,7 @@ allRoutes.forEach((route) => {
     (app as any)[route.method](
         route.route,
         route.validation,
-        async (req: Request, res: Response, next: NextFunction) => {
+        async (req: express.Request, res: Response, next: NextFunction) => {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 /* If there are validation errors, send a response with the error messages */
