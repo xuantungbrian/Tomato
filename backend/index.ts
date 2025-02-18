@@ -1,6 +1,3 @@
-import { config } from 'dotenv';
-config();
-
 import express, {NextFunction, Request, Response} from 'express';
 import { validationResult } from 'express-validator';
 import { PostRoutes } from './routes/PostRoutes';
@@ -10,6 +7,9 @@ import verifyToken from './middleware/verifyToken'
 import UploadFile from './middleware/UploadFile';
 import { FileRoutes } from './routes/FileRoutes';
 import { UserRoutes } from './routes/UserRoutes';
+import { ChatRoutes } from './routes/ChatRoutes';
+import { config } from 'dotenv';
+config();
 
 const app = express();
 
@@ -22,7 +22,7 @@ app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
 });
 
-const allRoutes = [...PostRoutes, ...FileRoutes, ...UserRoutes]
+const allRoutes = [...PostRoutes, ...FileRoutes, ...UserRoutes, ...ChatRoutes]
 allRoutes.forEach((route) => {
     const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
 

@@ -2,10 +2,7 @@ import jwt from "jsonwebtoken";
 import { UserModel } from "../model/UserModel"
 import { OAuth2Client } from "google-auth-library";
 
-const clientId = process.env.WEB_CLIENT_ID
-const client = new OAuth2Client(clientId);
-const JWT_SECRET = process.env.JWT_SECRET!;
-
+const client = new OAuth2Client(process.env.WEB_CLIENT_ID);
 
 export class UserService {
 
@@ -50,7 +47,7 @@ export class UserService {
         }
 
         // Generate JWT
-        const jwtToken = jwt.sign({ id: payload.sub, name: payload.name }, JWT_SECRET, {
+        const jwtToken = jwt.sign({ id: payload.sub, name: payload.name }, process.env.JWT_SECRET!, {
             expiresIn: "999d",
             algorithm: "HS256"
         });

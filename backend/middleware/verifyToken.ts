@@ -1,10 +1,10 @@
 import jwt, { decode } from 'jsonwebtoken'
 import { NextFunction, Request, Response } from "express";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
 
 const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.header("Authorization")?.replace("Bearer ", "");
+    const JWT_SECRET = process.env.JWT_SECRET!
 
     if (!token) {
         console.log("token doesn't exist")
