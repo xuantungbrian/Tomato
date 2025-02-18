@@ -1,5 +1,6 @@
 package com.example.tomato
 
+import android.util.Base64
 import android.Manifest
 import android.app.DatePickerDialog
 import android.content.Intent
@@ -12,6 +13,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -30,7 +32,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
+import java.nio.ByteBuffer
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -39,13 +46,17 @@ class UploadPostActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var imageAdapter: ImageAdapter
     private lateinit var uploadViewSwitch: ViewSwitcher
+    private var postVisibility: String = ""
 
-    /** Variables that will be sent to the backend **/
+    /** Variables that are related to post's component **/
     private val imageUris = mutableListOf<Uri>()
     private var postLatitude: Double = 0.0
     private var postLongitude: Double = 0.0
-    private var postVisibility: String = ""
     private var postDate: String = ""
+
+    companion object {
+        private const val TAG = "UploadPostActivity"
+    }
 
     // Register post Visibility launcher (the form to obtain the post's visibility)
     private val postVisibilityActivityLauncher = registerForActivityResult(
@@ -127,6 +138,55 @@ class UploadPostActivity : AppCompatActivity() {
 
             // Show the DatePickerDialog
             datePickerDialog.show()
+        }
+
+        // Add click listener to upload post
+        val uploadPostButton = findViewById<Button>(R.id.upload_post_button)
+        uploadPostButton.setOnClickListener {
+            uploadPost()
+        }
+    }
+
+    /**
+     * Send a POST request to the server to upload post.
+     * TODO: ADD SOME BASIC CHECKS (EG: NO EMPTY FIELDS) BEFORE SENDING
+     */
+    private fun uploadPost(){
+        // Convert ImageURIs to Bytes (Raw data)
+        val imageBytes: List<ByteArray> =  imageUris.mapNotNull { uri ->
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                inputStream.readBytes()
+            }
+        }
+
+        // Convert the Bytes to Base64 encoded strings
+        val base64Strings: List<String> = imageBytes.map { bytes ->
+            Base64.encodeToString(bytes, Base64.NO_WRAP)
+        }
+
+        // JSON-ify the base64strings array so it can be parsed easily on the server
+        val imageArray = JSONArray(base64Strings)
+
+
+        val note = findViewById<TextView>(R.id.noteText).text.toString()
+        val postIsPrivate = postVisibility == "Private"
+        val dateFormatter = SimpleDateFormat("dd/MM/yyyy")
+        val date: Date? = dateFormatter.parse(postDate)
+
+        val body = JSONObject()
+        .put("latitude", postLatitude)
+        .put("longitude", postLongitude)
+        .put("images", imageArray)
+        .put("date", date)
+        .put("note", note)
+        .put("private", postIsPrivate)
+        .toString()
+
+        lifecycleScope.launch {
+            val response = HTTPRequest.sendPostRequest("${BuildConfig.SERVER_ADDRESS}/posts",
+                body, this@UploadPostActivity)
+            Log.d(TAG, "Response: $response")
+            Log.d(TAG, "JSON Body: $body")
         }
     }
     /**
@@ -253,7 +313,7 @@ class UploadPostActivity : AppCompatActivity() {
     /**
      * Obtain user's current location (latitude, longitude).
      */
-    suspend fun getCurrentLocation(): Pair<Double, Double> {
+    private suspend fun getCurrentLocation(): Pair<Double, Double> {
         return suspendCoroutine { continuation ->
             val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 

@@ -1,16 +1,12 @@
 package com.example.tomato
 
 import JwtManager
-import android.content.ContentValues.TAG
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.MotionEvent
 import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -35,22 +31,11 @@ import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
-import java.io.IOException
+import org.json.JSONObject
 import java.security.MessageDigest
 import java.util.UUID
 
-
-data class SignInResponse(val token: String)
+data class SignInResponse(val token: String, val userID: String)
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -112,6 +97,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivity(intent)
         }
 
+        // Event listener to home button
+        findViewById<LinearLayout>(R.id.bottom_navbar_home_button).setOnClickListener {
+            lifecycleScope.launch {
+                val response = HTTPRequest.sendGetRequest("http://10.0.2.2:3000/test1", this@MapsActivity)
+                Log.d(TAG, "onCreate: $response")
+            }
+        }
+
+        // Event listener to album button
+        findViewById<LinearLayout>(R.id.bottom_navbar_album_button).setOnClickListener {
+            lifecycleScope.launch {
+                val response = HTTPRequest.sendGetRequest("http://10.0.2.2:3000/test2", this@MapsActivity)
+                Log.d(TAG, "onCreate: $response")
+            }
+
+        }
+
     }
 
 
@@ -143,13 +145,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun sendSignInRequest(token: String) {
-        Log.d(TAG, "sendPostRequest: $token")
         // JSON string to send in the POST request
-        val json = """{"token": "$token"}"""
+        val body = JSONObject().put("token", token).toString()
 
         lifecycleScope.launch {
-            val response = HTTPRequest.sendPostRequest("http://10.0.2.2:3000/user/auth", json)
+            val response = HTTPRequest.sendPostRequest("${BuildConfig.SERVER_ADDRESS}/user/auth",
+                body, this@MapsActivity)
             Log.d(TAG, "sendPostRequest: $response")
+
+            if (response != null) {
+                val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
+                JwtManager.saveToken(this@MapsActivity, signInResponse.token)
+                Log.d(TAG, "sendSignInResponse: $signInResponse")
+            }
         }
     }
 
