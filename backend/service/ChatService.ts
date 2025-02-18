@@ -16,7 +16,7 @@ export class ChatService {
 
     async getChatMessages(id: string) {
         try {
-            const messages = await MessageModel.find({ chatroom_id: new mongoose.Types.ObjectId(id) })
+            const messages = await MessageModel.find({ chatroom_id: id })
             return messages
         } catch(err) {
             console.error("Error getting chat messages: " + err)
@@ -26,7 +26,7 @@ export class ChatService {
 
     async getChats(id: string) {
         try {
-            const chats = await ChatModel.find().or([{ member_1 : new mongoose.Types.ObjectId(id)}, {member_2: new mongoose.Types.ObjectId(id)}])
+            const chats = await ChatModel.find().or([{ member_1 : id}, {member_2: id}])
             return chats
         } catch(err) {
             console.error("Error getting chats: " + err)
@@ -36,7 +36,7 @@ export class ChatService {
 
     async deleteChat(id: string) {
         try {
-            await MessageModel.deleteMany({ chatroom_id: new mongoose.Types.ObjectId(id) })
+            await MessageModel.deleteMany({ chatroom_id: id })
             const chat = await ChatModel.findById(id)
             await chat?.deleteOne()
             return chat
