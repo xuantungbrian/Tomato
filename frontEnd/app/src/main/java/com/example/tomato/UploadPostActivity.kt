@@ -34,10 +34,10 @@ import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
-import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -198,18 +198,12 @@ class UploadPostActivity : AppCompatActivity() {
         val geocoder = Geocoder(this, java.util.Locale("en", "US"))
         try {
             val addresses: MutableList<android.location.Address>? = geocoder.getFromLocation(latitude, longitude, 1)
-
+            Log.d(TAG, "latitude: $latitude, longitude: $longitude")
+            Log.d(TAG, "Address: $addresses")
             if (addresses != null) {
                 if (addresses.isNotEmpty()) {
                     setLogoToBlue(R.drawable.upload_post_location, R.id.setLocationImage)
-                    val address = addresses[0]
-                    val street = address.thoroughfare // street name
-                    val locality = address.locality // city or locality
-                    val adminArea = address.adminArea // state or province
-                    val country = address.countryName // country
-
-                    // Combine the results to get a meaningful address
-                    val fullAddress = "$street, $locality, $adminArea, $country"
+                    val fullAddress = commonFunction.parseLocation(latitude, longitude, this)
                     val locationText = findViewById<TextView>(R.id.setLocationText)
                     locationText.text = fullAddress
                 } else {
@@ -349,7 +343,7 @@ class UploadPostActivity : AppCompatActivity() {
 class ImageAdapter(private val imageUris: MutableList<Uri>, private val updateUI: () -> Unit) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
     class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageView: ImageView = itemView.findViewById(R.id.itemImageView)
+        val imageView: ImageView = itemView.findViewById(R.id.postImage)
         val removeButton: ImageButton = itemView.findViewById(R.id.removeImageButton)
     }
 
