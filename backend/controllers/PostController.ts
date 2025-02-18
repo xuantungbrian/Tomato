@@ -1,36 +1,46 @@
+import { FileService } from "../service/FileService";
 import { PostService } from "../service/PostService";
-import { NextFunction } from "express"
+import { Request, Response, NextFunction } from "express";
 
 export class PostController {
     private postService: PostService;
+    private fileService: FileService;
 
     constructor() {
         this.postService = new PostService();
+        this.fileService = new FileService();
     }
 
-    async createPost(req: Request, res: Response, next: NextFunction) {
-        let post = (req as any).body.post
-        return this.postService.createPost(post);
+    createPost = async (req: Request, res: Response, next: NextFunction) => {
+        const post = req.body
+        post.userId = (req as any).user.id
+        res.json(await this.postService.createPost(post))
     }
 
-    async getPosts(req: Request, res: Response, next: NextFunction) {
-        const postId = (req as any).param.id
-        return this.postService.getPosts(postId);
+    getPosts = async (req: Request, res: Response, next: NextFunction) => {
+        const userId = (req as any).user.id
+        res.json(await this.postService.getPosts(userId))
     }
 
-    async getPostById(req: Request, res: Response, next: NextFunction) {
-        const postId = (req as any).param.id
-        return this.postService.getPostById(postId);
+    getPostById = async (req: Request, res: Response, next: NextFunction) => {
+        const postId = req.params.id
+        const [fileData, postData] = await Promise.all([
+            this.fileService.getFileInPost(postId),
+            this.postService.getPostById(postId)
+        ]);
+          
+        res.json({ postData, fileId: fileData});
     }
 
-    async updatePost(req: Request, res: Response, next: NextFunction) {
-        const postId = (req as any).param.id
-        const updatedPost = (req as any).body.post
-        return this.postService.updatePost(postId, updatedPost);
+    updatePost = async (req: Request, res: Response, next: NextFunction) => {
+        const postId = req.params.id
+        const updatedPost = req.body
+        updatedPost.userId = (req as any).user.id
+        res.json(await this.postService.updatePost(postId, updatedPost))
     }
 
-    async deletePost(req: Request, res: Response, next: NextFunction) {
-        const postId = (req as any).param.id
-        return this.postService.deletePost(postId);
+    deletePost = async (req: Request, res: Response, next: NextFunction) => {
+        const postId = req.params.id
+        res.json(await this.postService.deletePost(postId))
     }
 }

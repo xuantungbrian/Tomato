@@ -33,5 +33,4 @@ export const PostRoutes = [
         action: postController.deletePost,
         validation: []
     }
-   
 ]
