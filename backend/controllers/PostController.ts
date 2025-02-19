@@ -31,6 +31,17 @@ export class PostController {
         res.json(await this.postService.getPosts(userId))
     }
 
+    getUserPostsOnPage = async (req: Request, res: Response, next: NextFunction) => {
+        const userId = (req as any).user.id
+        const coordinate_info = (req as any).body
+        res.json(await this.postService.getUserPostsOnPage(userId, coordinate_info.start_lat, coordinate_info.end_lat, coordinate_info.start_long, coordinate_info.end_long))
+    }
+
+    getAllPostsOnPage = async (req: Request, res: Response, next: NextFunction) => {
+        const coordinate_info = (req as any).body
+        res.json(await this.postService.getAllPostsOnPage(coordinate_info.start_lat, coordinate_info.end_lat, coordinate_info.start_long, coordinate_info.end_long))
+    }
+
     getPostById = async (req: Request, res: Response, next: NextFunction) => {
         const postId = req.params.id
         const [fileData, postData] = await Promise.all([

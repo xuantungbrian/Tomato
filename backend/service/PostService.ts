@@ -65,4 +65,22 @@ export class PostService {
             return null
         }
     }
+
+    async getUserPostsOnPage(userId: string, start_lat: number, end_lat: number, start_long: number, end_long: number) {
+        try {
+            return PostModel.find({$and:[{userId: userId}, {latitude: {$gte: start_lat}}, {latitude:{$lte: end_lat}}, {longitude: {$gte: start_long}}, {latitude:{$lte: end_long}}]})
+        } catch(error) {
+            console.log("Error getting all posts of this user", error)
+            return null
+        }
+    }
+
+    async getAllPostsOnPage(start_lat: number, end_lat: number, start_long: number, end_long: number) {
+        try {
+            return PostModel.find({$and:[{private: false}, {latitude: {$gte: start_lat}}, {latitude:{$lte: end_lat}}, {longitude: {$gte: start_long}}, {latitude:{$lte: end_long}}]})
+        } catch(error) {
+            console.log("Error getting all posts of this user", error)
+            return null
+        }
+    }
 }

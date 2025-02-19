@@ -34,5 +34,17 @@ export const PostRoutes = [
         route: "/posts/:id",          
         action: postController.deletePost,
         validation: []
+    },
+    {
+        method: "get",
+        route: "/posts/user",            
+        action: postController.getUserPostsOnPage,
+        validation: [],
+    },
+    {
+        method: "get",
+        route: "/posts/all",            
+        action: postController.getAllPostsOnPage,
+        validation: [],
     }
 ]
