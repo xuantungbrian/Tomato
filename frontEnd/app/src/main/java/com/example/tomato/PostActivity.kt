@@ -37,9 +37,14 @@ class PostActivity : AppCompatActivity() {
 
         val postDate: TextView = findViewById(R.id.post_activity_postDate)
 
-        // Convert date to dd MMM yyyy format
+        // Update post's date
         postDate.text = "Posted on ${commonFunction.convertDateToString(date.toString())}"
 
+        //Update post's note
+        val postNote: TextView = findViewById(R.id.post_activity_postNote)
+        postNote.text = note
+
+        //Update post's images
         val postViewPager: ViewPager2 = findViewById(R.id.postViewPager)
         postViewPager.adapter = PostAdapter(images!!)
 

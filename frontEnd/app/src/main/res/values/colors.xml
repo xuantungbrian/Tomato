@@ -4,7 +4,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="tomatoRed">#EA4750</color>
     <color name="lightTomatoRed">#EF777D</color>
+    <color name="lightTomatoRed2">#E75D63</color>
     <color name="darkTomatoRed">#A2212C</color>
+    <color name="tomatoShadow">#C3521417</color>
     <color name="tomatoGreen">#4CAF50</color>
     <color name="gray">#F0EEEE</color>
     <color name="darkGray">#BDBCBC</color>

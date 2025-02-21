@@ -13,7 +13,7 @@
 android:id="@+id/post_activity_postImage"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-android:scaleType="centerCrop"
+android:scaleType="fitCenter"
 android:clipToOutline="true"
 app:srcCompat="@drawable/cat" />
     </com.google.android.material.card.MaterialCardView>
