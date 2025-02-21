@@ -37,7 +37,6 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -349,7 +348,7 @@ class UploadPostActivity : AppCompatActivity() {
 class ImageAdapter(private val imageUris: MutableList<Uri>, private val updateUI: () -> Unit) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
     class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageView: ImageView = itemView.findViewById(R.id.postImage)
+        val imageView: ImageView = itemView.findViewById(R.id.upload_post_postImage)
         val removeButton: ImageButton = itemView.findViewById(R.id.removeImageButton)
     }
 

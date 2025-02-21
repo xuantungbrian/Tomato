@@ -10,7 +10,7 @@
     >
 
     <ImageView
-        android:id="@+id/postImage"
+        android:id="@+id/upload_post_postImage"
         android:layout_width="170dp"
         android:layout_height="170dp"
         android:scaleType="centerCrop" />

@@ -1,8 +1,8 @@
 package com.example.tomato
 
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.location.Geocoder
-import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,28 +17,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 
-data class PostItem(val imageData: ByteArray, val location: String)
-data class PostItemRaw(
-    val images: List<PostImage>,
-    val latitude: Double,
-    val longitude: Double
-)
-
-data class PostImage(
-    val fileData: FileData,
-    val fileType: String
-)
-
-data class FileData(
-    val type: String,
-    val data: List<Int>
-)
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -66,7 +49,7 @@ class ProfileActivity : AppCompatActivity() {
             val yourPostRecyclerView = findViewById<RecyclerView>(R.id.yourPostRecycler)
             yourPostRecyclerView.layoutManager = LinearLayoutManager(this@ProfileActivity, LinearLayoutManager.HORIZONTAL, false)
             if (yourPostList != null) {
-                val yourPostAdapter = PostAdapter(yourPostList)
+                val yourPostAdapter = ProfilePostAdapter(yourPostList)
                 yourPostRecyclerView.adapter = yourPostAdapter
             }
 
@@ -74,7 +57,7 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     /**
-     * Obtain the list of PostItem of current logged in user.
+     * Obtain the list of PostItem uploaded by current logged in user.
      */
     suspend fun getYourPostList(): List<PostItem>? {
 
@@ -88,45 +71,56 @@ class ProfileActivity : AppCompatActivity() {
         val geocoder = Geocoder(this, java.util.Locale("en", Locale.getDefault().country))
 
         for (post in posts){
-            val imageData = post.images.firstOrNull()?.fileData?.data?.map { it.toByte() }?.toByteArray()
+            val imageData: MutableList<ByteArray> = mutableListOf()
+
+            for (image in post.images){
+                val imageBytes = image.fileData.data.map { it.toByte() }.toByteArray()
+                imageData.add(imageBytes)
+            }
+            val imageURIs = commonFunction.byteToURIs(imageData, cacheDir, this)
+
             val location = geocoder.getFromLocation(post.latitude, post.longitude, 1)
-            Log.d(TAG, "latitude: ${post.latitude}, longitude: ${post.longitude}")
-            Log.d(TAG, "Location: $location")
             if (location != null){
-                Log.d(TAG, "Location: $location")
-                Log.d(TAG, "Image: ${imageData?.size}")
                 val address = commonFunction.parseLocation(post.latitude, post.longitude, this)
-                postList.add(PostItem(imageData!!, address))
+                postList.add(PostItem(imageURIs, address, post.date, post.note, post.private))
 
                 // Load is successful, remove progressBar
                 progressBar.visibility = View.GONE
             }
+
+
         }
 
         return postList
     }
 }
 
-class PostAdapter(
+class ProfilePostAdapter(
     private val postList: List<PostItem>
-) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
+) : RecyclerView.Adapter<ProfilePostAdapter.PostViewHolder>() {
 
     // 1. Define a ViewHolder
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val postImage: ImageView = itemView.findViewById(R.id.postImage)
-        private val postLocation: TextView = itemView.findViewById(R.id.postLocation)
+        private val postImage: ImageView = itemView.findViewById(R.id.profile_post_image)
+        private val postLocation: TextView = itemView.findViewById(R.id.profile_post_location)
 
         fun bind(post: PostItem) {
-            // Convert ByteArray to a Bitmap ( raw bytes)
-            val bitmap = BitmapFactory.decodeByteArray(post.imageData, 0, post.imageData.size)
-            postImage.setImageBitmap(bitmap)
-
-            // Set the date text
+            postImage.setImageURI(post.imageData[0])
             postLocation.text = post.location
+
+            itemView.setOnClickListener{
+                val intent = Intent(itemView.context, PostActivity::class.java)
+                intent.putExtra("images", ArrayList(post.imageData))
+                intent.putExtra("location", post.location)
+                intent.putExtra("date", post.date)
+                intent.putExtra("note", post.note)
+                intent.putExtra("private", post.private)
+                itemView.context.startActivity(intent)
+            }
         }
     }
 
-    // 2. Inflate item layout
+    // 2. Inflate (convert XML to viewable element) item layout
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.profile_post_item, parent, false)
