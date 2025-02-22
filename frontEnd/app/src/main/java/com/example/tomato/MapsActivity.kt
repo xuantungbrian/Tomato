@@ -21,6 +21,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.tomato.databinding.ActivityMapsBinding
+import com.google.android.gms.maps.model.Marker
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -31,7 +32,10 @@ import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import org.json.JSONObject
+import java.lang.Math.max
+import java.lang.Math.min
 import java.security.MessageDigest
 import java.util.UUID
 
@@ -144,7 +148,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun sendSignInRequest(token: String) {
         // JSON string to send in the POST request
         val body = JSONObject().put("token", token).toString()
-
         lifecycleScope.launch {
             val response = HTTPRequest.sendPostRequest("${BuildConfig.SERVER_ADDRESS}/user/auth",
                 body, this@MapsActivity)
@@ -178,10 +181,43 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        googleMap.setOnCameraIdleListener {
+            getPostsOnScreen(googleMap)
+        }
+    }
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+    private fun getPostsOnScreen(googleMap: GoogleMap) {
+        lifecycleScope.launch {
+            val visibleRegion = googleMap.projection.visibleRegion
+            val startLat = min(visibleRegion.farLeft.latitude, visibleRegion.nearRight.latitude)
+            val endLat = max(visibleRegion.farLeft.latitude, visibleRegion.nearRight.latitude)
+            val startLong = min(visibleRegion.farLeft.longitude, visibleRegion.nearRight.longitude)
+            val endLong = max(visibleRegion.farLeft.longitude, visibleRegion.nearRight.longitude)
+            val url = "${BuildConfig.SERVER_ADDRESS}/posts?" +
+                    "start_lat=$startLat&end_lat=$endLat&" +
+                    "start_long=$startLong&end_long=$endLong"
+            val response = HTTPRequest.sendGetRequest(
+                url,
+                this@MapsActivity
+            )
+            if (response != null) {
+                try {
+                    val postsArray = JSONArray(response)
+                    for (i in 0 until postsArray.length()) {
+                        val post = postsArray.getJSONObject(i)
+                        val latitude = post.getDouble("latitude")
+                        val longitude = post.getDouble("longitude")
+                        val postLocation = LatLng(latitude, longitude)
+                        mMap.addMarker(
+                            MarkerOptions().position(postLocation)
+                                .title("Post at ($latitude, $longitude)")
+                        )
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Log.e(TAG, "Error parsing response: ${e.message}")
+                }
+            }
+        }
     }
 }
