@@ -8,7 +8,7 @@ export const PostRoutes = [
         route: "/posts",            
         action: postController.getPosts,
         validation: [],
-        protected: true
+        // protected: true
     },
     {
         method: "get",
@@ -35,16 +35,4 @@ export const PostRoutes = [
         action: postController.deletePost,
         validation: []
     },
-    {
-        method: "get",
-        route: "/posts/user",            
-        action: postController.getUserPostsOnPage,
-        validation: [],
-    },
-    {
-        method: "get",
-        route: "/posts/all",            
-        action: postController.getAllPostsOnPage,
-        validation: [],
-    }
 ]

@@ -57,30 +57,44 @@ export class PostService {
         }
     }
 
-    async getPosts(userId: string) {
+    async getPosts(
+        userId: string, 
+        start_lat?: number, 
+        end_lat?: number, 
+        start_long?: number, 
+        end_long?: number, 
+        isPrivate?: boolean
+    ) {
         try {
-            return PostModel.find({ userId: userId})
-        } catch(error) {
-            console.log("Error getting all posts of this user", error)
-            return null
+            // Initialize the query with userId
+            const query: any = {};
+    
+            // Check for start_lat and end_lat separately
+            if (start_lat !== undefined) {
+                query.latitude = { $gte: start_lat };  // Latitude greater than or equal to start_lat
+            }
+            if (end_lat !== undefined) {
+                query.latitude = { ...query.latitude, $lte: end_lat };  // Latitude less than or equal to end_lat
+            }
+    
+            // Check for start_long and end_long separately
+            if (start_long !== undefined) {
+                query.longitude = { $gte: start_long };  // Longitude greater than or equal to start_long
+            }
+            if (end_long !== undefined) {
+                query.longitude = { ...query.longitude, $lte: end_long };  // Longitude less than or equal to end_long
+            }
+    
+            // If `isPrivate` is provided, add it to the query
+            if (isPrivate) {
+                query.userId = userId; // Assuming 'private' is the field in your PostModel
+            }
+    
+            // Return the posts based on the constructed 
+            return PostModel.find(query);
+        } catch (error) {
+            console.log("Error getting posts", error);
+            return null;
         }
-    }
-
-    async getUserPostsOnPage(userId: string, start_lat: number, end_lat: number, start_long: number, end_long: number) {
-        try {
-            return PostModel.find({$and:[{userId: userId}, {latitude: {$gte: start_lat}}, {latitude:{$lte: end_lat}}, {longitude: {$gte: start_long}}, {latitude:{$lte: end_long}}]})
-        } catch(error) {
-            console.log("Error getting all posts of this user", error)
-            return null
-        }
-    }
-
-    async getAllPostsOnPage(start_lat: number, end_lat: number, start_long: number, end_long: number) {
-        try {
-            return PostModel.find({$and:[{private: false}, {latitude: {$gte: start_lat}}, {latitude:{$lte: end_lat}}, {longitude: {$gte: start_long}}, {latitude:{$lte: end_long}}]})
-        } catch(error) {
-            console.log("Error getting all posts of this user", error)
-            return null
-        }
-    }
+    }    
 }
