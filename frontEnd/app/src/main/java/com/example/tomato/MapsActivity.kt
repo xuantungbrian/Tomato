@@ -31,7 +31,10 @@ import com.google.gson.Gson
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.Math.max
@@ -42,6 +45,7 @@ import java.util.UUID
 data class SignInResponse(val token: String, val userID: String)
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+    private var lastFetchJob: Job? = null
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
@@ -187,7 +191,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun getPostsOnScreen(googleMap: GoogleMap) {
-        lifecycleScope.launch {
+        // Only fetch if user has idled for 500ms
+        lastFetchJob?.cancel()
+        lastFetchJob = lifecycleScope.launch {
+            delay(500) //delay only blocks this coroutine (inside lifecycleScope)
             val visibleRegion = googleMap.projection.visibleRegion
             val startLat = min(visibleRegion.farLeft.latitude, visibleRegion.nearRight.latitude)
             val endLat = max(visibleRegion.farLeft.latitude, visibleRegion.nearRight.latitude)
@@ -196,13 +203,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val url = "${BuildConfig.SERVER_ADDRESS}/posts?" +
                     "start_lat=$startLat&end_lat=$endLat&" +
                     "start_long=$startLong&end_long=$endLong"
-            val response = HTTPRequest.sendGetRequest(
-                url,
-                this@MapsActivity
-            )
+
+
+            // Fetch on the background
+            val response = withContext(Dispatchers.IO) {
+                HTTPRequest.sendGetRequest(
+                    url,
+                    this@MapsActivity
+                )
+            }
+
+
             if (response != null) {
                 try {
-                    val postsArray = JSONArray(response)
+                    // Parse in background
+                    val postsArray = withContext(Dispatchers.IO) { JSONArray(response) }
+
                     for (i in 0 until postsArray.length()) {
                         val post = postsArray.getJSONObject(i)
                         val latitude = post.getDouble("latitude")
@@ -219,5 +235,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
+
     }
 }
