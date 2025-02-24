@@ -66,11 +66,20 @@ export class PostService {
         }
     }
 
+    async getEveryPost() {
+        try {
+            return PostModel.find({})
+        } catch(error) {
+            console.log("Error getting all posts", error)
+            return null
+        }
+    }
+
     async getUserPostsOnPage(userId: string, start_lat: number, end_lat: number, start_long: number, end_long: number) {
         try {
             return PostModel.find({$and:[{userId: userId}, {latitude: {$gte: start_lat}}, {latitude:{$lte: end_lat}}, {longitude: {$gte: start_long}}, {latitude:{$lte: end_long}}]})
         } catch(error) {
-            console.log("Error getting all posts of this user", error)
+            console.log("Error getting all user posts on the page", error)
             return null
         }
     }
@@ -79,7 +88,16 @@ export class PostService {
         try {
             return PostModel.find({$and:[{private: false}, {latitude: {$gte: start_lat}}, {latitude:{$lte: end_lat}}, {longitude: {$gte: start_long}}, {latitude:{$lte: end_long}}]})
         } catch(error) {
-            console.log("Error getting all posts of this user", error)
+            console.log("Error getting all posts on the page", error)
+            return null
+        }
+    }
+
+    async getPostsAtLocation(lat: number, long: number) {
+        try {
+            return PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
+        } catch(error) {
+            console.log("Error getting all posts at the location", error)
             return null
         }
     }
