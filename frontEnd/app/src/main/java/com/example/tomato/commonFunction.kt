@@ -4,6 +4,8 @@ import android.content.Context
 import android.location.Geocoder
 import android.net.Uri
 import androidx.core.content.FileProvider
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -80,5 +82,38 @@ object commonFunction {
             imageByteArrays.add(imageByteArray)
         }
         return imageByteArrays
+    }
+
+     fun saveUserId(context: Context, userId: String) {
+        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        val sharedPreferences = EncryptedSharedPreferences.create(
+            "UserPrefs",
+            masterKeyAlias,
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+        with(sharedPreferences.edit()) {
+            putString("userId", userId)
+            apply()
+        }
+    }
+
+     fun getUserId(context: Context): String? {
+        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        val sharedPreferences = EncryptedSharedPreferences.create(
+            "UserPrefs",
+            masterKeyAlias,
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+        return sharedPreferences.getString("userId", null)
+    }
+
+    fun rawPostToPostItem(rawPost: PostItemRaw, context: Context): PostItem {
+        val address = parseLocation(rawPost.latitude, rawPost.longitude, context)
+        val imageURIs = byteToURIs(postImagesToByteArrays(rawPost.images), context.cacheDir, context)
+        return PostItem(imageURIs, address, rawPost.date, rawPost.note, rawPost.private, rawPost.userId)
     }
 }

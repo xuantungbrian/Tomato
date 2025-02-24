@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -20,6 +21,8 @@ import androidx.viewpager2.widget.ViewPager2
 import java.util.Date
 
 class PostActivity : AppCompatActivity() {
+    private var isOwner: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -29,6 +32,26 @@ class PostActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        val userId = intent.getStringExtra("userId")
+        if (userId == commonFunction.getUserId(this)) {
+            isOwner = true
+        }
+
+        val sendMessageButton: Button = findViewById(R.id.post_activity_send_message_button)
+        val headerText: TextView = findViewById(R.id.post_activity_header_text)
+
+        if (!isOwner) {
+            sendMessageButton.visibility = View.VISIBLE
+            headerText.text = "Post"
+
+        }
+        else {
+            sendMessageButton.visibility = View.GONE
+            headerText.text = "Your Post"
+        }
+
+
+
         val images = intent.getParcelableArrayListExtra<Uri>("images")
         val location = intent.getStringExtra("location")
         val date = intent.getStringExtra("date")

@@ -68,26 +68,26 @@ class ProfileActivity : AppCompatActivity() {
         val posts = gson.fromJson(response, Array<PostItemRaw>::class.java)
 
         val postList = mutableListOf<PostItem>()
-        val geocoder = Geocoder(this, java.util.Locale("en", Locale.getDefault().country))
 
         for (post in posts){
-            //convert each image to ByteArray
-            val imageData = commonFunction.postImagesToByteArrays(post.images)
-
-            //convert ByteArray to Uri
-            val imageURIs = commonFunction.byteToURIs(imageData, cacheDir, this)
-
-            val location = geocoder.getFromLocation(post.latitude, post.longitude, 1)
-            if (location != null){
-                val address = commonFunction.parseLocation(post.latitude, post.longitude, this)
-                postList.add(PostItem(imageURIs, address, post.date, post.note, post.private))
-
-                // Load is successful, remove progressBar
-                progressBar.visibility = View.GONE
-            }
-
-
+//            //convert each image to ByteArray
+//            val imageData = commonFunction.postImagesToByteArrays(post.images)
+//
+//            //convert ByteArray to Uri
+//            val imageURIs = commonFunction.byteToURIs(imageData, cacheDir, this)
+//
+//            val location = geocoder.getFromLocation(post.latitude, post.longitude, 1)
+//            if (location != null){
+//                val address = commonFunction.parseLocation(post.latitude, post.longitude, this)
+//                postList.add(PostItem(imageURIs, address, post.date, post.note, post.private))
+//
+//            }
+            postList.add(commonFunction.rawPostToPostItem(post, this))
         }
+
+        // Load is successful, remove progressBar
+        progressBar.visibility = View.GONE
+
 
         return postList
     }

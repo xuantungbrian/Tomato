@@ -8,6 +8,7 @@ data class PostItem(
     val date: String,
     val note: String,
     val private: Boolean,
+    val userId: String
 )
 
 data class PostItemRaw(
@@ -17,6 +18,7 @@ data class PostItemRaw(
     val date: String,
     val note: String,
     val private: Boolean,
+    val userId: String
 )
 
 data class PostImage(

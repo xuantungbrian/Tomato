@@ -154,7 +154,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (response != null) {
                 val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
                 JwtManager.saveToken(this@MapsActivity, signInResponse.token)
+                val userID = signInResponse.userID
+                commonFunction.saveUserId(this@MapsActivity, userID)
                 Log.d(TAG, "sendSignInResponse: $signInResponse")
+                Log.d(TAG, "USERID: ${commonFunction.getUserId(this@MapsActivity)}")
             }
         }
     }
@@ -430,6 +433,48 @@ class PostClusterAdapter(
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.map_activity_post_image)
         val locationTextView: TextView = itemView.findViewById(R.id.map_activity_post_location)
+
+        fun bind(post: PostItemRaw){
+            val image = post.images[0]
+            val byteArray = image.fileData.data.map { it.toByte() }.toByteArray()
+            val options = BitmapFactory.Options().apply {
+                inSampleSize = calculateInSampleSize(byteArray, 100, 100)
+            }
+            val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+
+            imageView.setImageBitmap(bitmap)
+            val location = commonFunction.parseLocation(post.latitude, post.longitude, itemView.context)
+            locationTextView.text = location
+
+
+            itemView.setOnClickListener{
+                val postItem = commonFunction.rawPostToPostItem(post, itemView.context)
+
+                val intent = Intent(itemView.context, PostActivity::class.java)
+                intent.putExtra("userId", postItem.userId)
+                intent.putExtra("images", ArrayList(postItem.imageData))
+                intent.putExtra("location", postItem.location)
+                intent.putExtra("date", postItem.date)
+                intent.putExtra("note", postItem.note)
+                intent.putExtra("private", postItem.private)
+                itemView.context.startActivity(intent)
+            }
+        }
+        private fun calculateInSampleSize(byteArray: ByteArray, reqWidth: Int, reqHeight: Int): Int {
+            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+            val (height: Int, width: Int) = options.run { outHeight to outWidth }
+            var inSampleSize = 1
+            if (height > reqHeight || width > reqWidth) {
+                val halfHeight = height / 2
+                val halfWidth = width / 2
+                while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                    inSampleSize *= 2
+                }
+            }
+            return inSampleSize
+        }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -439,34 +484,12 @@ class PostClusterAdapter(
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val post = posts[position]
-        val image = post.images[0] // Show first image
-        val byteArray = image.fileData.data.map { it.toByte() }.toByteArray()
-        val options = BitmapFactory.Options().apply {
-            inSampleSize = calculateInSampleSize(byteArray, 100, 100)
-        }
-        val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
-        holder.imageView.setImageBitmap(bitmap)
-        val location = commonFunction.parseLocation(post.latitude, post.longitude, context)
-        holder.locationTextView.text = location
+        holder.bind(posts[position])
     }
 
     override fun getItemCount(): Int = posts.size
 
-    private fun calculateInSampleSize(byteArray: ByteArray, reqWidth: Int, reqHeight: Int): Int {
-        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
-        val (height: Int, width: Int) = options.run { outHeight to outWidth }
-        var inSampleSize = 1
-        if (height > reqHeight || width > reqWidth) {
-            val halfHeight = height / 2
-            val halfWidth = width / 2
-            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
-                inSampleSize *= 2
-            }
-        }
-        return inSampleSize
-    }
+
 
 }
 
