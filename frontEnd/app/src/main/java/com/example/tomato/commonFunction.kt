@@ -13,7 +13,7 @@ object commonFunction {
     /**
      * Given the latitude and longitude of a location get the string representation of the location.
      */
-    fun parseLocation(latitude: Double, longitude: Double, context: Context): String{
+    fun parseLocation(latitude: Double, longitude: Double, context: Context): String {
         val geocoder = Geocoder(context, Locale("en", Locale.getDefault().country))
         val addresses = geocoder.getFromLocation(latitude, longitude, 1)
         if (addresses == null || addresses.isEmpty()) {
@@ -67,5 +67,18 @@ object commonFunction {
         val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.getDefault())
         return localDate.format(formatter)
 
+    }
+
+
+    /**
+     * Convert a list of PostImage to a list of ByteArray.
+     */
+    fun postImagesToByteArrays(images: List<PostImage>): List<ByteArray> {
+        val imageByteArrays = mutableListOf<ByteArray>()
+        for (image in images) {
+            val imageByteArray = image.fileData.data.map { it.toByte() }.toByteArray()
+            imageByteArrays.add(imageByteArray)
+        }
+        return imageByteArrays
     }
 }

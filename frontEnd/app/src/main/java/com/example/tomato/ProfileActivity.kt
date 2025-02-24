@@ -71,12 +71,10 @@ class ProfileActivity : AppCompatActivity() {
         val geocoder = Geocoder(this, java.util.Locale("en", Locale.getDefault().country))
 
         for (post in posts){
-            val imageData: MutableList<ByteArray> = mutableListOf()
+            //convert each image to ByteArray
+            val imageData = commonFunction.postImagesToByteArrays(post.images)
 
-            for (image in post.images){
-                val imageBytes = image.fileData.data.map { it.toByte() }.toByteArray()
-                imageData.add(imageBytes)
-            }
+            //convert ByteArray to Uri
             val imageURIs = commonFunction.byteToURIs(imageData, cacheDir, this)
 
             val location = geocoder.getFromLocation(post.latitude, post.longitude, 1)
