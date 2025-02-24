@@ -7,10 +7,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -47,6 +49,22 @@ class PostActivity : AppCompatActivity() {
         //Update post's images
         val postViewPager: ViewPager2 = findViewById(R.id.postViewPager)
         postViewPager.adapter = PostAdapter(images!!)
+
+        val darkCard = findViewById<CardView>(R.id.post_activity_dark_card)
+        val lightCard = findViewById<CardView>(R.id.post_activity_light_card)
+
+        // Wait until light card is measured before setting dark card height
+        lightCard.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                lightCard.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
+                // Get light card's height and apply it to dark card
+                val lightCardHeight = lightCard.height
+                val layoutParams = darkCard.layoutParams
+                layoutParams.height = lightCardHeight
+                darkCard.layoutParams = layoutParams
+            }
+        })
 
 
     }

@@ -1,6 +1,8 @@
 package com.example.tomato
 
 import JwtManager
+import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -21,15 +23,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.tomato.databinding.ActivityMapsBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -161,6 +167,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return digest.fold("") { str, it -> str + "%02x".format(it) }
     }
 
+    @SuppressLint("PotentialBehaviorOverride")
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         googleMap.setOnCameraIdleListener {
@@ -176,6 +183,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.d(TAG, "Aggregated marker clicked with ${tag.size} posts")
                 // TODO: Handle aggregated marker click (e.g., zoom in or show list)
             }
+            showClusterDialog(tag as List<PostItemRaw>)
             true
         }
     }
@@ -220,7 +228,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             val post = cluster[0]
                             val postLocation = LatLng(post.latitude, post.longitude)
                             val marker = showSinglePostMarker(post, postLocation)
-                            marker.tag = post
+                            marker.tag = cluster
                         } else {
                             val averageLat = cluster.map { it.latitude }.average()
                             val averageLng = cluster.map { it.longitude }.average()
@@ -394,4 +402,71 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Color.rgb(reds[reds.size / 2], greens[greens.size / 2], blues[blues.size / 2])
         } else Color.YELLOW
     }
+
+    private fun showClusterDialog(posts: List<PostItemRaw>) {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.map_activity_post_preview_dialog)
+
+        val recyclerView = dialog.findViewById<RecyclerView>(R.id.post_recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.adapter = PostClusterAdapter(posts, this)
+
+        val screenWidth = resources.displayMetrics.widthPixels
+        // Customize the dialog window
+        dialog.window?.apply {
+            setBackgroundDrawableResource(R.drawable.map_activity_dialog_background) // Set rounded background
+            setLayout((screenWidth * 0.8).toInt(), WindowManager.LayoutParams.WRAP_CONTENT)
+            decorView.setPadding(0, 0, 0, 0)
+        }
+        dialog.show()
+    }
 }
+
+class PostClusterAdapter(
+    private val posts: List<PostItemRaw>,
+    private val context: Context
+) : RecyclerView.Adapter<PostClusterAdapter.PostViewHolder>() {
+
+    class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imageView: ImageView = itemView.findViewById(R.id.map_activity_post_image)
+        val locationTextView: TextView = itemView.findViewById(R.id.map_activity_post_location)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.map_activity_post_item, parent, false)
+        return PostViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
+        val post = posts[position]
+        val image = post.images[0] // Show first image
+        val byteArray = image.fileData.data.map { it.toByte() }.toByteArray()
+        val options = BitmapFactory.Options().apply {
+            inSampleSize = calculateInSampleSize(byteArray, 100, 100)
+        }
+        val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+        holder.imageView.setImageBitmap(bitmap)
+        val location = commonFunction.parseLocation(post.latitude, post.longitude, context)
+        holder.locationTextView.text = location
+    }
+
+    override fun getItemCount(): Int = posts.size
+
+    private fun calculateInSampleSize(byteArray: ByteArray, reqWidth: Int, reqHeight: Int): Int {
+        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+        val (height: Int, width: Int) = options.run { outHeight to outWidth }
+        var inSampleSize = 1
+        if (height > reqHeight || width > reqWidth) {
+            val halfHeight = height / 2
+            val halfWidth = width / 2
+            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+        return inSampleSize
+    }
+
+}
+
