@@ -3,6 +3,7 @@ package com.example.tomato
 import android.content.Context
 import android.location.Geocoder
 import android.net.Uri
+import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
@@ -10,6 +11,7 @@ import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.util.UUID
 
 object commonFunction {
     /**
@@ -44,7 +46,7 @@ object commonFunction {
         val imageUris = mutableListOf<Uri>()
 
         for (byteArray in imageByteArrays) {
-            val file = File(cacheDir, "image_${System.currentTimeMillis()}.jpg")
+            val file = File(cacheDir, "image_${UUID.randomUUID()}.jpg")
             file.outputStream().use { output ->
                 output.write(byteArray)
             }
@@ -114,6 +116,7 @@ object commonFunction {
     fun rawPostToPostItem(rawPost: PostItemRaw, context: Context): PostItem {
         val address = parseLocation(rawPost.latitude, rawPost.longitude, context)
         val imageURIs = byteToURIs(postImagesToByteArrays(rawPost.images), context.cacheDir, context)
+        Log.d("HELLO", imageURIs.toString())
         return PostItem(imageURIs, address, rawPost.date, rawPost.note, rawPost.private, rawPost.userId)
     }
 }
