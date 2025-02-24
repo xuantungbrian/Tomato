@@ -61,8 +61,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Initialize Places SDK if not already done.
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), BuildConfig.WEB_CLIENT_ID);
-        }
+            Places.initialize(getApplicationContext(), BuildConfig.MAP_API_KEY);
+        } //TODO: Delete this if not necessary, setting wrong API key here makes me debugging for an hour
 
         // Initialize the Map Fragment
         val mapFragment = supportFragmentManager
