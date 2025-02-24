@@ -82,6 +82,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation ("com.squareup.okhttp3:okhttp:4.9.2")
     implementation("androidx.security:security-crypto:1.0.0")
+    implementation ("com.google.maps.android:android-maps-utils:3.0.0")
 
 
 

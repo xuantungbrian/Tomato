@@ -30,14 +30,13 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
-
+import com.example.tomato.databinding.ActivityMapsBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.example.tomato.databinding.ActivityMapsBinding
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
@@ -46,7 +45,6 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.google.android.libraries.places.api.Places
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
-
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -64,10 +62,8 @@ data class SignInResponse(val token: String, val userID: String)
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var lastFetchJob: Job? = null
-
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
-
     private val activityScope = CoroutineScope(Dispatchers.Main)
 
     companion object {
@@ -75,45 +71,35 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     // PARAMETERS
-    private val fetchDelay = 500 //Minimum idling time before fetching posts
-    private val postSize = 80 //The circular image size on the map
+    private val fetchDelay = 500 // Minimum idling time before fetching posts
+    private val postSize = 80 // The circular image size on the map
+    private val gridSize = 3 * postSize // Distance threshold in pixels for clustering
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-        // Initialize Places SDK if not already done.
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), BuildConfig.WEB_CLIENT_ID);
+            Places.initialize(applicationContext, BuildConfig.WEB_CLIENT_ID)
         }
 
-        // Initialize the Map Fragment
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.mapFragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-
-        // Add event listener for sign in button
         findViewById<Button>(R.id.sign_in_button).setOnClickListener {
             val credentialManager = CredentialManager.create(this)
-            val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
-                .Builder(BuildConfig.WEB_CLIENT_ID)
+            val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(BuildConfig.WEB_CLIENT_ID)
                 .setNonce(generateHashedNonce())
-            .build()
-
-            val request: GetCredentialRequest = GetCredentialRequest.Builder()
+                .build()
+            val request = GetCredentialRequest.Builder()
                 .addCredentialOption(signInWithGoogleOption)
                 .build()
 
             activityScope.launch {
                 try {
-                    val result = credentialManager.getCredential(
-                        request = request,
-                        context = this@MapsActivity,
-                    )
+                    val result = credentialManager.getCredential(request = request, context = this@MapsActivity)
                     handleSignIn(result)
                 } catch (e: GetCredentialException) {
                     Log.d(TAG, "Get credential exception", e)
@@ -121,13 +107,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        // Event listener to upload post button
         findViewById<FloatingActionButton>(R.id.bottom_navbar_upload_button).setOnClickListener {
-            val intent = Intent(this, UploadPostActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, UploadPostActivity::class.java))
         }
 
-        // Event listener to home button
         findViewById<LinearLayout>(R.id.bottom_navbar_home_button).setOnClickListener {
             lifecycleScope.launch {
                 val response = HTTPRequest.sendGetRequest("http://10.0.2.2:3000/test1", this@MapsActivity)
@@ -135,50 +118,33 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        // Event listener to profile button
         findViewById<LinearLayout>(R.id.bottom_navbar_profile_button).setOnClickListener {
-            val intent = Intent(this, ProfileActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, ProfileActivity::class.java))
         }
-
     }
 
-
     private fun handleSignIn(result: GetCredentialResponse) {
-        // Handle the successfully returned credential.
         val credential = result.credential
-
         when (credential) {
             is CustomCredential -> {
                 if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     try {
-                        // Use googleIdTokenCredential and extract id to validate and
-                        // authenticate on your server.
-                        val googleIdTokenCredential = GoogleIdTokenCredential
-                            .createFrom(credential.data).idToken
+                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data).idToken
                         sendSignInRequest(googleIdTokenCredential)
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Received an invalid google id token response", e)
                     }
                 }
-
             }
-
-            else -> {
-                // Catch any unrecognized credential type here.
-                Log.e(TAG, "Unexpected type of credential")
-            }
+            else -> Log.e(TAG, "Unexpected type of credential")
         }
     }
 
     private fun sendSignInRequest(token: String) {
-        // JSON string to send in the POST request
         val body = JSONObject().put("token", token).toString()
         lifecycleScope.launch {
-            val response = HTTPRequest.sendPostRequest("${BuildConfig.SERVER_ADDRESS}/user/auth",
-                body, this@MapsActivity)
+            val response = HTTPRequest.sendPostRequest("${BuildConfig.SERVER_ADDRESS}/user/auth", body, this@MapsActivity)
             Log.d(TAG, "sendPostRequest: $response")
-
             if (response != null) {
                 val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
                 JwtManager.saveToken(this@MapsActivity, signInResponse.token)
@@ -186,7 +152,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
-
 
     private fun generateHashedNonce(): String {
         val rawNonce = UUID.randomUUID().toString()
@@ -196,29 +161,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return digest.fold("") { str, it -> str + "%02x".format(it) }
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         googleMap.setOnCameraIdleListener {
             getPostsOnScreen(googleMap)
         }
+        mMap.setOnMarkerClickListener { marker ->
+            val tag = marker.tag
+            Log.d(TAG, "Marker clicked: $tag")
+            if (tag is String) {
+                Log.d(TAG, "Single post clicked: $tag")
+                // TODO: Open post details using tag (post ID)
+            } else if (tag is List<*>) {
+                Log.d(TAG, "Aggregated marker clicked with ${tag.size} posts")
+                // TODO: Handle aggregated marker click (e.g., zoom in or show list)
+            }
+            true
+        }
     }
 
-
-
     private fun getPostsOnScreen(googleMap: GoogleMap) {
-        // Only fetch if user has idled for quite awhile.
         lastFetchJob?.cancel()
         lastFetchJob = lifecycleScope.launch {
-            delay(fetchDelay.toLong()) //delay only blocks this coroutine (inside lifecycleScope)
+            delay(fetchDelay.toLong())
             val visibleRegion = googleMap.projection.visibleRegion
             val startLat = min(visibleRegion.farLeft.latitude, visibleRegion.nearRight.latitude)
             val endLat = max(visibleRegion.farLeft.latitude, visibleRegion.nearRight.latitude)
@@ -228,90 +193,131 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     "start_lat=$startLat&end_lat=$endLat&" +
                     "start_long=$startLong&end_long=$endLong"
 
-
-            // Fetch on the background
             val response = withContext(Dispatchers.IO) {
-                HTTPRequest.sendGetRequest(
-                    url,
-                    this@MapsActivity
-                )
+                HTTPRequest.sendGetRequest(url, this@MapsActivity)
             }
 
             if (response != null) {
-                try{
+                try {
                     val gson = Gson()
                     val postArray = gson.fromJson(response, Array<PostItemRaw>::class.java)
-                    for(post in postArray){
-                        val postLocation = LatLng(post.latitude, post.longitude)
-                        // Only need to show the first image of post on the map.
-                        val firstImage = post.images[0]
-                        showImageOnMap(firstImage, postLocation)
+                    val projection = mMap.projection
+                    val clusters = mutableMapOf<Pair<Int, Int>, MutableList<PostItemRaw>>()
+
+                    // Group posts into grid cells based on screen coordinates
+                    for (post in postArray) {
+                        val screenPoint = projection.toScreenLocation(LatLng(post.latitude, post.longitude))
+                        val cellX = (screenPoint.x / gridSize).toInt()
+                        val cellY = (screenPoint.y / gridSize).toInt()
+                        val key = Pair(cellX, cellY)
+                        clusters.getOrPut(key) { mutableListOf() }.add(post)
                     }
 
-                }
-                catch (e: Exception){
+                    // Clear existing markers and add new ones
+                    mMap.clear()
+                    for (cluster in clusters.values) {
+                        if (cluster.size == 1) {
+                            val post = cluster[0]
+                            val postLocation = LatLng(post.latitude, post.longitude)
+                            val marker = showSinglePostMarker(post, postLocation)
+                            marker.tag = post
+                        } else {
+                            val averageLat = cluster.map { it.latitude }.average()
+                            val averageLng = cluster.map { it.longitude }.average()
+                            val location = LatLng(averageLat, averageLng)
+                            val representativePost = cluster[0] // Use first post as representative
+                            val marker = showAggregatedMarker(representativePost, cluster.size, location)
+                            marker.tag = cluster
+                        }
+                    }
+                } catch (e: Exception) {
                     e.printStackTrace()
                     Log.e(TAG, "Error parsing response: ${e.message}")
                 }
             }
         }
+    }
 
+    private fun showSinglePostMarker(post: PostItemRaw, location: LatLng): Marker {
+        val firstImage = post.images[0]
+        val bitmap = createMarkerBitmap(firstImage)
+        return mMap.addMarker(
+            MarkerOptions()
+                .position(location)
+                .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+        )!!
+    }
+
+    private fun showAggregatedMarker(representativePost: PostItemRaw, count: Int, location: LatLng): Marker {
+        val firstImage = representativePost.images[0]
+        val bitmap = createMarkerBitmap(firstImage, count)
+        return mMap.addMarker(
+            MarkerOptions()
+                .position(location)
+                .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+        )!!
+    }
+
+    private fun createMarkerBitmap(image: PostImage, count: Int = 1): Bitmap {
+        val targetSize = postSize.dpToPx(this)
+        val imageByteArray = image.fileData.data.map { it.toByte() }.toByteArray()
+        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.size, options)
+        options.inSampleSize = calculateInSampleSize(options, targetSize, targetSize)
+        options.inJustDecodeBounds = false
+        val originalBitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.size, options)
+            ?: return Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
+        val circularBitmap = createCircularBitmap(originalBitmap, targetSize)
+        originalBitmap.recycle()
+        val dominantColor = getMedianColor(circularBitmap)
+        val darkerDominantColor = darkenColor(dominantColor, 0.35f)
+        val glowBitmap = addGlow(circularBitmap, darkerDominantColor)
+        circularBitmap.recycle()
+        val finalBitmap = if (count > 1) {
+            addBadge(glowBitmap, count)
+        } else {
+            glowBitmap
+        }
+        return finalBitmap
+    }
+    fun darkenColor(color: Int, factor: Float): Int {
+        // Ensure the factor is within a sensible range
+        val safeFactor = factor.coerceIn(0f, 1f)
+        val r = (Color.red(color) * safeFactor).toInt().coerceIn(0, 255)
+        val g = (Color.green(color) * safeFactor).toInt().coerceIn(0, 255)
+        val b = (Color.blue(color) * safeFactor).toInt().coerceIn(0, 255)
+        return Color.rgb(r, g, b)
+    }
+
+
+    private fun addBadge(baseBitmap: Bitmap, count: Int): Bitmap {
+        val badgeSize = 75 // Size of the badge in pixels
+        val badgePaint = Paint().apply {
+            color = Color.RED
+            style = Paint.Style.FILL
+        }
+        val textPaint = Paint().apply {
+            color = Color.WHITE
+            textSize = 40f
+            textAlign = Paint.Align.CENTER
+        }
+
+        val bitmap = Bitmap.createBitmap(baseBitmap.width, baseBitmap.height, baseBitmap.config!!)
+        val canvas = Canvas(bitmap)
+        canvas.drawBitmap(baseBitmap, 0f, 0f, null)
+        val badgeX = baseBitmap.width - badgeSize / 1.25f
+        val badgeY = badgeSize / 1.25f
+        canvas.drawCircle(badgeX, badgeY, badgeSize / 2f, badgePaint)
+        canvas.drawText(count.toString(), badgeX, badgeY + 5f, textPaint) // Adjust Y for text centering
+        baseBitmap.recycle()
+        return bitmap
     }
 
     fun Int.dpToPx(context: Context): Int = (this * context.resources.displayMetrics.density).toInt()
 
-    /**
-     * Show image on map.
-     * @param image: the image of the post to be displayed on the map.
-     * @param postLocation: the location of the post.
-     */
-    private fun showImageOnMap(image: PostImage, postLocation: LatLng) {
-        val targetSize = postSize.dpToPx(this)
-
-        //Convert image to ByteArray
-        val imageByteArray = image.fileData.data.map { it.toByte() }.toByteArray()
-
-        // Memory optimization: setting inJustDecodeBounds to true so we only get the metadata
-        val options = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        }
-
-        // Only needs metadata to calculate inSampleSize
-        BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.size, options)
-        options.inSampleSize = calculateInSampleSize(options, targetSize, targetSize)
-
-        // Set back to false, now we need the actual pixels
-        options.inJustDecodeBounds = false
-        val originalBitmap = BitmapFactory.decodeByteArray(imageByteArray
-            , 0,
-            imageByteArray.size,
-            options) ?: return
-
-        // Create circular bitmap with aspect ratio preservation
-        val circularBitmap = createCircularBitmap(originalBitmap, targetSize)
-        originalBitmap.recycle()
-
-        // Add glow effect
-        val dominantColor = getMedianColor(circularBitmap)
-        val glowBitmap = addGlow(circularBitmap, dominantColor)
-        circularBitmap.recycle()
-
-        // Add marker with glow
-        mMap.addMarker(
-            MarkerOptions()
-                .position(postLocation)
-                .icon(BitmapDescriptorFactory.fromBitmap(glowBitmap))
-        )
-    }
-
-    /**
-     * Compute how much should we scale down the image to fit the requirement.
-     */
-    private fun calculateInSampleSize(options: BitmapFactory.Options,
-                                      reqWidth: Int, reqHeight: Int): Int {
+    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
         val (height: Int, width: Int) = options.run { outHeight to outWidth }
         var inSampleSize = 1
-
         if (height > reqHeight || width > reqWidth) {
             val heightRatio = height.toFloat() / reqHeight.toFloat()
             val widthRatio = width.toFloat() / reqWidth.toFloat()
@@ -320,71 +326,38 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return inSampleSize
     }
 
-    /**
-     * Crop an original bitmap to circular bitmap.
-     */
     private fun createCircularBitmap(source: Bitmap, targetSize: Int): Bitmap {
-        // Calculate scale to fit the smaller dimension to targetSize
-        val scale = if (source.width < source.height) {
-            targetSize.toFloat() / source.width
-        } else {
-            targetSize.toFloat() / source.height
-        }
-
-        // Scale the image proportionally
+        val scale = if (source.width < source.height) targetSize.toFloat() / source.width else targetSize.toFloat() / source.height
         val scaledWidth = (source.width * scale).toInt()
         val scaledHeight = (source.height * scale).toInt()
         val scaledBitmap = Bitmap.createScaledBitmap(source, scaledWidth, scaledHeight, true)
-
-        // Calculate crop coordinates (centered)
         val startX = (scaledWidth - targetSize).coerceAtLeast(0) / 2
         val startY = (scaledHeight - targetSize).coerceAtLeast(0) / 2
-
-        // Ensure we don't exceed bitmap dimensions
         val safeWidth = min(targetSize, scaledWidth - startX)
         val safeHeight = min(targetSize, scaledHeight - startY)
-
-        // Crop to target size
-        val croppedBitmap = Bitmap.createBitmap(
-            scaledBitmap,
-            startX,
-            startY,
-            safeWidth,
-            safeHeight
-        )
+        val croppedBitmap = Bitmap.createBitmap(scaledBitmap, startX, startY, safeWidth, safeHeight)
         scaledBitmap.recycle()
-
-        // Create circular bitmap
         val output = Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(output)
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-
         val paint = Paint().apply {
             isAntiAlias = true
             shader = BitmapShader(croppedBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
         }
-        canvas.drawCircle(
-            targetSize / 2f,
-            targetSize / 2f,
-            targetSize / 2f,
-            paint
-        )
-
+        canvas.drawCircle(targetSize / 2f, targetSize / 2f, targetSize / 2f, paint)
         croppedBitmap.recycle()
         return output
     }
-    private fun addGlow(circularBitmap: Bitmap, glowColor: Int): Bitmap {
-        val glowRadius = 25f
-        val padding = (glowRadius * 2).toInt()
 
+    private fun addGlow(circularBitmap: Bitmap, glowColor: Int): Bitmap {
+        val glowRadius = 50f
+        val padding = (glowRadius * 2).toInt()
         val glowBitmap = Bitmap.createBitmap(
             circularBitmap.width + padding,
             circularBitmap.height + padding,
             Bitmap.Config.ARGB_8888
         )
         val canvas = Canvas(glowBitmap)
-
-        // Create gradient from glowColor to transparent
         val paint = Paint().apply {
             shader = RadialGradient(
                 glowBitmap.width / 2f,
@@ -396,55 +369,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             )
             maskFilter = BlurMaskFilter(glowRadius, BlurMaskFilter.Blur.NORMAL)
         }
-
-        canvas.drawCircle(
-            glowBitmap.width / 2f,
-            glowBitmap.height / 2f,
-            circularBitmap.width / 2f + glowRadius,
-            paint
-        )
-
-        // Draw original image centered
-        canvas.drawBitmap(
-            circularBitmap,
-            padding / 2f,
-            padding / 2f,
-            null
-        )
-
+        canvas.drawCircle(glowBitmap.width / 2f, glowBitmap.height / 2f, circularBitmap.width / 2f + glowRadius, paint)
+        canvas.drawBitmap(circularBitmap, padding / 2f, padding / 2f, null)
         return glowBitmap
     }
 
     private fun getMedianColor(bitmap: Bitmap): Int {
-        // Sample every 4th pixel for efficiency
         val sampleStep = 4
         val reds = mutableListOf<Int>()
         val greens = mutableListOf<Int>()
         val blues = mutableListOf<Int>()
-
         for (y in 0 until bitmap.height step sampleStep) {
             for (x in 0 until bitmap.width step sampleStep) {
                 val color = bitmap.getPixel(x, y)
-                if (Color.alpha(color) > 50) { // Ignore transparent pixels
+                if (Color.alpha(color) > 50) {
                     reds.add(Color.red(color))
                     greens.add(Color.green(color))
                     blues.add(Color.blue(color))
                 }
             }
         }
-
         return if (reds.isNotEmpty()) {
-            reds.sort()
-            greens.sort()
-            blues.sort()
-            Color.rgb(
-                reds[reds.size / 2],
-                greens[greens.size / 2],
-                blues[blues.size / 2]
-            )
-        } else {
-            Color.YELLOW // Fallback
-        }
+            reds.sort(); greens.sort(); blues.sort()
+            Color.rgb(reds[reds.size / 2], greens[greens.size / 2], blues[blues.size / 2])
+        } else Color.YELLOW
     }
-
 }
