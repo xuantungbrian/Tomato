@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        p<ImageView
+        <ImageView
             android:id="@+id/map_activity_post_image"
             android:layout_width="100dp"
             android:layout_height="100dp"

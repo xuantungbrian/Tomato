@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
@@ -28,6 +29,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -177,6 +179,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             getPostsOnScreen(googleMap)
         }
         mMap.setOnMarkerClickListener { marker ->
+            Toast.makeText(this, "Loading post...", Toast.LENGTH_SHORT).show()
             val tag = marker.tag
             Log.d(TAG, "Marker clicked: $tag")
             if (tag is String) {
@@ -458,18 +461,28 @@ class PostClusterAdapter(
 
             itemView.setOnClickListener{
                 showPostActivity(post, itemView.context)
-
-//                val postItem = commonFunction.rawPostToPostItem(post, itemView.context)
-//
-//                val intent = Intent(itemView.context, PostActivity::class.java)
-//                intent.putExtra("userId", postItem.userId)
-//                intent.putExtra("images", ArrayList(postItem.imageData))
-//                intent.putExtra("location", postItem.location)
-//                intent.putExtra("date", postItem.date)
-//                intent.putExtra("note", postItem.note)
-//                intent.putExtra("private", postItem.private)
-//                itemView.context.startActivity(intent)
             }
+
+            itemView.setOnTouchListener { _, event ->
+
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        // Apply a dark overlay
+                        imageView.setColorFilter(Color.argb(50, 0, 0, 0))
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        // Clear the overlay
+                        imageView.clearColorFilter()
+                    }
+
+                    MotionEvent.ACTION_BUTTON_PRESS -> {
+                        itemView.performClick()
+                    }
+                }
+                // Return false to allow the click event to be processed
+                false
+            }
+
         }
         private fun calculateInSampleSize(byteArray: ByteArray, reqWidth: Int, reqHeight: Int): Int {
             val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
