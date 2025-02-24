@@ -186,10 +186,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.d(TAG, "Aggregated marker clicked with ${tag.size} posts")
                 // TODO: Handle aggregated marker click (e.g., zoom in or show list)
             }
-            showClusterDialog(tag as List<PostItemRaw>)
+            if((tag as List<PostItemRaw>).size == 1){
+                showPostActivity(tag[0], this@MapsActivity)
+
+            }
+            else{
+                showClusterDialog(tag as List<PostItemRaw>)
+            }
+
             true
         }
     }
+
+
 
     private fun getPostsOnScreen(googleMap: GoogleMap) {
         lastFetchJob?.cancel()
@@ -448,16 +457,18 @@ class PostClusterAdapter(
 
 
             itemView.setOnClickListener{
-                val postItem = commonFunction.rawPostToPostItem(post, itemView.context)
+                showPostActivity(post, itemView.context)
 
-                val intent = Intent(itemView.context, PostActivity::class.java)
-                intent.putExtra("userId", postItem.userId)
-                intent.putExtra("images", ArrayList(postItem.imageData))
-                intent.putExtra("location", postItem.location)
-                intent.putExtra("date", postItem.date)
-                intent.putExtra("note", postItem.note)
-                intent.putExtra("private", postItem.private)
-                itemView.context.startActivity(intent)
+//                val postItem = commonFunction.rawPostToPostItem(post, itemView.context)
+//
+//                val intent = Intent(itemView.context, PostActivity::class.java)
+//                intent.putExtra("userId", postItem.userId)
+//                intent.putExtra("images", ArrayList(postItem.imageData))
+//                intent.putExtra("location", postItem.location)
+//                intent.putExtra("date", postItem.date)
+//                intent.putExtra("note", postItem.note)
+//                intent.putExtra("private", postItem.private)
+//                itemView.context.startActivity(intent)
             }
         }
         private fun calculateInSampleSize(byteArray: ByteArray, reqWidth: Int, reqHeight: Int): Int {
@@ -489,7 +500,18 @@ class PostClusterAdapter(
 
     override fun getItemCount(): Int = posts.size
 
+}
 
+fun showPostActivity(post: PostItemRaw, context: Context){
+    val postItem = commonFunction.rawPostToPostItem(post, context)
 
+    val intent = Intent(context, PostActivity::class.java)
+    intent.putExtra("userId", postItem.userId)
+    intent.putExtra("images", ArrayList(postItem.imageData))
+    intent.putExtra("location", postItem.location)
+    intent.putExtra("date", postItem.date)
+    intent.putExtra("note", postItem.note)
+    intent.putExtra("private", postItem.private)
+    context.startActivity(intent)
 }
 
