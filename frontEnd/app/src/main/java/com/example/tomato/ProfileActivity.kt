@@ -70,18 +70,6 @@ class ProfileActivity : AppCompatActivity() {
         val postList = mutableListOf<PostItem>()
 
         for (post in posts){
-//            //convert each image to ByteArray
-//            val imageData = commonFunction.postImagesToByteArrays(post.images)
-//
-//            //convert ByteArray to Uri
-//            val imageURIs = commonFunction.byteToURIs(imageData, cacheDir, this)
-//
-//            val location = geocoder.getFromLocation(post.latitude, post.longitude, 1)
-//            if (location != null){
-//                val address = commonFunction.parseLocation(post.latitude, post.longitude, this)
-//                postList.add(PostItem(imageURIs, address, post.date, post.note, post.private))
-//
-//            }
             postList.add(commonFunction.rawPostToPostItem(post, this))
         }
 
@@ -108,6 +96,7 @@ class ProfilePostAdapter(
 
             itemView.setOnClickListener{
                 val intent = Intent(itemView.context, PostActivity::class.java)
+                intent.putExtra("userId", post.userId)
                 intent.putExtra("images", ArrayList(post.imageData))
                 intent.putExtra("location", post.location)
                 intent.putExtra("date", post.date)

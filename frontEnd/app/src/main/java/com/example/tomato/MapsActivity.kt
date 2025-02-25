@@ -89,7 +89,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(binding.root)
 
         if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, BuildConfig.WEB_CLIENT_ID)
+            Places.initialize(applicationContext, BuildConfig.MAP_API_KEY)
         }
 
         val mapFragment = supportFragmentManager

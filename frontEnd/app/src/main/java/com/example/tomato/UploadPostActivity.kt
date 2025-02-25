@@ -51,6 +51,7 @@ class UploadPostActivity : AppCompatActivity() {
     private val imageUris = mutableListOf<Uri>()
     private var postLatitude: Double = 0.0
     private var postLongitude: Double = 0.0
+    private var postLocationName: String = ""
     private var postDate: String = ""
 
     companion object {
@@ -69,6 +70,23 @@ class UploadPostActivity : AppCompatActivity() {
         if(postVisibility != ""){
             updateVisibility()
         }
+    }
+
+    // Register post Location launcher (the form to obtain the post's location)
+    private val postLocationActivityLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data = result.data
+            postLatitude = data?.getDoubleExtra("latitude", -1.0) ?: -1.0
+            postLongitude = data?.getDoubleExtra("longitude", -1.0) ?: -1.0
+            postLocationName = data?.getStringExtra("locationName") ?: ""
+        }
+
+        if (postLocationName != ""){
+            updateLocation()
+        }
+        // TODO: Need to check if upload post available if nothing is set
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,13 +115,8 @@ class UploadPostActivity : AppCompatActivity() {
         // Add click listener to the location button (set location for the post)
         val locationButton = findViewById<LinearLayout>(R.id.addLocation)
         locationButton.setOnClickListener {
-            //TODO: Add location search/pinpoint to choose location
-            lifecycleScope.launch {
-                val (latitude, longitude) = getCurrentLocation()
-                updateLocation(latitude, longitude)
-                postLatitude = latitude
-                postLongitude = longitude
-            }
+            val intent = Intent(this, ChooseLocationActivity::class.java)
+            postLocationActivityLauncher.launch(intent)
         }
 
         // Add click listener for Visibility button
@@ -196,29 +209,15 @@ class UploadPostActivity : AppCompatActivity() {
             }
         }
     }
-    /**
-     * Translate latitude and longitude to address and display it to the user.
-     */
-    private fun updateLocation(latitude: Double, longitude: Double) {
-        val geocoder = Geocoder(this, java.util.Locale("en", "US"))
-        try {
-            val addresses: MutableList<android.location.Address>? = geocoder.getFromLocation(latitude, longitude, 1)
-            Log.d(TAG, "latitude: $latitude, longitude: $longitude")
-            Log.d(TAG, "Address: $addresses")
-            if (addresses != null) {
-                if (addresses.isNotEmpty()) {
-                    setLogoToBlue(R.drawable.upload_post_location, R.id.setLocationImage)
-                    val fullAddress = commonFunction.parseLocation(latitude, longitude, this)
-                    val locationText = findViewById<TextView>(R.id.setLocationText)
-                    locationText.text = fullAddress
-                } else {
-                    Log.e("GeocoderError", "No address found for this location.")
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("GeocoderError", "Error fetching address: ${e.message}")
-        }
 
+    /**
+     * Update the visibility text and set the logo to blue.
+     * @requires postVisibility to be updated before calling this function.
+     */
+    private fun updateLocation(){
+        setLogoToBlue(R.drawable.upload_post_location, R.id.setLocationImage)
+        val locationText = findViewById<TextView>(R.id.setLocationText)
+        locationText.text = postLocationName
     }
 
     /**
@@ -229,7 +228,6 @@ class UploadPostActivity : AppCompatActivity() {
         setLogoToBlue(R.drawable.visibility, R.id.setVisibilityImage)
         val visibilityText = findViewById<TextView>(R.id.setVisibilityText)
         visibilityText.text = postVisibility
-
     }
 
     /**
@@ -308,38 +306,6 @@ class UploadPostActivity : AppCompatActivity() {
         }
         imageAdapter.addImage(newUris)
     }
-
-
-    /**
-     * Obtain user's current location (latitude, longitude).
-     */
-    private suspend fun getCurrentLocation(): Pair<Double, Double> {
-        return suspendCoroutine { continuation ->
-            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
-                continuation.resume(Pair(0.0, 0.0))  // Return fallback values if permission is not granted
-                return@suspendCoroutine
-            }
-
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener { location: Location? ->
-                    if (location != null) {
-                        continuation.resume(Pair(location.latitude, location.longitude))
-                    } else {
-                        continuation.resume(Pair(0.0, 0.0))  // Fallback location
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    Log.e("LocationError", "Failed to get location: ${exception.message}")
-                    continuation.resume(Pair(0.0, 0.0))  // Return fallback values on failure
-                }
-        }
-    }
-
 }
 
 /**
