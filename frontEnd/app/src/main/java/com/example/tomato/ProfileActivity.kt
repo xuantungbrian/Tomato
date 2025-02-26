@@ -1,5 +1,6 @@
 package com.example.tomato
 
+import PostHelper
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.location.Geocoder
@@ -12,7 +13,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -45,8 +45,10 @@ class ProfileActivity : AppCompatActivity() {
         // Update user's profile if user is signed in
         updateProfile()
 
-        // Show the progress bar
+        // Show the progress wheel
         progressBar.visibility = View.VISIBLE
+
+        commonFunction.initNavBarButtons(this@ProfileActivity, this)
 
         // Initialize Recycler views for "Your Post" & "Recommendations"
         lifecycleScope.launch {
@@ -57,8 +59,9 @@ class ProfileActivity : AppCompatActivity() {
                 val yourPostAdapter = ProfilePostAdapter(yourPostList)
                 yourPostRecyclerView.adapter = yourPostAdapter
             }
-
         }
+
+
     }
 
     /**
@@ -91,7 +94,7 @@ class ProfileActivity : AppCompatActivity() {
         val postList = mutableListOf<PostItem>()
 
         for (post in posts){
-            postList.add(commonFunction.rawPostToPostItem(post, this))
+            postList.add(PostHelper.rawPostToPostItem(post, this))
         }
 
         // Load is successful, remove progressBar

@@ -1,5 +1,6 @@
 package com.example.tomato
 
+import PostHelper
 import android.util.Base64
 import android.Manifest
 import android.app.DatePickerDialog
@@ -31,6 +32,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.LocationServices
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
@@ -48,7 +50,7 @@ class UploadPostActivity : AppCompatActivity() {
     private var postVisibility: String = ""
 
     /** Variables that are related to post's component **/
-    private val imageUris = mutableListOf<Uri>()
+    private var imageUris = mutableListOf<Uri>()
     private var postLatitude: Double = 0.0
     private var postLongitude: Double = 0.0
     private var postLocationName: String = ""
@@ -181,7 +183,6 @@ class UploadPostActivity : AppCompatActivity() {
             // JSON-ify the base64strings array so it can be parsed easily on the server
             val imageArray = JSONArray(base64Strings)
 
-
             val note = findViewById<TextView>(R.id.noteText).text.toString()
             val postIsPrivate = postVisibility == "Private"
             val dateFormatter = SimpleDateFormat("dd/MM/yyyy")
@@ -211,7 +212,10 @@ class UploadPostActivity : AppCompatActivity() {
                         "Post uploaded successfully",
                         Toast.LENGTH_SHORT
                     ).show()
-
+                    val gson = Gson()
+                    val post = gson.fromJson(response, PostItemRaw::class.java)
+                    PostHelper.showPostActivity(post, this@UploadPostActivity)
+                    clearFields()
                 } else {
                     Toast.makeText(
                         this@UploadPostActivity,
@@ -221,6 +225,24 @@ class UploadPostActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Clear all input fields
+     */
+    private fun clearFields(){
+        imageUris = mutableListOf()
+        postVisibility = ""
+        postLocationName = ""
+        postDate = ""
+
+        val postText = findViewById<TextView>(R.id.noteText)
+        postText.text = ""
+
+        updateViewSwitch()
+        updateVisibility()
+        updateLocation()
+        updateDate()
     }
 
     /**
@@ -253,9 +275,17 @@ class UploadPostActivity : AppCompatActivity() {
      * @requires postVisibility to be updated before calling this function.
      */
     private fun updateLocation(){
-        setLogoToBlue(R.drawable.upload_post_location, R.id.setLocationImage)
-        val locationText = findViewById<TextView>(R.id.setLocationText)
-        locationText.text = postLocationName
+        if(postLocationName == ""){
+            setLogoToBlack(R.drawable.upload_post_location, R.id.setLocationImage)
+            val locationText = findViewById<TextView>(R.id.setLocationText)
+            locationText.text = "Location"
+        }
+        else{
+            setLogoToBlue(R.drawable.upload_post_location, R.id.setLocationImage)
+            val locationText = findViewById<TextView>(R.id.setLocationText)
+            locationText.text = postLocationName
+
+        }
     }
 
     /**
@@ -263,9 +293,17 @@ class UploadPostActivity : AppCompatActivity() {
      * @requires postVisibility to be updated before calling this function.
      */
     private fun updateVisibility(){
-        setLogoToBlue(R.drawable.visibility, R.id.setVisibilityImage)
-        val visibilityText = findViewById<TextView>(R.id.setVisibilityText)
-        visibilityText.text = postVisibility
+        if(postVisibility == ""){
+            setLogoToBlack(R.drawable.visibility, R.id.setVisibilityImage)
+            val visibilityText = findViewById<TextView>(R.id.setVisibilityText)
+            visibilityText.text = "Visibility"
+        }
+        else{
+            setLogoToBlue(R.drawable.visibility, R.id.setVisibilityImage)
+            val visibilityText = findViewById<TextView>(R.id.setVisibilityText)
+            visibilityText.text = postVisibility
+
+        }
     }
 
     /**
@@ -273,9 +311,14 @@ class UploadPostActivity : AppCompatActivity() {
      * @requires postDate to be updated before calling this function.
      */
     private fun updateDate(){
-        val dateText = findViewById<TextView>(R.id.setDateText)
-        dateText.text = postDate
-        setLogoToBlue(R.drawable.upload_post_date, R.id.setDateImage)
+        if(postDate == ""){
+            setLogoToBlack(R.drawable.upload_post_date, R.id.setDateImage)
+        }
+        else {
+            val dateText = findViewById<TextView>(R.id.setDateText)
+            dateText.text = postDate
+            setLogoToBlue(R.drawable.upload_post_date, R.id.setDateImage)
+        }
     }
 
     /**
@@ -297,6 +340,9 @@ class UploadPostActivity : AppCompatActivity() {
     }
 
 
+    /**
+     * Set the logo to blue, indicating the field is non-empty.
+     */
     private fun setLogoToBlue(logoID: Int, imageID: Int){
         val logo = ContextCompat.getDrawable(this, logoID)
         val image = findViewById<ImageView>(imageID)
@@ -306,6 +352,18 @@ class UploadPostActivity : AppCompatActivity() {
         image.setImageDrawable(logo)
     }
 
+    /**
+     * Set the logo to black, indicating the field is empty.
+     */
+    private fun setLogoToBlack(logoID: Int, imageID: Int){
+        val logo = ContextCompat.getDrawable(this, logoID)
+        val image = findViewById<ImageView>(imageID)
+
+        val color = ContextCompat.getColor(this, R.color.black)
+        logo?.setTint(color)
+        image.setImageDrawable(logo)
+
+    }
 
     /**
      * Update the UI based on whether there are uploaded images.

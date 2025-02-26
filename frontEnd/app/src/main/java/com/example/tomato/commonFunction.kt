@@ -1,12 +1,17 @@
 package com.example.tomato
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.location.Geocoder
 import android.net.Uri
 import android.util.Log
+import android.view.View
+import android.widget.LinearLayout
 import androidx.core.content.FileProvider
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -73,25 +78,24 @@ object commonFunction {
 
     }
 
-
     /**
-     * Convert a list of PostImage to a list of ByteArray.
+     * Initialize the bottom navigation bar buttons
      */
-    fun postImagesToByteArrays(images: List<PostImage>): List<ByteArray> {
-        val imageByteArrays = mutableListOf<ByteArray>()
-        for (image in images) {
-            val imageByteArray = image.fileData.data.map { it.toByte() }.toByteArray()
-            imageByteArrays.add(imageByteArray)
+     fun initNavBarButtons(context: Context, activity: Activity) {
+        val homeButton = activity.findViewById<LinearLayout>(R.id.bottom_navbar_home_button)
+        val profileButton = activity.findViewById<LinearLayout>(R.id.bottom_navbar_profile_button)
+        val uploadButton = activity.findViewById<FloatingActionButton>(R.id.bottom_navbar_upload_button)
+
+        homeButton.setOnClickListener {
+            context.startActivity(Intent(context, MapsActivity::class.java))
         }
-        return imageByteArrays
+        profileButton.setOnClickListener {
+            context.startActivity(Intent(context, ProfileActivity::class.java))
+        }
+        uploadButton.setOnClickListener {
+            context.startActivity(Intent(context, UploadPostActivity::class.java))
+        }
     }
 
 
-
-    fun rawPostToPostItem(rawPost: PostItemRaw, context: Context): PostItem {
-        val address = parseLocation(rawPost.latitude, rawPost.longitude, context)
-        val imageURIs = byteToURIs(postImagesToByteArrays(rawPost.images), context.cacheDir, context)
-        Log.d("HELLO", imageURIs.toString())
-        return PostItem(imageURIs, address, rawPost.date, rawPost.note, rawPost.private, rawPost.userId)
-    }
 }

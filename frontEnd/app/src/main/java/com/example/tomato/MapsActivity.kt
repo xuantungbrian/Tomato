@@ -1,6 +1,7 @@
 package com.example.tomato
 
 import JwtManager
+import PostHelper
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
@@ -97,6 +98,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.mapFragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        //Init sign in button
         findViewById<Button>(R.id.sign_in_button).setOnClickListener {
             val credentialManager = CredentialManager.create(this)
             val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(BuildConfig.WEB_CLIENT_ID)
@@ -116,26 +118,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        findViewById<FloatingActionButton>(R.id.bottom_navbar_upload_button).setOnClickListener {
-            startActivity(Intent(this, UploadPostActivity::class.java))
-        }
+        commonFunction.initNavBarButtons(this@MapsActivity, this)
 
-        findViewById<LinearLayout>(R.id.bottom_navbar_home_button).setOnClickListener {
-            lifecycleScope.launch {
-                val response = HTTPRequest.sendGetRequest("http://10.0.2.2:3000/test1", this@MapsActivity)
-                Log.d(TAG, "onCreate: $response")
-            }
-        }
-
-        findViewById<LinearLayout>(R.id.bottom_navbar_profile_button).setOnClickListener {
-            startActivity(Intent(this, ProfileActivity::class.java))
-        }
-
+        // Update profile (show clickable image) if user is logged in
         if (UserCredentialManager.isLoggedIn(this)) {
             updateProfile()
         }
 
     }
+
 
     /**
      * After user is signed in, display the profile image on the top right
@@ -220,7 +211,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 // TODO: Handle aggregated marker click (e.g., zoom in or show list)
             }
             if((tag as List<PostItemRaw>).size == 1){
-                showPostActivity(tag[0], this@MapsActivity)
+                PostHelper.showPostActivity(tag[0], this@MapsActivity)
 
             }
             else{
@@ -490,7 +481,7 @@ class PostClusterAdapter(
 
 
             itemView.setOnClickListener{
-                showPostActivity(post, itemView.context)
+                PostHelper.showPostActivity(post, itemView.context)
             }
 
             itemView.setOnTouchListener { _, event ->
@@ -545,16 +536,4 @@ class PostClusterAdapter(
 
 }
 
-fun showPostActivity(post: PostItemRaw, context: Context){
-    val postItem = commonFunction.rawPostToPostItem(post, context)
-
-    val intent = Intent(context, PostActivity::class.java)
-    intent.putExtra("userId", postItem.userId)
-    intent.putExtra("images", ArrayList(postItem.imageData))
-    intent.putExtra("location", postItem.location)
-    intent.putExtra("date", postItem.date)
-    intent.putExtra("note", postItem.note)
-    intent.putExtra("private", postItem.private)
-    context.startActivity(intent)
-}
 
