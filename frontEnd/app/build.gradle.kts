@@ -73,8 +73,6 @@ dependencies {
     implementation("androidx.credentials:credentials:1.3.0")
 
 
-    // optional - needed for credentials support from play services, for devices running
-    // Android 13 and below.
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
@@ -83,6 +81,8 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.9.2")
     implementation("androidx.security:security-crypto:1.0.0")
     implementation ("com.google.maps.android:android-maps-utils:3.0.0")
+    implementation ("com.google.android.gms:play-services-auth:20.5.0")
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
 
 
 

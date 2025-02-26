@@ -86,32 +86,7 @@ object commonFunction {
         return imageByteArrays
     }
 
-     fun saveUserId(context: Context, userId: String) {
-        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-        val sharedPreferences = EncryptedSharedPreferences.create(
-            "UserPrefs",
-            masterKeyAlias,
-            context,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-        with(sharedPreferences.edit()) {
-            putString("userId", userId)
-            apply()
-        }
-    }
 
-     fun getUserId(context: Context): String? {
-        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-        val sharedPreferences = EncryptedSharedPreferences.create(
-            "UserPrefs",
-            masterKeyAlias,
-            context,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-        return sharedPreferences.getString("userId", null)
-    }
 
     fun rawPostToPostItem(rawPost: PostItemRaw, context: Context): PostItem {
         val address = parseLocation(rawPost.latitude, rawPost.longitude, context)

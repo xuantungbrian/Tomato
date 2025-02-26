@@ -33,7 +33,7 @@ class PostActivity : AppCompatActivity() {
             insets
         }
         val userId = intent.getStringExtra("userId")
-        if (userId == commonFunction.getUserId(this)) {
+        if (userId == UserCredentialManager.getUserId(this)) {
             isOwner = true
         }
 

@@ -12,11 +12,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -40,6 +42,9 @@ class ProfileActivity : AppCompatActivity() {
             insets
         }
 
+        // Update user's profile if user is signed in
+        updateProfile()
+
         // Show the progress bar
         progressBar.visibility = View.VISIBLE
 
@@ -53,6 +58,22 @@ class ProfileActivity : AppCompatActivity() {
                 yourPostRecyclerView.adapter = yourPostAdapter
             }
 
+        }
+    }
+
+    /**
+     * Update profile's username and image based on the current logged in user.
+     */
+    private fun updateProfile(){
+        val usernameView = findViewById<TextView>(R.id.profile_activity_username)
+        val profileImageView = findViewById<ImageView>(R.id.profile_activity_profile_image)
+
+        val (username, profileImageURI) = UserCredentialManager.getUserProfile(this)
+        usernameView.text = username
+        if (profileImageURI != null) {
+            Glide.with(this)
+                .load(profileImageURI)
+                .into(profileImageView)
         }
     }
 

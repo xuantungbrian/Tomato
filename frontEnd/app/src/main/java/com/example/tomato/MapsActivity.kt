@@ -38,6 +38,7 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.tomato.databinding.ActivityMapsBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -129,6 +130,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         findViewById<LinearLayout>(R.id.bottom_navbar_profile_button).setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
+
+        if (UserCredentialManager.isLoggedIn(this)) {
+            updateProfile()
+        }
+
+    }
+
+    /**
+     * After user is signed in, display the profile image on the top right
+     */
+    private fun updateProfile(){
+        val sign_in_button = findViewById<Button>(R.id.sign_in_button)
+        val profile_button = findViewById<ImageView>(R.id.map_activity_profile_button)
+
+        sign_in_button.visibility = View.GONE
+        profile_button.visibility = View.VISIBLE
+        val (username, profilePicture) = UserCredentialManager.getUserProfile(this)
+        Glide.with(this)
+            .load(profilePicture)
+            .into(profile_button)
+        profile_button.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
     }
 
     private fun handleSignIn(result: GetCredentialResponse) {
@@ -138,7 +162,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     try {
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data).idToken
+                        val username = GoogleIdTokenCredential.createFrom(credential.data).displayName
+                        val profilePicture = GoogleIdTokenCredential.createFrom(credential.data).profilePictureUri
+
+                        if (username != null) {
+                            UserCredentialManager.saveUserProfile(this@MapsActivity, username, profilePicture.toString())
+                        }
+
                         sendSignInRequest(googleIdTokenCredential)
+
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Received an invalid google id token response", e)
                     }
@@ -157,9 +189,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
                 JwtManager.saveToken(this@MapsActivity, signInResponse.token)
                 val userID = signInResponse.userID
-                commonFunction.saveUserId(this@MapsActivity, userID)
-                Log.d(TAG, "sendSignInResponse: $signInResponse")
-                Log.d(TAG, "USERID: ${commonFunction.getUserId(this@MapsActivity)}")
+                UserCredentialManager.saveUserId(this@MapsActivity, userID)
             }
         }
     }
