@@ -161,53 +161,91 @@ class UploadPostActivity : AppCompatActivity() {
 
     /**
      * Send a POST request to the server to upload post.
-     * TODO: ADD SOME BASIC CHECKS (EG: NO EMPTY FIELDS) BEFORE SENDING
      */
     private fun uploadPost(){
-        // Convert ImageURIs to Bytes (Raw data)
-        val imageBytes: List<ByteArray> =  imageUris.mapNotNull { uri ->
-            contentResolver.openInputStream(uri)?.use { inputStream ->
-                inputStream.readBytes()
+        // Ensure the post contains required items
+        if (verifyUploadRequirement()) {
+
+            // Convert ImageURIs to Bytes (Raw data)
+            val imageBytes: List<ByteArray> = imageUris.mapNotNull { uri ->
+                contentResolver.openInputStream(uri)?.use { inputStream ->
+                    inputStream.readBytes()
+                }
+            }
+
+            // Convert the Bytes to Base64 encoded strings
+            val base64Strings: List<String> = imageBytes.map { bytes ->
+                Base64.encodeToString(bytes, Base64.NO_WRAP)
+            }
+
+            // JSON-ify the base64strings array so it can be parsed easily on the server
+            val imageArray = JSONArray(base64Strings)
+
+
+            val note = findViewById<TextView>(R.id.noteText).text.toString()
+            val postIsPrivate = postVisibility == "Private"
+            val dateFormatter = SimpleDateFormat("dd/MM/yyyy")
+            val date: Date? = dateFormatter.parse(postDate)
+
+            val body = JSONObject()
+                .put("latitude", postLatitude)
+                .put("longitude", postLongitude)
+                .put("images", imageArray)
+                .put("date", date)
+                .put("note", note)
+                .put("isPrivate", postIsPrivate)
+                .toString()
+
+            lifecycleScope.launch {
+                val response = HTTPRequest.sendPostRequest(
+                    "${BuildConfig.SERVER_ADDRESS}/posts",
+                    body, this@UploadPostActivity
+                )
+                Log.d(TAG, "Response: $response")
+                Log.d(TAG, "JSON Body: $body")
+
+                //TODO: Handle response
+                if (response != null) {
+                    Toast.makeText(
+                        this@UploadPostActivity,
+                        "Post uploaded successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                } else {
+                    Toast.makeText(
+                        this@UploadPostActivity,
+                        "Post upload failed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
+    }
 
-        // Convert the Bytes to Base64 encoded strings
-        val base64Strings: List<String> = imageBytes.map { bytes ->
-            Base64.encodeToString(bytes, Base64.NO_WRAP)
+    /**
+     * Ensure the post contains image(s), visibility, location, and date.
+     * @return true if the post is valid, false otherwise.
+     */
+    private fun verifyUploadRequirement(): Boolean{
+        if(imageUris.isEmpty()){
+            Toast.makeText(this, "Please add at least one image", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if(postVisibility == ""){
+            Toast.makeText(this, "Please set a visibility", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if(postLocationName == ""){
+            Toast.makeText(this, "Please set a location", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if(postDate == ""){
+            Toast.makeText(this, "Please set a date", Toast.LENGTH_SHORT).show()
+            return false
         }
 
-        // JSON-ify the base64strings array so it can be parsed easily on the server
-        val imageArray = JSONArray(base64Strings)
-
-
-        val note = findViewById<TextView>(R.id.noteText).text.toString()
-        val postIsPrivate = postVisibility == "Private"
-        val dateFormatter = SimpleDateFormat("dd/MM/yyyy")
-        val date: Date? = dateFormatter.parse(postDate)
-
-        val body = JSONObject()
-        .put("latitude", postLatitude)
-        .put("longitude", postLongitude)
-        .put("images", imageArray)
-        .put("date", date)
-        .put("note", note)
-        .put("isPrivate", postIsPrivate)
-        .toString()
-
-        lifecycleScope.launch {
-            val response = HTTPRequest.sendPostRequest("${BuildConfig.SERVER_ADDRESS}/posts",
-                body, this@UploadPostActivity)
-            Log.d(TAG, "Response: $response")
-            Log.d(TAG, "JSON Body: $body")
-
-            //TODO: Handle response
-            if(response != null){
-                Toast.makeText(this@UploadPostActivity, "Post uploaded successfully", Toast.LENGTH_SHORT).show()
-            }
-            else{
-                Toast.makeText(this@UploadPostActivity, "Post upload failed", Toast.LENGTH_SHORT).show()
-            }
-        }
+        return true
     }
 
     /**
