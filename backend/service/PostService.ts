@@ -13,7 +13,7 @@ interface Post {
     userId: string,
     date: Date,
     note: string,
-    private: boolean,
+    isPrivate: boolean,
 }
 
 export class PostService {
@@ -57,17 +57,18 @@ export class PostService {
         }
     }
 
+    /**
+     * Retrieve public posts
+     */
     async getPosts(
-        userId: string, 
         start_lat?: number, 
         end_lat?: number, 
         start_long?: number, 
         end_long?: number, 
-        isPrivate?: boolean
     ) {
         try {
-            // Initialize the query with userId
-            const query: any = {};
+            // Initialize the query with public only post
+            const query: any = {isPrivate: false};
     
             // Check for start_lat and end_lat separately
             if (start_lat !== undefined) {
@@ -85,11 +86,6 @@ export class PostService {
                 query.longitude = { ...query.longitude, $lte: end_long };  // Longitude less than or equal to end_long
             }
     
-            // If `isPrivate` is provided, add it to the query
-            if (isPrivate) {
-                query.userId = userId; // Assuming 'private' is the field in your PostModel
-            }
-    
             // Return the posts based on the constructed 
             return PostModel.find(query);
         } catch (error) {
@@ -97,4 +93,18 @@ export class PostService {
             return null;
         }
     }    
+
+    /**
+     * Get all posts belonging the an authenticated user
+     */
+    async getUserPost(userId: string){
+        try{
+            return PostModel.find({userId: userId})
+        }
+
+         catch (error) {
+            console.log("Error getting posts", error);
+            return null;
+        }
+    }
 }
