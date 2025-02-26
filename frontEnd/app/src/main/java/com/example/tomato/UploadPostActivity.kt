@@ -191,7 +191,7 @@ class UploadPostActivity : AppCompatActivity() {
         .put("images", imageArray)
         .put("date", date)
         .put("note", note)
-        .put("private", postIsPrivate)
+        .put("isPrivate", postIsPrivate)
         .toString()
 
         lifecycleScope.launch {
