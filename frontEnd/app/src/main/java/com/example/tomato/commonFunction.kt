@@ -30,13 +30,22 @@ object commonFunction {
         }
 
         val address = addresses[0]
-        val street = address.thoroughfare // street name
-        val locality = address.locality // city or locality
-        val adminArea = address.adminArea // state or province
-        val country = address.countryName // country
+        val street = address.thoroughfare?:"" // street name
+        val locality = address.locality?:"" // city or locality
+        val adminArea = address.adminArea?:"" // state or province
+        val country = address.countryName?:"" // country
 
-        // Combine the results to get a meaningful address
-        val fullAddress = "$street, $locality, $adminArea, $country"
+        val addressParts = listOf<String>(street, locality, adminArea, country)
+        var fullAddress = ""
+        for(part in addressParts){
+            if(part != ""){
+                fullAddress += part
+                if(part != addressParts.last()){
+                    fullAddress += ", "
+                }
+            }
+
+        }
 
         return fullAddress
     }

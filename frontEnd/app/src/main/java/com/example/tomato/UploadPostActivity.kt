@@ -88,7 +88,6 @@ class UploadPostActivity : AppCompatActivity() {
         if (postLocationName != ""){
             updateLocation()
         }
-        // TODO: Need to check if upload post available if nothing is set
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,6 +101,7 @@ class UploadPostActivity : AppCompatActivity() {
         }
         initImageViewer()
         addClickListenersToPostInfoButtons()
+        Log.d(TAG, "onCreate")
     }
 
     /**
