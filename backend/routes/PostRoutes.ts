@@ -11,8 +11,8 @@ export const PostRoutes = [
     },
     {
         method: "get",
-        route: "/posts/user",            
-        action: postController.getUserPost,
+        route: "/posts-authenticated",            
+        action: postController.getAuthenticatedUserPost,
         validation: [],
         protected: true 
     },

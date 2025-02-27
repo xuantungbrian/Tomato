@@ -1,6 +1,8 @@
 import { FileService } from "../service/FileService";
 import { PostService } from "../service/PostService";
 import { Request, Response, NextFunction } from "express";
+import MissingCoordinateException from "../errors/customError";
+
 interface ImageData {
     fileData: Buffer;
     fileType: string;
@@ -28,23 +30,9 @@ export class PostController {
 
     getPosts = async (req: Request, res: Response, next: NextFunction) => {
         try{
-            const { start_lat, end_lat, start_long, end_long, includePrivate } = req.query;
-            // Parse the coordinates if present
-            const parsedStartLat = start_lat ? parseFloat(start_lat as string) : undefined;
-            const parsedEndLat = end_lat ? parseFloat(end_lat as string) : undefined;
-            const parsedStartLong = start_long ? parseFloat(start_long as string) : undefined;
-            const parsedEndLong = end_long ? parseFloat(end_long as string) : undefined;
+            const {parsedStartLat, parsedEndLat, parsedStartLong, parsedEndLong } =  parseLocationParam(req)
         
-            // Parse the "isPrivate" parameter as a boolean
-            const isPostPrivate = includePrivate === 'true'; // "true" or "false" as strings from query param
-                
-            // If there is parameter, ensure it's complete
-            if ( (!parsedStartLat || !parsedEndLat || !parsedStartLong || !parsedEndLong)
-                && Object.keys(req.query).length > 0) {
-                return res.status(400).json({ message: "Missing required query parameters" });
-            }
-        
-            // Call your service with the query params
+            // Call service with the query params
             res.json(await this.postService.getPosts(
                 parsedStartLat, 
                 parsedEndLat, 
@@ -52,18 +40,36 @@ export class PostController {
                 parsedEndLong,
             ));
         }
-        catch(err){
-            console.log("ERROR: ", err)
-            return res.status(500).json({ message: "Internal Server Error" });
+        catch(error){
+            if(error instanceof MissingCoordinateException){
+                console.log("User Provided Invalid coordinate: ", error)
+                return res.status(400).json({ message: "Incomplete coordinate" });
+            }
+            else{
+                console.log("Error: ", error);
+                return res.status(500).json({ message: "Internal Server Error" });
 
+            }
         }
     };
 
  
-    getUserPost = async(req: Request, res: Response, next: NextFunction) => {
+    getAuthenticatedUserPost = async(req: Request, res: Response, next: NextFunction) => {
         try{
+            const {userPostOnly, start_lat, end_lat, start_long, end_long} = req.query;
+
+            // Parse the coordinates if present
+            const parsedStartLat = start_lat ? parseFloat(start_lat as string) : undefined;
+            const parsedEndLat = end_lat ? parseFloat(end_lat as string) : undefined;
+            const parsedStartLong = start_long ? parseFloat(start_long as string) : undefined;
+            const parsedEndLong = end_long ? parseFloat(end_long as string) : undefined;
+
+            const parsedUserPostOnly = userPostOnly == "true"
+
             const userId = (req as any).user.id
-            res.json(await this.postService.getUserPost(userId))
+            res.json(await this.postService.getAuthenticatedUserPost(userId, parsedUserPostOnly, parsedStartLat,
+                                                        parsedEndLat, parsedStartLong,
+                                                        parsedEndLong))
         }
 
         catch(err){
@@ -95,4 +101,25 @@ export class PostController {
         const postId = req.params.id
         res.json(await this.postService.deletePost(postId))
     }
+}
+
+/**
+ * Parse the longitude and latitude information of a request param
+ */
+function parseLocationParam(req: Request){
+    const { start_lat, end_lat, start_long, end_long} = req.query;
+
+    // Parse the coordinates if present
+    const parsedStartLat = start_lat ? parseFloat(start_lat as string) : undefined;
+    const parsedEndLat = end_lat ? parseFloat(end_lat as string) : undefined;
+    const parsedStartLong = start_long ? parseFloat(start_long as string) : undefined;
+    const parsedEndLong = end_long ? parseFloat(end_long as string) : undefined;
+
+    return {
+        parsedStartLat: parsedStartLat,
+        parsedEndLat: parsedEndLat,
+        parsedStartLong: parsedStartLong,
+        parsedEndLong: parsedEndLong
+    }
+
 }
