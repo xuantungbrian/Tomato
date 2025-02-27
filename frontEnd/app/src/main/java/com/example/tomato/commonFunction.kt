@@ -1,6 +1,7 @@
 package com.example.tomato
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.location.Geocoder
@@ -97,12 +98,31 @@ object commonFunction {
 
         homeButton.setOnClickListener {
             context.startActivity(Intent(context, MapsActivity::class.java))
+
+
+
         }
         profileButton.setOnClickListener {
-            context.startActivity(Intent(context, ProfileActivity::class.java))
+            if (UserCredentialManager.isLoggedIn(context)) {
+                context.startActivity(Intent(context, ProfileActivity::class.java))
+            }
+            else{
+                AlertDialog.Builder(context)
+                    .setTitle("Login is required to view profile page")
+                    .setNegativeButton("Okay", null)
+                    .show()
+            }
         }
         uploadButton.setOnClickListener {
-            context.startActivity(Intent(context, UploadPostActivity::class.java))
+            if (UserCredentialManager.isLoggedIn(context)) {
+                context.startActivity(Intent(context, UploadPostActivity::class.java))
+            }
+            else {
+                AlertDialog.Builder(context)
+                    .setTitle("Login is required to upload post")
+                    .setNegativeButton("Okay", null)
+                    .show()
+            }
         }
     }
 

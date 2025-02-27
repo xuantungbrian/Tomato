@@ -140,27 +140,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         commonFunction.initNavBarButtons(this@MapsActivity, this)
 
         // Update profile (show clickable image) if user is logged in
-        if (UserCredentialManager.isLoggedIn(this)) {
-            updateProfile()
-        }
+        updateProfile()
+
 
     }
 
     /**
-     * After user is signed in, display the profile image on the top right
+     * If user is logged in, display the profile image on the top right
      */
     private fun updateProfile(){
         val sign_in_button = findViewById<Button>(R.id.sign_in_button)
         val profile_button = findViewById<ImageView>(R.id.map_activity_profile_button)
-
-        sign_in_button.visibility = View.GONE
-        profile_button.visibility = View.VISIBLE
-        val (username, profilePicture) = UserCredentialManager.getUserProfile(this)
-        Glide.with(this)
-            .load(profilePicture)
-            .into(profile_button)
-        profile_button.setOnClickListener {
-            startActivity(Intent(this, ProfileActivity::class.java))
+        if (UserCredentialManager.isLoggedIn(this)) {
+            sign_in_button.visibility = View.GONE
+            profile_button.visibility = View.VISIBLE
+            val (username, profilePicture) = UserCredentialManager.getUserProfile(this)
+            Glide.with(this)
+                .load(profilePicture)
+                .into(profile_button)
+            profile_button.setOnClickListener {
+                startActivity(Intent(this, ProfileActivity::class.java))
+            }
+        }
+        else{
+            sign_in_button.visibility = View.VISIBLE
+            profile_button.visibility = View.GONE
         }
     }
 
