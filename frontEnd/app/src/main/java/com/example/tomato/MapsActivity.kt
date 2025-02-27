@@ -181,7 +181,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         if (username != null) {
                             UserCredentialManager.saveUserProfile(this@MapsActivity, username, profilePicture.toString())
                         }
-
                         sendSignInRequest(googleIdTokenCredential)
 
                     } catch (e: GoogleIdTokenParsingException) {
@@ -203,6 +202,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 JwtManager.saveToken(this@MapsActivity, signInResponse.token)
                 val userID = signInResponse.userID
                 UserCredentialManager.saveUserId(this@MapsActivity, userID)
+                updateProfile()
             }
         }
     }
