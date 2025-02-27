@@ -31,24 +31,7 @@ object commonFunction {
         }
 
         val address = addresses[0]
-        val street = address.thoroughfare?:"" // street name
-        val locality = address.locality?:"" // city or locality
-        val adminArea = address.adminArea?:"" // state or province
-        val country = address.countryName?:"" // country
-
-        val addressParts = listOf<String>(street, locality, adminArea, country)
-        var fullAddress = ""
-        for(part in addressParts){
-            if(part != ""){
-                fullAddress += part
-                if(part != addressParts.last()){
-                    fullAddress += ", "
-                }
-            }
-
-        }
-
-        return fullAddress
+        return address.getAddressLine(0).toString()
     }
 
     /**

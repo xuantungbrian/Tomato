@@ -15,7 +15,7 @@
         app:layout_constraintHeight_percent="0.9"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="35dp" />
+        tools:layout_editor_absoluteX="16dp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout3"
@@ -24,15 +24,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/textInputEditText"
-            android:layout_width="273dp"
-            android:layout_height="48dp"
+
+        <AutoCompleteTextView
+            android:id="@+id/locationAutoCompleteTextView"
+            android:layout_width="300dp"
+            android:layout_height="50dp"
             android:layout_marginStart="16dp"
             android:background="@drawable/home_search_bar"
+            android:completionThreshold="1"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:hint="Search"
-            android:padding="8dp"
             android:paddingStart="40dp"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -41,21 +45,17 @@
             android:id="@+id/imageView"
             android:layout_width="42dp"
             android:layout_height="27dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textInputEditText"
-            app:layout_constraintStart_toStartOf="@+id/textInputEditText"
-            app:layout_constraintTop_toTopOf="@+id/textInputEditText"
-            app:layout_constraintVertical_bias="0.6"
+            app:layout_constraintBottom_toBottomOf="@+id/locationAutoCompleteTextView"
+            app:layout_constraintStart_toStartOf="@+id/locationAutoCompleteTextView"
+            app:layout_constraintTop_toTopOf="@+id/locationAutoCompleteTextView"
             app:srcCompat="@android:drawable/ic_menu_search" />
 
         <FrameLayout
             android:id="@+id/frameLayout"
             android:layout_width="100dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="30dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.56"
-            app:layout_constraintStart_toEndOf="@+id/textInputEditText"
             tools:layout_editor_absoluteY="0dp">
 
             <Button

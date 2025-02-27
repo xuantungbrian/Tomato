@@ -20,12 +20,15 @@ import android.graphics.Shader
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -55,6 +58,9 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -88,6 +94,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val fetchDelay = 500 // Minimum idling time before fetching posts
     private val postSize = 80 // The circular image size on the map
     private val gridSize = 3 * postSize // Distance threshold in pixels for clustering
+
+
+    //Location Search
+    private lateinit var placesClient: PlacesClient
+    private lateinit var sessionToken: AutocompleteSessionToken
+    private lateinit var autoCompleteTextView: AutoCompleteTextView
+    private var searchLatitude: Double? = null
+    private var searchLongitude: Double? = null
+    private var searchLocationName: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -142,8 +158,71 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // Update profile (show clickable image) if user is logged in
         updateProfile()
 
-
+        initSearchLocation()
     }
+
+    private fun initSearchLocation(){
+        // Initialize Places Client and Session Token
+        placesClient = Places.createClient(this)
+        sessionToken = AutocompleteSessionToken.newInstance()
+
+        // Find AutoCompleteTextView in the layout
+        autoCompleteTextView = findViewById(R.id.locationAutoCompleteTextView)
+        // Instantiate the autocomplete helper
+
+        PlaceAutocompleteHelper(
+            context = this,
+            autoCompleteTextView = autoCompleteTextView,
+            placesClient = placesClient,
+            sessionToken = sessionToken,
+            onPredictionSelected = { prediction ->
+                // Handle the selected prediction
+                val placeId = prediction.placeId
+                val fetchPlaceRequest = com.google.android.libraries.places.api.net.FetchPlaceRequest.builder(
+                    placeId,
+                    listOf(com.google.android.libraries.places.api.model.Place.Field.LAT_LNG)
+                ).build()
+
+                placesClient.fetchPlace(fetchPlaceRequest)
+                    .addOnSuccessListener { response ->
+                        val place = response.place
+                        place.latLng?.let {
+                            searchLatitude = it.latitude
+                            searchLongitude = it.longitude
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        // Handle failure
+                    }
+            },
+
+        )
+
+        autoCompleteTextView.setOnEditorActionListener { _, actionId, event ->
+            val isEnterPressed = actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    actionId == EditorInfo.IME_ACTION_DONE ||
+                    (event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER)
+            if (isEnterPressed) {
+                if (searchLatitude != null && searchLongitude != null) {
+                    moveMapCameraTo(searchLatitude!!, searchLongitude!!)
+                }
+                autoCompleteTextView.clearFocus()
+                autoCompleteTextView.clearComposingText()
+                autoCompleteTextView.text = null
+
+                true // Consume the event.
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun moveMapCameraTo(latitude: Double, longitude: Double) {
+        val latLng = LatLng(latitude, longitude)
+        val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15f)
+        mMap.animateCamera(cameraUpdate)
+    }
+
 
     /**
      * If user is logged in, display the profile image on the top right
