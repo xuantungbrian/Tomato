@@ -18,8 +18,8 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/profile_activity_profile_image"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:layout_gravity="center"
         android:layout_marginEnd="40dp"
         android:scaleType="centerCrop"

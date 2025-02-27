@@ -85,7 +85,7 @@ class ProfileActivity : AppCompatActivity() {
      */
     suspend fun getYourPostList(): List<PostItem>? {
 
-        val response = HTTPRequest.sendGetRequest("${BuildConfig.SERVER_ADDRESS}/posts/user",
+        val response = HTTPRequest.sendGetRequest("${BuildConfig.SERVER_ADDRESS}/posts-authenticated/?userPostOnly=true",
             this@ProfileActivity)
 
         val gson = Gson()

@@ -31,11 +31,13 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -80,6 +82,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         private const val TAG = "MapsActivity"
     }
 
+    private var userPostOnly: Boolean = false
+
     // PARAMETERS
     private val fetchDelay = 500 // Minimum idling time before fetching posts
     private val postSize = 80 // The circular image size on the map
@@ -118,6 +122,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
+        //Init filter button
+        findViewById<Button>(R.id.filter_post_button).setOnClickListener {
+            val options = arrayOf("Show only your posts", "Show all viewable posts")
+
+            AlertDialog.Builder(this@MapsActivity)
+                .setTitle("Post Filter")
+                .setItems(options) { _, which ->
+                    userPostOnly = which == 0
+                    getPostsOnScreen(mMap)
+                }
+                .setCancelable(true)
+                .show()
+
+        }
+
         commonFunction.initNavBarButtons(this@MapsActivity, this)
 
         // Update profile (show clickable image) if user is logged in
@@ -126,7 +145,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
     }
-
 
     /**
      * After user is signed in, display the profile image on the top right
@@ -233,9 +251,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val endLat = max(visibleRegion.farLeft.latitude, visibleRegion.nearRight.latitude)
             val startLong = min(visibleRegion.farLeft.longitude, visibleRegion.nearRight.longitude)
             val endLong = max(visibleRegion.farLeft.longitude, visibleRegion.nearRight.longitude)
-            val url = "${BuildConfig.SERVER_ADDRESS}/posts?" +
+            var url = "${BuildConfig.SERVER_ADDRESS}/posts?" +
                     "start_lat=$startLat&end_lat=$endLat&" +
                     "start_long=$startLong&end_long=$endLong"
+            if(UserCredentialManager.isLoggedIn(this@MapsActivity)){
+                url = "${BuildConfig.SERVER_ADDRESS}/posts-authenticated?" +
+                        "userPostOnly=$userPostOnly&" +
+                        "start_lat=$startLat&end_lat=$endLat&" +
+                        "start_long=$startLong&end_long=$endLong"
+            }
 
             val response = withContext(Dispatchers.IO) {
                 HTTPRequest.sendGetRequest(url, this@MapsActivity)
