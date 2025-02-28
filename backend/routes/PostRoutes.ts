@@ -8,7 +8,7 @@ export const PostRoutes = [
         route: "/posts",            
         action: postController.getPosts,
         validation: [],
-        // protected: true
+        protected: true
     },
     {
         method: "get",

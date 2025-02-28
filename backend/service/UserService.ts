@@ -41,6 +41,7 @@ export class UserService {
         // Check if user exists, otherwise create a new one
         let user = await this.getUser(payload.sub);
         console.log("USER: ", user)
+    
         if (!user) {
             user = await this.createUser(payload.sub, payload.name);
             console.log("CREATED NEW USER")
@@ -51,8 +52,10 @@ export class UserService {
             expiresIn: "999d",
             algorithm: "HS256"
         });
+        let userID = user!._id
 
-        return { token: jwtToken, user };
+
+        return { token: jwtToken, userID };
     }
 
 }
