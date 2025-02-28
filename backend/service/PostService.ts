@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { PostModel } from "../model/PostModel";
+import MissingCoordinateException from "../errors/customError";
 
 interface ImageData{
     fileData: Buffer,
@@ -13,7 +14,7 @@ interface Post {
     userId: string,
     date: Date,
     note: string,
-    private: boolean,
+    isPrivate: boolean,
 }
 
 export class PostService {
@@ -57,16 +58,25 @@ export class PostService {
         }
     }
 
+    
+    /**
+     * Get all posts within a region.
+     * @throws Error if there are coordinates information but is incomplete.
+     */
     async getPosts(
-        userId: string, 
         start_lat?: number, 
         end_lat?: number, 
         start_long?: number, 
         end_long?: number, 
-        isPrivate?: boolean
-    ) {
+    ){
+        
+        const coordinates = [start_lat, end_lat, start_long, end_long]
+        if(isMissingCoordinate(coordinates)){
+            throw new MissingCoordinateException("Incomplete Coordinate Information")
+        }
+            
+
         try {
-            // Initialize the query with userId
             const query: any = {};
     
             // Check for start_lat and end_lat separately
@@ -85,11 +95,6 @@ export class PostService {
                 query.longitude = { ...query.longitude, $lte: end_long };  // Longitude less than or equal to end_long
             }
     
-            // If `isPrivate` is provided, add it to the query
-            if (isPrivate) {
-                query.userId = userId; // Assuming 'private' is the field in your PostModel
-            }
-    
             // Return the posts based on the constructed 
             return PostModel.find(query);
         } catch (error) {
@@ -97,4 +102,84 @@ export class PostService {
             return null;
         }
     }    
+
+    /**
+     * Get all public posts within certain region.
+     */
+    async getPublicPost(
+        start_lat?: number, 
+        end_lat?: number, 
+        start_long?: number, 
+        end_long?: number, 
+    ){
+        try{
+            const posts = await this.getPosts(start_lat, end_lat, start_long, end_long)
+
+            //filter to remove all private posts
+            const publicPosts = posts?.filter(post => post.isPrivate === false)
+            return publicPosts
+        } catch(err){
+            console.log("Error getting posts", err);
+            return null;
+        }
+    }
+
+
+    /**
+     * If userPostOnly is true, get all posts belonging to the user within the given region.
+     * If it's false, get all posts that are viewable to the user in that region.
+     *
+     * Note: If all coordinate informations are null, return all posts.
+     * @throws MissingCoordinateException if coordiante information is incomplete (some are non-null)
+     */
+    async getAuthenticatedUserPost(
+        userId: string,
+        userPostOnly: Boolean,
+        start_lat?: number, 
+        end_lat?: number, 
+        start_long?: number, 
+        end_long?: number, 
+    ){
+        
+        // const publicPosts = await this.getPosts(start_lat, end_lat, start_long, end_long)
+        const userPost = await PostModel.find({userId: userId})
+
+        try{
+            if(userPostOnly){
+                return userPost
+            }
+            else{
+                const publicPost = await this.getPosts(start_lat, end_lat, start_long, end_long) || [];
+
+                const combinedPosts = [...userPost, ...publicPost]
+
+                // Use a Set to remove duplicates based on a unique identifier (e.g., post ID)
+                const uniquePosts = Array.from(new Set(combinedPosts.map(post => post._id.toString()))) // Use post._id to uniquely identify posts
+                .map(id => combinedPosts.find(post => post._id.toString() === id ));
+
+                return uniquePosts;
+
+            }
+        }
+
+        catch (error) {
+            console.log("Error getting posts", error);
+            return null;
+        }
+    }
+}
+
+
+/**
+ * Check if coordinate information is missing
+ */
+function isMissingCoordinate(coordinates: Array<number|undefined>){
+    const nonNullCoordCount = coordinates.filter(c => c !== null && c !== undefined).length
+    if(nonNullCoordCount > 0 && nonNullCoordCount < 4){
+        return true
+    }
+    else{
+        return false
+    }
+
 }
