@@ -1,12 +1,18 @@
 package com.example.tomato
 
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.location.Geocoder
 import android.net.Uri
 import android.util.Log
+import android.view.View
+import android.widget.LinearLayout
 import androidx.core.content.FileProvider
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -25,15 +31,7 @@ object commonFunction {
         }
 
         val address = addresses[0]
-        val street = address.thoroughfare // street name
-        val locality = address.locality // city or locality
-        val adminArea = address.adminArea // state or province
-        val country = address.countryName // country
-
-        // Combine the results to get a meaningful address
-        val fullAddress = "$street, $locality, $adminArea, $country"
-
-        return fullAddress
+        return address.getAddressLine(0).toString()
     }
 
     /**
@@ -73,50 +71,43 @@ object commonFunction {
 
     }
 
-
     /**
-     * Convert a list of PostImage to a list of ByteArray.
+     * Initialize the bottom navigation bar buttons
      */
-    fun postImagesToByteArrays(images: List<PostImage>): List<ByteArray> {
-        val imageByteArrays = mutableListOf<ByteArray>()
-        for (image in images) {
-            val imageByteArray = image.fileData.data.map { it.toByte() }.toByteArray()
-            imageByteArrays.add(imageByteArray)
+     fun initNavBarButtons(context: Context, activity: Activity) {
+        val homeButton = activity.findViewById<LinearLayout>(R.id.bottom_navbar_home_button)
+        val profileButton = activity.findViewById<LinearLayout>(R.id.bottom_navbar_profile_button)
+        val uploadButton = activity.findViewById<FloatingActionButton>(R.id.bottom_navbar_upload_button)
+
+        homeButton.setOnClickListener {
+            context.startActivity(Intent(context, MapsActivity::class.java))
+
+
+
         }
-        return imageByteArrays
-    }
-
-     fun saveUserId(context: Context, userId: String) {
-        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-        val sharedPreferences = EncryptedSharedPreferences.create(
-            "UserPrefs",
-            masterKeyAlias,
-            context,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-        with(sharedPreferences.edit()) {
-            putString("userId", userId)
-            apply()
+        profileButton.setOnClickListener {
+            if (UserCredentialManager.isLoggedIn(context)) {
+                context.startActivity(Intent(context, ProfileActivity::class.java))
+            }
+            else{
+                AlertDialog.Builder(context)
+                    .setTitle("Login is required to view profile page")
+                    .setNegativeButton("Okay", null)
+                    .show()
+            }
+        }
+        uploadButton.setOnClickListener {
+            if (UserCredentialManager.isLoggedIn(context)) {
+                context.startActivity(Intent(context, UploadPostActivity::class.java))
+            }
+            else {
+                AlertDialog.Builder(context)
+                    .setTitle("Login is required to upload post")
+                    .setNegativeButton("Okay", null)
+                    .show()
+            }
         }
     }
 
-     fun getUserId(context: Context): String? {
-        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-        val sharedPreferences = EncryptedSharedPreferences.create(
-            "UserPrefs",
-            masterKeyAlias,
-            context,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-        return sharedPreferences.getString("userId", null)
-    }
 
-    fun rawPostToPostItem(rawPost: PostItemRaw, context: Context): PostItem {
-        val address = parseLocation(rawPost.latitude, rawPost.longitude, context)
-        val imageURIs = byteToURIs(postImagesToByteArrays(rawPost.images), context.cacheDir, context)
-        Log.d("HELLO", imageURIs.toString())
-        return PostItem(imageURIs, address, rawPost.date, rawPost.note, rawPost.private, rawPost.userId)
-    }
 }
