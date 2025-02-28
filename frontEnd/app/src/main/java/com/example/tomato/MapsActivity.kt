@@ -1,6 +1,7 @@
 package com.example.tomato
 
 import JwtManager
+import PostHelper
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
@@ -19,25 +20,31 @@ import android.graphics.Shader
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.tomato.databinding.ActivityMapsBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -51,6 +58,9 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -78,10 +88,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         private const val TAG = "MapsActivity"
     }
 
+    private var userPostOnly: Boolean = false
+
     // PARAMETERS
     private val fetchDelay = 500 // Minimum idling time before fetching posts
     private val postSize = 80 // The circular image size on the map
     private val gridSize = 3 * postSize // Distance threshold in pixels for clustering
+
+
+    //Location Search
+    private lateinit var placesClient: PlacesClient
+    private lateinit var sessionToken: AutocompleteSessionToken
+    private lateinit var autoCompleteTextView: AutoCompleteTextView
+    private var searchLatitude: Double? = null
+    private var searchLongitude: Double? = null
+    private var searchLocationName: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,6 +118,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.mapFragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        //Init sign in button
         findViewById<Button>(R.id.sign_in_button).setOnClickListener {
             val credentialManager = CredentialManager.create(this)
             val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(BuildConfig.WEB_CLIENT_ID)
@@ -115,19 +138,112 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        findViewById<FloatingActionButton>(R.id.bottom_navbar_upload_button).setOnClickListener {
-            startActivity(Intent(this, UploadPostActivity::class.java))
+        //Init filter button
+        findViewById<Button>(R.id.filter_post_button).setOnClickListener {
+            val options = arrayOf("Show only your posts", "Show all viewable posts")
+
+            AlertDialog.Builder(this@MapsActivity)
+                .setTitle("Post Filter")
+                .setItems(options) { _, which ->
+                    userPostOnly = which == 0
+                    getPostsOnScreen(mMap)
+                }
+                .setCancelable(true)
+                .show()
+
         }
 
-        findViewById<LinearLayout>(R.id.bottom_navbar_home_button).setOnClickListener {
-            lifecycleScope.launch {
-                val response = HTTPRequest.sendGetRequest("http://10.0.2.2:3000/test1", this@MapsActivity)
-                Log.d(TAG, "onCreate: $response")
+        commonFunction.initNavBarButtons(this@MapsActivity, this)
+
+        // Update profile (show clickable image) if user is logged in
+        updateProfile()
+
+        initSearchLocation()
+    }
+
+    private fun initSearchLocation(){
+        // Initialize Places Client and Session Token
+        placesClient = Places.createClient(this)
+        sessionToken = AutocompleteSessionToken.newInstance()
+
+        // Find AutoCompleteTextView in the layout
+        autoCompleteTextView = findViewById(R.id.locationAutoCompleteTextView)
+        // Instantiate the autocomplete helper
+
+        PlaceAutocompleteHelper(
+            context = this,
+            autoCompleteTextView = autoCompleteTextView,
+            placesClient = placesClient,
+            sessionToken = sessionToken,
+            onPredictionSelected = { prediction ->
+                // Handle the selected prediction
+                val placeId = prediction.placeId
+                val fetchPlaceRequest = com.google.android.libraries.places.api.net.FetchPlaceRequest.builder(
+                    placeId,
+                    listOf(com.google.android.libraries.places.api.model.Place.Field.LAT_LNG)
+                ).build()
+
+                placesClient.fetchPlace(fetchPlaceRequest)
+                    .addOnSuccessListener { response ->
+                        val place = response.place
+                        place.latLng?.let {
+                            searchLatitude = it.latitude
+                            searchLongitude = it.longitude
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        // Handle failure
+                    }
+            },
+
+        )
+
+        autoCompleteTextView.setOnEditorActionListener { _, actionId, event ->
+            val isEnterPressed = actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    actionId == EditorInfo.IME_ACTION_DONE ||
+                    (event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER)
+            if (isEnterPressed) {
+                if (searchLatitude != null && searchLongitude != null) {
+                    moveMapCameraTo(searchLatitude!!, searchLongitude!!)
+                }
+                autoCompleteTextView.clearFocus()
+                autoCompleteTextView.clearComposingText()
+                autoCompleteTextView.text = null
+
+                true // Consume the event.
+            } else {
+                false
             }
         }
+    }
 
-        findViewById<LinearLayout>(R.id.bottom_navbar_profile_button).setOnClickListener {
-            startActivity(Intent(this, ProfileActivity::class.java))
+    private fun moveMapCameraTo(latitude: Double, longitude: Double) {
+        val latLng = LatLng(latitude, longitude)
+        val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15f)
+        mMap.animateCamera(cameraUpdate)
+    }
+
+
+    /**
+     * If user is logged in, display the profile image on the top right
+     */
+    private fun updateProfile(){
+        val sign_in_button = findViewById<Button>(R.id.sign_in_button)
+        val profile_button = findViewById<ImageView>(R.id.map_activity_profile_button)
+        if (UserCredentialManager.isLoggedIn(this)) {
+            sign_in_button.visibility = View.GONE
+            profile_button.visibility = View.VISIBLE
+            val (username, profilePicture) = UserCredentialManager.getUserProfile(this)
+            Glide.with(this)
+                .load(profilePicture)
+                .into(profile_button)
+            profile_button.setOnClickListener {
+                startActivity(Intent(this, ProfileActivity::class.java))
+            }
+        }
+        else{
+            sign_in_button.visibility = View.VISIBLE
+            profile_button.visibility = View.GONE
         }
     }
 
@@ -138,7 +254,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     try {
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data).idToken
+                        val username = GoogleIdTokenCredential.createFrom(credential.data).displayName
+                        val profilePicture = GoogleIdTokenCredential.createFrom(credential.data).profilePictureUri
+
+                        if (username != null) {
+                            UserCredentialManager.saveUserProfile(this@MapsActivity, username, profilePicture.toString())
+                        }
                         sendSignInRequest(googleIdTokenCredential)
+
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Received an invalid google id token response", e)
                     }
@@ -157,9 +280,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
                 JwtManager.saveToken(this@MapsActivity, signInResponse.token)
                 val userID = signInResponse.userID
-                commonFunction.saveUserId(this@MapsActivity, userID)
-                Log.d(TAG, "sendSignInResponse: $signInResponse")
-                Log.d(TAG, "USERID: ${commonFunction.getUserId(this@MapsActivity)}")
+                UserCredentialManager.saveUserId(this@MapsActivity, userID)
+                updateProfile()
             }
         }
     }
@@ -190,7 +312,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 // TODO: Handle aggregated marker click (e.g., zoom in or show list)
             }
             if((tag as List<PostItemRaw>).size == 1){
-                showPostActivity(tag[0], this@MapsActivity)
+                PostHelper.showPostActivity(tag[0], this@MapsActivity)
 
             }
             else{
@@ -212,9 +334,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val endLat = max(visibleRegion.farLeft.latitude, visibleRegion.nearRight.latitude)
             val startLong = min(visibleRegion.farLeft.longitude, visibleRegion.nearRight.longitude)
             val endLong = max(visibleRegion.farLeft.longitude, visibleRegion.nearRight.longitude)
-            val url = "${BuildConfig.SERVER_ADDRESS}/posts?" +
+            var url = "${BuildConfig.SERVER_ADDRESS}/posts?" +
                     "start_lat=$startLat&end_lat=$endLat&" +
                     "start_long=$startLong&end_long=$endLong"
+            if(UserCredentialManager.isLoggedIn(this@MapsActivity)){
+                url = "${BuildConfig.SERVER_ADDRESS}/posts-authenticated?" +
+                        "userPostOnly=$userPostOnly&" +
+                        "start_lat=$startLat&end_lat=$endLat&" +
+                        "start_long=$startLong&end_long=$endLong"
+            }
 
             val response = withContext(Dispatchers.IO) {
                 HTTPRequest.sendGetRequest(url, this@MapsActivity)
@@ -460,7 +588,7 @@ class PostClusterAdapter(
 
 
             itemView.setOnClickListener{
-                showPostActivity(post, itemView.context)
+                PostHelper.showPostActivity(post, itemView.context)
             }
 
             itemView.setOnTouchListener { _, event ->
@@ -515,16 +643,4 @@ class PostClusterAdapter(
 
 }
 
-fun showPostActivity(post: PostItemRaw, context: Context){
-    val postItem = commonFunction.rawPostToPostItem(post, context)
-
-    val intent = Intent(context, PostActivity::class.java)
-    intent.putExtra("userId", postItem.userId)
-    intent.putExtra("images", ArrayList(postItem.imageData))
-    intent.putExtra("location", postItem.location)
-    intent.putExtra("date", postItem.date)
-    intent.putExtra("note", postItem.note)
-    intent.putExtra("private", postItem.private)
-    context.startActivity(intent)
-}
 

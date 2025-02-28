@@ -18,12 +18,17 @@ object JwtManager {
 
     fun getToken(context: Context): String? {
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-        val sharedPreferences = EncryptedSharedPreferences.create(
-            PREFS_NAME, masterKeyAlias, context,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-        return sharedPreferences.getString(JWT_KEY, null)
+        try {
+            val sharedPreferences = EncryptedSharedPreferences.create(
+                PREFS_NAME, masterKeyAlias, context,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+            return sharedPreferences.getString(JWT_KEY, null)
+        }
+        catch (e: Exception){
+            return null
+        }
     }
 
     fun clearToken(context: Context) {

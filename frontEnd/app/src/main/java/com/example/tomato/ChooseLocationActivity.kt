@@ -54,84 +54,43 @@ class ChooseLocationActivity : ComponentActivity() {
 
         // Find AutoCompleteTextView in the layout
         autoCompleteTextView = findViewById(R.id.locationAutoCompleteTextView)
+        // Instantiate the autocomplete helper
 
-        // Set up a text change listener for location search
-        // Declare searchResults as a mutable list of AutocompletePrediction
-        val searchResults = mutableListOf<AutocompletePrediction>()
-        autoCompleteTextView.addTextChangedListener(object : android.text.TextWatcher {
-            override fun afterTextChanged(s: android.text.Editable?) {}
+        PlaceAutocompleteHelper(
+            context = this,
+            autoCompleteTextView = autoCompleteTextView,
+            placesClient = placesClient,
+            sessionToken = sessionToken,
+            onPredictionSelected = { prediction ->
+                // Handle the selected prediction
+                val placeId = prediction.placeId
+                val fetchPlaceRequest = com.google.android.libraries.places.api.net.FetchPlaceRequest.builder(
+                    placeId,
+                    listOf(com.google.android.libraries.places.api.model.Place.Field.LAT_LNG)
+                ).build()
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (s.isNullOrEmpty()) return
-
-                val request = FindAutocompletePredictionsRequest.builder()
-                    .setSessionToken(sessionToken)
-                    .setQuery(s.toString())
-                    .build()
-
-                // Make request to get autocomplete predictions
-                placesClient.findAutocompletePredictions(request)
+                placesClient.fetchPlace(fetchPlaceRequest)
                     .addOnSuccessListener { response ->
-                        Log.d(TAG, "Received response: ${response.autocompletePredictions}")
-                        searchResults.clear() // Clear previous results
-
-                        // Add actual predictions to the list
-                        for (prediction in response.autocompletePredictions) {
-                            searchResults.add(prediction) // Add prediction object
+                        val place = response.place
+                        place.latLng?.let {
+                            latitude = it.latitude
+                            longitude = it.longitude
                         }
-
-                        // Update AutoCompleteTextView with the results
-                        val adapter = ArrayAdapter(
-                            this@ChooseLocationActivity,
-                            android.R.layout.simple_dropdown_item_1line,
-                            listOf("Use Current Location") + searchResults.map { it.getFullText(null).toString() } // Displaying only the full text
-                        )
-                        autoCompleteTextView.setAdapter(adapter)
                     }
                     .addOnFailureListener { exception ->
-                        Log.e(TAG, "Request failed", exception)
-                        Toast.makeText(this@ChooseLocationActivity, "Failed to get predictions: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        // Handle failure
                     }
-            }
-        })
-
-// Add ItemClickListener to AutoCompleteTextView to handle selection of "Use Current Location"
-        autoCompleteTextView.setOnItemClickListener { parent, _, position, _ ->
-            val selectedItem = parent.getItemAtPosition(position) as String
-            if (selectedItem == "Use Current Location") {
-                // Call getCurrentLocation when "Use Current Location" is selected
+            },
+            onUseCurrentLocation = {
+                // launch a coroutine to obtain the location
                 lifecycleScope.launch {
                     val (lat, lon) = getCurrentLocation()
                     latitude = lat
                     longitude = lon
                     autoCompleteTextView.setText(getLocationFromCoordinates(latitude!!, longitude!!))
                 }
-            } else {
-                // Get the corresponding AutocompletePrediction object
-                val selectedPrediction = searchResults[position - 1]
-
-                // Use the placeId from the selected prediction
-                val placeId = selectedPrediction.placeId
-                val fetchPlaceRequest = FetchPlaceRequest.builder(placeId, listOf(Place.Field.LAT_LNG)).build()
-
-                placesClient.fetchPlace(fetchPlaceRequest)
-                    .addOnSuccessListener { response ->
-                        val place = response.place
-                        val latLng = place.latLng
-                        latLng?.let {
-                            latitude = it.latitude
-                            longitude = it.longitude
-                        }
-
-                    }
-                    .addOnFailureListener { exception ->
-                        // Handle failure
-                        Log.e("Places", "Place not found: ${exception.message}")
-                    }
             }
-        }
+        )
 
         val proceedButton = findViewById<Button>(R.id.submitLocationButton)
         proceedButton.setOnClickListener{

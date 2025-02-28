@@ -1,5 +1,6 @@
 package com.example.tomato
 
+import PostHelper
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.location.Geocoder
@@ -17,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -40,8 +42,13 @@ class ProfileActivity : AppCompatActivity() {
             insets
         }
 
-        // Show the progress bar
+        // Update user's profile if user is signed in
+        updateProfile()
+
+        // Show the progress wheel
         progressBar.visibility = View.VISIBLE
+
+        commonFunction.initNavBarButtons(this@ProfileActivity, this)
 
         // Initialize Recycler views for "Your Post" & "Recommendations"
         lifecycleScope.launch {
@@ -52,7 +59,24 @@ class ProfileActivity : AppCompatActivity() {
                 val yourPostAdapter = ProfilePostAdapter(yourPostList)
                 yourPostRecyclerView.adapter = yourPostAdapter
             }
+        }
 
+
+    }
+
+    /**
+     * Update profile's username and image based on the current logged in user.
+     */
+    private fun updateProfile(){
+        val usernameView = findViewById<TextView>(R.id.profile_activity_username)
+        val profileImageView = findViewById<ImageView>(R.id.profile_activity_profile_image)
+
+        val (username, profileImageURI) = UserCredentialManager.getUserProfile(this)
+        usernameView.text = username
+        if (profileImageURI != null) {
+            Glide.with(this)
+                .load(profileImageURI)
+                .into(profileImageView)
         }
     }
 
@@ -61,7 +85,7 @@ class ProfileActivity : AppCompatActivity() {
      */
     suspend fun getYourPostList(): List<PostItem>? {
 
-        val response = HTTPRequest.sendGetRequest("${BuildConfig.SERVER_ADDRESS}/posts",
+        val response = HTTPRequest.sendGetRequest("${BuildConfig.SERVER_ADDRESS}/posts-authenticated/?userPostOnly=true",
             this@ProfileActivity)
 
         val gson = Gson()
@@ -69,8 +93,9 @@ class ProfileActivity : AppCompatActivity() {
 
         val postList = mutableListOf<PostItem>()
 
+        Log.d(TAG, "POSTS: $posts")
         for (post in posts){
-            postList.add(commonFunction.rawPostToPostItem(post, this))
+            postList.add(PostHelper.rawPostToPostItem(post, this))
         }
 
         // Load is successful, remove progressBar
