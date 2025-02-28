@@ -36,7 +36,7 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             cd /home/ubuntu/tomato/backend
-            # sudo rm -rf node_modules
+            sudo rm -rf node_modules
             npm install
             # Write secrets into .env
             cat > .env << EOF
@@ -52,6 +52,7 @@ jobs:
             chmod 600 .env
 
             # Build and run container
+            docker stop $(docker ps -a -q)
             docker-compose down
             docker-compose --env-file .env build
             docker-compose --env-file .env up -d
