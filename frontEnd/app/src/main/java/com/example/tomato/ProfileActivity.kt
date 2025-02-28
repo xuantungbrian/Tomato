@@ -69,6 +69,7 @@ class ProfileActivity : AppCompatActivity() {
 
         val postList = mutableListOf<PostItem>()
 
+        Log.d(TAG, "POSTS: $posts")
         for (post in posts){
             postList.add(commonFunction.rawPostToPostItem(post, this))
         }
