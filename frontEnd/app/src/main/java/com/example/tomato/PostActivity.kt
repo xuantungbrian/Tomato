@@ -59,7 +59,7 @@ class PostActivity : AppCompatActivity() {
         }
 
         sendMessageButton.setOnClickListener {
-            val currentUserId = commonFunction.getUserId(this)
+            val currentUserId = UserCredentialManager.getUserId(this)
             if (userId != null && currentUserId != null && userId != currentUserId) {
                 lifecycleScope.launch {
                     val chat = createChat(currentUserId, userId)
