@@ -71,7 +71,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation ("androidx.compose.ui:ui:1.5.0")
     implementation("androidx.credentials:credentials:1.3.0")
-
+    implementation("org.java-websocket:Java-WebSocket:1.5.3")
 
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     androidTestImplementation(platform(libs.androidx.compose.bom))

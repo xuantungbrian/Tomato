@@ -9,6 +9,7 @@ import { FileRoutes } from './routes/FileRoutes';
 import { UserRoutes } from './routes/UserRoutes';
 import { ChatRoutes } from './routes/ChatRoutes';
 import { config } from 'dotenv';
+import startWSS from './wss';
 config();
 
 const app = express();
@@ -50,6 +51,7 @@ const PORT = Number(process.env.PORT) || 3000
 
 connectDB().then(() => {
     app.listen(PORT, '0.0.0.0' as any, () => {
+        startWSS()
         console.log(`Server is running on port ${PORT}`);
       });
 

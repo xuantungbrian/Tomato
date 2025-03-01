@@ -5,6 +5,10 @@ import { MessageModel } from "../model/MessageModel"
 export class ChatService {
     async createChat( member_1: string, member_2: string ) {
         try {
+            const existChat = ChatModel.findOne().or([{ member_1, member_2 }, { member_1: member_2, member_2: member_1 }])
+            if (existChat) {
+                return existChat
+            }
             const newChat = new ChatModel({ member_1, member_2})
             await newChat.save()
             return newChat
