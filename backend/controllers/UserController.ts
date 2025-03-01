@@ -14,26 +14,20 @@ export class UserController {
         this.getUser = this.getUser.bind(this)
     }
 
-    async createUser(req: Request, res: Response, next: NextFunction) { // TODO: Likely not be used so I have not tested this, cleanup later
-        const {id, name} = (req as any).user
-        return this.userService.createUser(id, name);
-    }
-
-
     async getUser(req: Request, res: Response, next: NextFunction) { 
         const userId = req.params.id
         return res.status(200).json(await this.userService.getUser(userId));
     }
 
-    async handleGoogleSignIn(req: Request, res: Response, next: NextFunction){
+    async handleGoogleSignIn(req: Request, res: Response, next: NextFunction){ //TODO: Not just google now, need better naming
         try{
-            const { token } = (req as any).body;
+            const { googleToken, firebaseToken } = (req as any).body;
             
-            if(!token) {
+            if(!googleToken || !firebaseToken) {
                 return res.status(400).json({message: "No Token provided"});
             }
 
-            const result = await this.userService.signInWithGoogle(token);
+            const result = await this.userService.signInWithGoogle(googleToken, firebaseToken); //TODO: Not just google now, need better naming
             return res.status(200).json(result)
 
         }

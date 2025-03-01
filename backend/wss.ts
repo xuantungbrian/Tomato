@@ -1,8 +1,18 @@
 import WebSocket from 'ws';
 import { ChatService } from './service/ChatService';
+import { UserService } from './service/UserService';
+import admin from "firebase-admin";
+
+// Load Firebase credentials
+const serviceAccount = require("./serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 const startWSS = () => {
     const chatService = new ChatService();
+    const userService = new UserService()
     const wssPort = Number(process.env.WSS_PORT) || 3001;
     const wss = new WebSocket.Server({ host: '0.0.0.0', port: wssPort });
     const wsRoomMapping = new Map();
@@ -24,20 +34,59 @@ const startWSS = () => {
 
         wsRoomMapping.set(ws, chatId);
 
-        ws.on('message', (data) => {
+        ws.on('message', async (data: any) => {
             try {
                 const message = JSON.parse(data.toString()); 
                 chatService.addMessage(chatId, message.sender, message.message);
+                const chatInfo = await chatService.getChat(chatId)
+                let receiverId = ""
+                if (chatInfo) {
+                    receiverId = ((message.sender == chatInfo.member_1) ? chatInfo.member_2 : chatInfo.member_1) || ""
+                }
+                if (!receiverId) {
+                    console.error("Cannot find this user")
+                }
+                const receiverInfo = await userService.getUser(receiverId)
+                const receiverFirebaseToken = receiverInfo?.firebaseToken || ""
                 for (let client of wss.clients) {
-                    if (client.readyState === WebSocket.OPEN && wsRoomMapping.get(client) === chatId) {
-                        client.send(JSON.stringify(message));
+                    if (wsRoomMapping.get(client) === chatId) {
+                        if (client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify(message));
+                        }
                     }
                 }
+                sendPushNotification(receiverFirebaseToken, message.message, chatId)
             } catch (error) {
                 console.error(`Error processing message: ${error}`);
             }
         });
     });
 };
+
+// Function to send push notification
+function sendPushNotification(token: string, message: string, chatId: string) {
+    if (!token) {
+        console.error("No token acquired")
+    }
+    const payload = {
+        notification: {
+            title: "You have a new Message",
+            body: message,
+        },
+        token: token,
+        data: {
+            chatId: chatId,
+        }
+    };
+
+    admin.messaging().send(payload)
+        .then((response: any) => {
+            console.log("Successfully sent message:", response);
+        })
+        .catch((error: any) => {
+            console.log("Error sending message:", error);
+        });
+}
+
 
 export default startWSS;

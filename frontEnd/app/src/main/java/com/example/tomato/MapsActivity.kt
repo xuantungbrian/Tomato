@@ -56,6 +56,8 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -265,20 +267,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun sendSignInRequest(token: String) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                // Handle failure
+                Log.w("Firebase", "Fetching FCM registration token failed", task.exception)
+                return@addOnCompleteListener
+            }
+            val body = JSONObject()
+                .put("googleToken", token)
+                .put("firebaseToken", task.result)
+                .toString()
 
-        val body = JSONObject()
-            .put("token", token)
-            .toString()
-
-        lifecycleScope.launch {
-            val response = HTTPRequest.sendPostRequest("${BuildConfig.SERVER_ADDRESS}/user/auth", body, this@MapsActivity)
-            Log.d(TAG, "sendPostRequest: $response")
-            if (response != null) {
-                val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
-                JwtManager.saveToken(this@MapsActivity, signInResponse.token)
-                val userID = signInResponse.userID
-                UserCredentialManager.saveUserId(this@MapsActivity, userID)
-                updateProfile()
+            lifecycleScope.launch {
+                val response = HTTPRequest.sendPostRequest(
+                    "${BuildConfig.SERVER_ADDRESS}/user/auth",
+                    body,
+                    this@MapsActivity
+                )
+                Log.d(TAG, "sendPostRequest: $response")
+                if (response != null) {
+                    val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
+                    JwtManager.saveToken(this@MapsActivity, signInResponse.token)
+                    val userID = signInResponse.userID
+                    UserCredentialManager.saveUserId(this@MapsActivity, userID)
+                    updateProfile()
+                }
             }
         }
     }
