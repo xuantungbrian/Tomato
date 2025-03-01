@@ -8,7 +8,7 @@
       - The interfaces in each of the main components were changed to accurately reflect the names and functionalities present in the code we are now using
       - The purpose for the Recommendation component was changed to accurately reflect the methodology we are currently using to recommend locations
 3. 4.2. Databases: 3/1/2025 2:13
-       - The MessageDB was added and the description for ChatDB to accurately reflect how we decided to store chatrooms and messages in seperate databases.
+      - The MessageDB was added and the description for ChatDB to accurately reflect how we decided to store chatrooms and messages in seperate databases.
 
 
 ## 2. Project Description
