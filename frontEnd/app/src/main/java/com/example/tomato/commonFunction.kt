@@ -123,12 +123,15 @@ object commonFunction {
         }
         return inSampleSize
     }
-
-    fun getCompressedImageByteArray(activity: Activity, uri: Uri, reqWidth: Int = 512, reqHeight: Int = 512, quality: Int = 50): ByteArray? {
-        // First, decode the image dimensions only.
-        val options = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        }
+    fun getCompressedImageByteArray(
+        activity: Activity,
+        uri: Uri,
+        reqWidth: Int = 512,
+        reqHeight: Int = 512,
+        quality: Int = 50
+    ): ByteArray? {
+        // First, decode only the image dimensions.
+        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         activity.contentResolver.openInputStream(uri)?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, options)
         }
@@ -137,23 +140,28 @@ object commonFunction {
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
         options.inJustDecodeBounds = false
 
-        // Decode the image file into a smaller Bitmap.
+        // Decode the image file into a Bitmap.
         val bitmap = activity.contentResolver.openInputStream(uri)?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, options)
         } ?: return null
 
-        val scaledBitmap = Bitmap.createScaledBitmap(
-            bitmap,
-            reqWidth.coerceAtMost(bitmap.width),
-            reqHeight.coerceAtMost(bitmap.height),
-            true
+        // Calculate the scaling factor while preserving the original aspect ratio.
+        val scaleFactor = minOf(
+            reqWidth / bitmap.width.toFloat(),
+            reqHeight / bitmap.height.toFloat()
         )
+        // If the scaleFactor is greater than 1, the image is smaller than requested dimensions.
+        // In that case, keep the original size.
+        val newWidth = if (scaleFactor < 1) (bitmap.width * scaleFactor).toInt() else bitmap.width
+        val newHeight = if (scaleFactor < 1) (bitmap.height * scaleFactor).toInt() else bitmap.height
+
+        // Create a scaled bitmap using the calculated dimensions.
+        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
 
         // Compress the Bitmap into a ByteArrayOutputStream.
         val outputStream = ByteArrayOutputStream()
         scaledBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
         return outputStream.toByteArray()
     }
-
 
 }
