@@ -5,7 +5,6 @@ import connectDB  from "./db";
 import morgan from 'morgan'
 import verifyToken from './middleware/verifyToken'
 import UploadFile from './middleware/UploadFile';
-import { FileRoutes } from './routes/FileRoutes';
 import { UserRoutes } from './routes/UserRoutes';
 import { ChatRoutes } from './routes/ChatRoutes';
 import { config } from 'dotenv';
@@ -24,7 +23,7 @@ app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
 });
 
-const allRoutes = [...PostRoutes, ...FileRoutes, ...UserRoutes, ...ChatRoutes, ...RecommendationRoutes]
+const allRoutes = [...PostRoutes, ...UserRoutes, ...ChatRoutes, ...RecommendationRoutes]
 allRoutes.forEach((route) => {
     const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
 

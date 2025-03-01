@@ -1,4 +1,3 @@
-import { FileService } from "../service/FileService";
 import { PostService } from "../service/PostService";
 import { Request, Response, NextFunction } from "express";
 import MissingCoordinateException from "../errors/customError";
@@ -10,11 +9,9 @@ interface ImageData {
 
 export class PostController {
     private postService: PostService;
-    private fileService: FileService;
 
     constructor() {
         this.postService = new PostService();
-        this.fileService = new FileService();
     }
 
     createPost = async (req: Request, res: Response, next: NextFunction) => {
@@ -82,12 +79,11 @@ export class PostController {
 
     getPostById = async (req: Request, res: Response, next: NextFunction) => {
         const postId = req.params.id
-        const [fileData, postData] = await Promise.all([
-            this.fileService.getFileInPost(postId),
+        const [postData] = await Promise.all([
             this.postService.getPostById(postId)
         ]);
           
-        res.json({ postData, fileId: fileData});
+        res.json({ postData });
     }
 
     updatePost = async (req: Request, res: Response, next: NextFunction) => {

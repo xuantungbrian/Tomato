@@ -199,7 +199,5 @@ function isMissingCoordinate(coordinates: Array<number|undefined>){
         return false
     }
 }
-function getUserPostsOnPage(userId: string, string: any, start_lat: number | undefined, number: any, end_lat: number | undefined, number1: any, start_long: number | undefined, number2: any, end_long: number | undefined, number3: any) {
-    throw new Error("Function not implemented.");
-}
+
 
