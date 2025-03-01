@@ -39,7 +39,7 @@ class ChatActivity : AppCompatActivity() {
         chatRecyclerView = findViewById(R.id.chatMessageRecyclerView)
 
         // Initialize RecyclerView and adapter
-        chatMessageAdapter = ChatMessageAdapter(mutableListOf())
+        chatMessageAdapter = ChatMessageAdapter(mutableListOf(), this)
         chatRecyclerView.layoutManager = LinearLayoutManager(this)
         chatRecyclerView.adapter = chatMessageAdapter
 
@@ -108,4 +108,6 @@ class ChatActivity : AppCompatActivity() {
             }
         }
     }
+
+
 }
