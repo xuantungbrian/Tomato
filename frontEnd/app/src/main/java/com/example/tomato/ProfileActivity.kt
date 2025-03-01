@@ -90,10 +90,10 @@ class ProfileActivity : AppCompatActivity() {
 
         val gson = Gson()
         val posts = gson.fromJson(response, Array<PostItemRaw>::class.java)
+        Log.d(TAG, "Response: $response")
 
         val postList = mutableListOf<PostItem>()
 
-        Log.d(TAG, "POSTS: $posts")
         for (post in posts){
             postList.add(PostHelper.rawPostToPostItem(post, this))
         }

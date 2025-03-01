@@ -414,7 +414,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val imageByteArray = image.fileData.data.map { it.toByte() }.toByteArray()
         val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.size, options)
-        options.inSampleSize = calculateInSampleSize(options, targetSize, targetSize)
+        options.inSampleSize = commonFunction.calculateInSampleSize(options, targetSize, targetSize)
         options.inJustDecodeBounds = false
         val originalBitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.size, options)
             ?: return Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
@@ -466,16 +466,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     fun Int.dpToPx(context: Context): Int = (this * context.resources.displayMetrics.density).toInt()
 
-    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-        val (height: Int, width: Int) = options.run { outHeight to outWidth }
-        var inSampleSize = 1
-        if (height > reqHeight || width > reqWidth) {
-            val heightRatio = height.toFloat() / reqHeight.toFloat()
-            val widthRatio = width.toFloat() / reqWidth.toFloat()
-            inSampleSize = max(heightRatio, widthRatio).toInt()
-        }
-        return inSampleSize
-    }
 
     private fun createCircularBitmap(source: Bitmap, targetSize: Int): Bitmap {
         val scale = if (source.width < source.height) targetSize.toFloat() / source.width else targetSize.toFloat() / source.height

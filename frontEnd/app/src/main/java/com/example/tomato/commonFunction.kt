@@ -4,6 +4,8 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.location.Geocoder
 import android.net.Uri
 import android.util.Log
@@ -13,7 +15,9 @@ import androidx.core.content.FileProvider
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.lang.Math.max
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -107,6 +111,48 @@ object commonFunction {
                     .show()
             }
         }
+    }
+
+     fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+        val (height: Int, width: Int) = options.run { outHeight to outWidth }
+        var inSampleSize = 1
+        if (height > reqHeight || width > reqWidth) {
+            val heightRatio = height.toFloat() / reqHeight.toFloat()
+            val widthRatio = width.toFloat() / reqWidth.toFloat()
+            inSampleSize = max(heightRatio, widthRatio).toInt()
+        }
+        return inSampleSize
+    }
+
+    fun getCompressedImageByteArray(activity: Activity, uri: Uri, reqWidth: Int = 512, reqHeight: Int = 512, quality: Int = 50): ByteArray? {
+        // First, decode the image dimensions only.
+        val options = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        activity.contentResolver.openInputStream(uri)?.use { inputStream ->
+            BitmapFactory.decodeStream(inputStream, null, options)
+        }
+
+        // Calculate an inSampleSize value (power-of-2 scale factor) to downscale the image.
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
+        options.inJustDecodeBounds = false
+
+        // Decode the image file into a smaller Bitmap.
+        val bitmap = activity.contentResolver.openInputStream(uri)?.use { inputStream ->
+            BitmapFactory.decodeStream(inputStream, null, options)
+        } ?: return null
+
+        val scaledBitmap = Bitmap.createScaledBitmap(
+            bitmap,
+            reqWidth.coerceAtMost(bitmap.width),
+            reqHeight.coerceAtMost(bitmap.height),
+            true
+        )
+
+        // Compress the Bitmap into a ByteArrayOutputStream.
+        val outputStream = ByteArrayOutputStream()
+        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+        return outputStream.toByteArray()
     }
 
 
