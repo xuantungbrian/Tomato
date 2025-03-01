@@ -18,6 +18,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
@@ -27,6 +30,8 @@ class ProfileActivity : AppCompatActivity() {
         private const val TAG = "ProfileActivity"
     }
     private val progressBar: View by lazy { findViewById(R.id.YourPostProgress) }
+    private lateinit var gso: GoogleSignInOptions
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +42,14 @@ class ProfileActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        // Initialize Google Sign-In options
+        gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .build()
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
+
 
         // Update user's profile if user is signed in
         updateProfile()
@@ -63,6 +76,22 @@ class ProfileActivity : AppCompatActivity() {
             val chatAdapter = ChatAdapter(chatList)
             chatRecyclerView.adapter = chatAdapter
         }
+
+        val signOutButton = findViewById<TextView>(R.id.sign_out_button)
+        signOutButton.setOnClickListener {
+            signOutFromGoogle()
+        }
+    }
+
+    private fun signOutFromGoogle(){
+        mGoogleSignInClient.signOut()
+            .addOnCompleteListener(this) {
+                Log.d(TAG, "User signed out from Google")
+                UserCredentialManager.clearCredentials(this)
+                val intent = Intent(this, MapsActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
     }
 
     /**

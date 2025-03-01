@@ -224,10 +224,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val sign_in_button = findViewById<Button>(R.id.sign_in_button)
         val profile_button = findViewById<ImageView>(R.id.map_activity_profile_button)
         if (UserCredentialManager.isLoggedIn(this)) {
-//            sign_in_button.visibility = View.GONE
-//            profile_button.visibility = View.VISIBLE
-            sign_in_button.visibility = View.VISIBLE
-            profile_button.visibility = View.GONE
+            sign_in_button.visibility = View.GONE
+            profile_button.visibility = View.VISIBLE
             val (username, profilePicture) = UserCredentialManager.getUserProfile(this)
             Glide.with(this)
                 .load(profilePicture)
