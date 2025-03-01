@@ -10,6 +10,7 @@ import { UserRoutes } from './routes/UserRoutes';
 import { ChatRoutes } from './routes/ChatRoutes';
 import { config } from 'dotenv';
 import startWSS from './wss';
+import { RecommendationRoutes } from './routes/RecommendationRoutes';
 config();
 
 const app = express();
@@ -23,7 +24,7 @@ app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
 });
 
-const allRoutes = [...PostRoutes, ...FileRoutes, ...UserRoutes, ...ChatRoutes]
+const allRoutes = [...PostRoutes, ...FileRoutes, ...UserRoutes, ...ChatRoutes, ...RecommendationRoutes]
 allRoutes.forEach((route) => {
     const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
 
