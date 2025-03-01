@@ -3,6 +3,7 @@ services:
     image: mongo:latest
     container_name: tomato_mongo_instance
     restart: always
+    mem_limit: 300m
     ports:
       - "27018:27018"
     volumes:
@@ -15,6 +16,7 @@ services:
       args:
         - PORT=${PORT}
     restart: always
+    mem_limit: 300m
     container_name: CPEN321_tomato
     environment:
       - DB_URI=${DB_URI}
