@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.BitmapShader
@@ -13,10 +14,10 @@ import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Path
 import android.graphics.PorterDuff
 import android.graphics.RadialGradient
 import android.graphics.Shader
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -25,22 +26,21 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewOutlineProvider
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
-import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -58,10 +58,10 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +69,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.Math.max
 import java.lang.Math.min
@@ -272,16 +271,42 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun sendSignInRequest(token: String) {
-        val body = JSONObject().put("token", token).toString()
-        lifecycleScope.launch {
-            val response = HTTPRequest.sendPostRequest("${BuildConfig.SERVER_ADDRESS}/user/auth", body, this@MapsActivity)
-            Log.d(TAG, "sendPostRequest: $response")
-            if (response != null) {
-                val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
-                JwtManager.saveToken(this@MapsActivity, signInResponse.token)
-                val userID = signInResponse.userID
-                UserCredentialManager.saveUserId(this@MapsActivity, userID)
-                updateProfile()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    1
+                )
+            }
+        }
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                // Handle failure
+                Log.w("Firebase", "Fetching FCM registration token failed", task.exception)
+                return@addOnCompleteListener
+            }
+            val body = JSONObject()
+                .put("googleToken", token)
+                .put("firebaseToken", task.result)
+                .toString()
+
+            lifecycleScope.launch {
+                val response = HTTPRequest.sendPostRequest(
+                    "${BuildConfig.SERVER_ADDRESS}/user/auth",
+                    body,
+                    this@MapsActivity
+                )
+                Log.d(TAG, "sendPostRequest: $response")
+                if (response != null) {
+                    val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
+                    JwtManager.saveToken(this@MapsActivity, signInResponse.token)
+                    val userID = signInResponse.userID
+                    UserCredentialManager.saveUserId(this@MapsActivity, userID)
+                    updateProfile()
+                }
             }
         }
     }
@@ -414,7 +439,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val imageByteArray = image.fileData.data.map { it.toByte() }.toByteArray()
         val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.size, options)
-        options.inSampleSize = calculateInSampleSize(options, targetSize, targetSize)
+        options.inSampleSize = commonFunction.calculateInSampleSize(options, targetSize, targetSize)
         options.inJustDecodeBounds = false
         val originalBitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.size, options)
             ?: return Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
@@ -466,16 +491,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     fun Int.dpToPx(context: Context): Int = (this * context.resources.displayMetrics.density).toInt()
 
-    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-        val (height: Int, width: Int) = options.run { outHeight to outWidth }
-        var inSampleSize = 1
-        if (height > reqHeight || width > reqWidth) {
-            val heightRatio = height.toFloat() / reqHeight.toFloat()
-            val widthRatio = width.toFloat() / reqWidth.toFloat()
-            inSampleSize = max(heightRatio, widthRatio).toInt()
-        }
-        return inSampleSize
-    }
 
     private fun createCircularBitmap(source: Bitmap, targetSize: Int): Bitmap {
         val scale = if (source.width < source.height) targetSize.toFloat() / source.width else targetSize.toFloat() / source.height

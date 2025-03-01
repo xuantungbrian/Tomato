@@ -1,7 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.TOMATo" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <style name="Base.Theme.TOMATo" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/tomatoRed</item>
+    </style>
+
+    <style name="Theme.TOMATo" parent="Base.Theme.TOMATo" />
+
+    <style name="FabShapeStyle1" parent="ShapeAppearance.Material3.Corner.Small">
+        <item name="cornerSize">50%</item>
     </style>
 </resources>

@@ -5,8 +5,10 @@ import { MessageModel } from "../model/MessageModel"
 export class ChatService {
     async createChat( member_1: string, member_2: string ) {
         try {
-            const existChat = ChatModel.findOne().or([{ member_1, member_2 }, { member_1: member_2, member_2: member_1 }])
+            const existChat = await ChatModel.findOne().or([{ member_1, member_2 }, { member_1: member_2, member_2: member_1 }])
+              
             if (existChat) {
+                console.log("CHAT EXIST")
                 return existChat
             }
             const newChat = new ChatModel({ member_1, member_2})
@@ -28,6 +30,18 @@ export class ChatService {
         }
     }
 
+    // Get chat with chatId
+    async getChat(id: string) {
+        try {
+            const chat = await ChatModel.findOne({ _id: id})
+            return chat
+        } catch(err) {
+            console.error("Error getting chat: " + err)
+            return null
+        }
+    }
+
+    // Get chat with userId
     async getChats(id: string) {
         try {
             const chats = await ChatModel.find().or([{ member_1 : id}, {member_2: id}])

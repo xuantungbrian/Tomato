@@ -39,13 +39,10 @@ class ChatActivity : AppCompatActivity() {
         chatRecyclerView = findViewById(R.id.chatMessageRecyclerView)
 
         // Initialize RecyclerView and adapter
-        chatMessageAdapter = ChatMessageAdapter(mutableListOf())
+        chatMessageAdapter = ChatMessageAdapter(mutableListOf(), this)
         chatRecyclerView.layoutManager = LinearLayoutManager(this)
         chatRecyclerView.adapter = chatMessageAdapter
 
-        sendButton.setOnClickListener {
-            sendMessage()
-        }
 
         // Fetch messages when the activity is created
         lifecycleScope.launch {
@@ -63,7 +60,12 @@ class ChatActivity : AppCompatActivity() {
                 chatMessageAdapter.addMessages(listOf(newMessage))
             }
         }
+
         chatWebSocket.connect()
+        sendButton.setOnClickListener {
+            sendMessage()
+        }
+
     }
 
     private fun sendMessage() {
@@ -74,7 +76,11 @@ class ChatActivity : AppCompatActivity() {
                 .put("message", messageText)
                 .toString()
             lifecycleScope.launch {
-                chatWebSocket.send(body)
+                if (chatWebSocket.isOpen) {
+                    chatWebSocket.send(body)
+                } else {
+                    Log.e(TAG, "WebSocket is not connected. Message not sent.")
+                }
             }
         }
         messageInput.text.clear()
@@ -102,4 +108,6 @@ class ChatActivity : AppCompatActivity() {
             }
         }
     }
+
+
 }

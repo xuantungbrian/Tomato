@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="false">
+
+    <!-- Default state (not pressed) -->
+    <item>
         <shape android:shape="oval">
-            <corners android:radius="20dp"></corners>
-            <solid android:color="@color/gray"></solid>
+            <solid android:color="@color/gray"/>
         </shape>
     </item>
 
+    <!-- Pressed state -->
     <item android:state_pressed="true">
         <shape android:shape="oval">
-            <corners android:radius="20dp"></corners>
-            <solid android:color="@color/darkGray"></solid>
+            <solid android:color="@color/darkGray"/>
         </shape>
     </item>
+
 </selector>
