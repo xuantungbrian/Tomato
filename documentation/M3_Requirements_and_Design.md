@@ -251,14 +251,11 @@ Our app allows people to keep a history of all the places they have traveled to 
 1. **User**
     - **Purpose**: Manages user authentication and user data.
     - **Rationale**: Our backend may involve repetitive operations on querying User's database. This module provides a wrapper to the query and aligns with Dont Repeat Yourself principle.
-
-
     - **Interfaces**: 
         1. `public static bool signInWithGoogle(String token)`
             - **Purpose**: Verifies user's Google ID token. Returns true If user is successfully authenticated, otherwise returns false.
         2. `public static User getUser(String userID)`
             - **Purpose**: Wrapper for database query to get User information, given userID.
-              
         3. `public static User createUser(User new_user)`
             - **Purpose**: Adds a new user the application and saves the user in the database.
 
@@ -269,28 +266,20 @@ Our app allows people to keep a history of all the places they have traveled to 
     - **Interfaces**: 
         1. `public static String createPost(Post post)`
             - **Purpose**: creates and uploads a post where user explicitly provides the locations associated to the images. If isPrivate is True, the post is only visible to the user, otherwise it's visible to the public
-
         2. `public static bool updatePost(String postID, Post new_post)`
             - **Purpose**: edit a post.
-              
         3. `public static bool deletePost(String postID)`
-            - **Purpose**: deletes a post.
-              
+            - **Purpose**: deletes a post.     
         4. `public static List<Post> getPostAtLocation(int latitude, int longitude)`
             - **Purpose**: retrieve all posts that are at the specific location, shown by the latitude and longitude.
-
         5. `public static List<Post> getPublicPost(int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
             - **Purpose**: retrieve all public posts based on the given map boundary.
-              
         6. `public static List<Post> getPostById(String post_id)`
             - **Purpose**: retrieve the post with the given id.
-
         7. `public static List<Post> getPosts(int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
             - **Purpose**: retrieve all posts based on the given map boundary.
-          
         8. `public static List<Post> getAuthenticatedUserPost(String userId, bool userPostOnly, int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
             - **Purpose**:  If userPostOnly is true, retrieves all posts belonging to the user within the given region. If it's false, retrieves all posts that are viewable to the user in that region.
-          
         9. `public static List<Post> getEveryPost()`
             - **Purpose**: retrieve all posts.
 
@@ -300,19 +289,14 @@ Our app allows people to keep a history of all the places they have traveled to 
     - **Interfaces**: 
         1. `public static ChatMessage addMessage(String chatroom_id, String sender, String message)`
             - **Purpose**: Send message and add it to the database.
-      
         2. `public static List<ChatMessage> getChatMessages(String chatID)`
             - **Purpose**: Retrieve chat history for a particular chat.
-      
         3. `public static Chat createChat(String member_1, String member_2)`
             - **Purpose**: Creates a new chat between two users, returns the existing chat if one already exists between two users.
-      
         4. `public static Chat getChat(String userId)`
             - **Purpose**: Retrieves all chats that a user is apart of.
-      
         5. `public static Chat deleteChat(String chatId)`
             - **Purpose**: Deletes a chat with the given id.
-      
         6. `public static ChatMessage deleteChat(String chatId)`
             - **Purpose**: Deletes a message with the given id.
 
