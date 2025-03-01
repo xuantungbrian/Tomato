@@ -65,4 +65,20 @@ object UserCredentialManager {
     fun isLoggedIn(context: Context): Boolean{
         return getUserId(context) != null
     }
+
+    fun clearCredentials(context: Context) {
+        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        val sharedPreferences = EncryptedSharedPreferences.create(
+            "UserPrefs",
+            masterKeyAlias,
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+        with(sharedPreferences.edit()) {
+            clear()
+            apply()
+        }
+    }
+
 }

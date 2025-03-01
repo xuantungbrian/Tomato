@@ -170,9 +170,7 @@ class UploadPostActivity : AppCompatActivity() {
 
             // Convert ImageURIs to Bytes (Raw data)
             val imageBytes: List<ByteArray> = imageUris.mapNotNull { uri ->
-                contentResolver.openInputStream(uri)?.use { inputStream ->
-                    inputStream.readBytes()
-                }
+                commonFunction.getCompressedImageByteArray(this, uri)
             }
 
             // Convert the Bytes to Base64 encoded strings
@@ -182,6 +180,7 @@ class UploadPostActivity : AppCompatActivity() {
 
             // JSON-ify the base64strings array so it can be parsed easily on the server
             val imageArray = JSONArray(base64Strings)
+
 
             val note = findViewById<TextView>(R.id.noteText).text.toString()
             val postIsPrivate = postVisibility == "Private"

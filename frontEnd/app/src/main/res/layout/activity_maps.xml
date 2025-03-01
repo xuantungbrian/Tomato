@@ -14,20 +14,21 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHeight_percent="0.9"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="16dp" />
+        app:layout_constraintVertical_bias="1.0"
+        tools:layout_editor_absoluteX="91dp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout3"
         android:layout_width="match_parent"
         android:layout_height="100dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
 
         <AutoCompleteTextView
             android:id="@+id/locationAutoCompleteTextView"
-            android:layout_width="300dp"
+            android:layout_width="250dp"
             android:layout_height="50dp"
             android:layout_marginStart="16dp"
             android:background="@drawable/home_search_bar"
@@ -56,6 +57,8 @@
             android:layout_height="match_parent"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/locationAutoCompleteTextView"
             tools:layout_editor_absoluteY="0dp">
 
             <Button
@@ -77,13 +80,17 @@
         </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-f
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        app:layout_constraintStart_toStartOf="parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:fitsSystemWindows="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/bottom_nav_bar"
@@ -91,8 +98,8 @@ f
             android:layout_height="60dp"
             android:layout_gravity="bottom"
             app:backgroundTint="@color/gray"
-            app:fabAlignmentMode="center"
             app:buttonGravity="bottom"
+            app:fabAlignmentMode="center"
             app:fabCradleMargin="8dp"
             app:fabCradleRoundedCornerRadius="16dp"
             app:fabCradleVerticalOffset="1dp">
@@ -108,8 +115,7 @@ f
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.25"
-                    android:orientation="vertical"
-                    >
+                    android:orientation="vertical">
 
 
                     <ImageView
@@ -145,9 +151,9 @@ f
                         android:layout_gravity="center"
                         android:layout_marginTop="8dp"
                         android:layout_weight="1"
-                        android:visibility="invisible"
                         android:clickable="true"
                         android:focusable="true"
+                        android:visibility="invisible"
                         app:srcCompat="@drawable/baseline_home_24" />
 
                     <TextView
@@ -165,9 +171,9 @@ f
                     android:id="@+id/bottom_navbar_profile_button"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
+                    android:layout_weight="0.25"
                     android:background="@drawable/circular_gray_background"
                     android:clickable="true"
-                    android:layout_weight="0.25"
                     android:orientation="vertical">
 
                     <ImageView
@@ -195,9 +201,9 @@ f
             android:id="@+id/bottom_navbar_upload_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="true"
             android:contentDescription="Upload"
             android:src="@drawable/baseline_add_24"
-            android:clickable="true"
             app:backgroundTint="@color/tomatoRed"
             app:layout_anchor="@id/bottom_nav_bar"
             app:layout_anchorGravity="center"
@@ -217,5 +223,16 @@ f
         android:textSize="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout3" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/lightTomatoRed"
+        android:src="@drawable/chat_icon"
+        app:layout_constraintBottom_toTopOf="@+id/coordinatorLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:rippleColor="@color/lightTomatoRed"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

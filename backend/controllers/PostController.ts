@@ -101,6 +101,15 @@ export class PostController {
         const postId = req.params.id
         res.json(await this.postService.deletePost(postId))
     }
+
+    getEveryPost = async (req: Request, res: Response, next: NextFunction) => {    
+        res.json(await this.postService.getEveryPost());
+    }
+
+    getPostsAtLocation = async (req: Request, res: Response, next: NextFunction) => {
+        const coordinates = (req as any).body    
+        res.json(await this.postService.getPostsAtLocation(coordinates.lat, coordinates.long));
+    }
 }
 
 /**

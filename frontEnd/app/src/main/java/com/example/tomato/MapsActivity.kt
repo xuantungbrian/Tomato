@@ -13,7 +13,6 @@ import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Path
 import android.graphics.PorterDuff
 import android.graphics.RadialGradient
 import android.graphics.Shader
@@ -25,13 +24,11 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewOutlineProvider
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -40,7 +37,6 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
-import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -58,10 +54,8 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +63,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.Math.max
 import java.lang.Math.min
@@ -272,7 +265,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun sendSignInRequest(token: String) {
-        val body = JSONObject().put("token", token).toString()
+
+        val body = JSONObject()
+            .put("token", token)
+            .toString()
+
         lifecycleScope.launch {
             val response = HTTPRequest.sendPostRequest("${BuildConfig.SERVER_ADDRESS}/user/auth", body, this@MapsActivity)
             Log.d(TAG, "sendPostRequest: $response")
@@ -414,7 +411,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val imageByteArray = image.fileData.data.map { it.toByte() }.toByteArray()
         val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.size, options)
-        options.inSampleSize = calculateInSampleSize(options, targetSize, targetSize)
+        options.inSampleSize = commonFunction.calculateInSampleSize(options, targetSize, targetSize)
         options.inJustDecodeBounds = false
         val originalBitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray.size, options)
             ?: return Bitmap.createBitmap(targetSize, targetSize, Bitmap.Config.ARGB_8888)
@@ -466,16 +463,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     fun Int.dpToPx(context: Context): Int = (this * context.resources.displayMetrics.density).toInt()
 
-    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-        val (height: Int, width: Int) = options.run { outHeight to outWidth }
-        var inSampleSize = 1
-        if (height > reqHeight || width > reqWidth) {
-            val heightRatio = height.toFloat() / reqHeight.toFloat()
-            val widthRatio = width.toFloat() / reqWidth.toFloat()
-            inSampleSize = max(heightRatio, widthRatio).toInt()
-        }
-        return inSampleSize
-    }
 
     private fun createCircularBitmap(source: Bitmap, targetSize: Int): Bitmap {
         val scale = if (source.width < source.height) targetSize.toFloat() / source.width else targetSize.toFloat() / source.height

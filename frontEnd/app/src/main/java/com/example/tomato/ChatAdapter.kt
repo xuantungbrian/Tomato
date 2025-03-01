@@ -1,5 +1,7 @@
 package com.example.tomato
 
+import android.content.Context
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -8,9 +10,13 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
 
-class ChatMessageAdapter(private var messages: MutableList<ChatMessage>) : RecyclerView.Adapter<ChatMessageAdapter.ChatViewHolder>() {
+class ChatMessageAdapter(private var messages: MutableList<ChatMessage>, context: Context) : RecyclerView.Adapter<ChatMessageAdapter.ChatViewHolder>() {
     private lateinit var currentUserId: String
+    private val context = context
+    private var otherUsername = ""
 
     // Create ViewHolder
     class ChatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -26,10 +32,24 @@ class ChatMessageAdapter(private var messages: MutableList<ChatMessage>) : Recyc
 
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val chatMessage = messages[position]
-        holder.senderTextView.text = chatMessage.sender
+        var senderName = ""
+
+
+        if(chatMessage.sender == currentUserId){
+            senderName = "You"
+        }
+        else if(otherUsername != ""){
+            senderName = otherUsername
+        }
+        else{
+            senderName = resolveName(chatMessage.sender)
+            otherUsername = senderName
+        }
+
+        holder.senderTextView.text = senderName
         holder.messageTextView.text = chatMessage.message
 
-        if (chatMessage.sender == currentUserId) {
+        if (senderName == "You") {
             // Align current user's message to the right
             holder.messageTextView.updateLayoutParams<LinearLayout.LayoutParams> {
                 gravity = Gravity.END
@@ -60,5 +80,19 @@ class ChatMessageAdapter(private var messages: MutableList<ChatMessage>) : Recyc
     fun addMessages(newMessages: List<ChatMessage>) {
         messages.addAll(newMessages)
         notifyDataSetChanged()
+    }
+
+    private fun resolveName(id: String): String {
+        return runBlocking {
+            try {
+                val response = HTTPRequest.sendGetRequest("${BuildConfig.SERVER_ADDRESS}/user/$id", context)
+                Log.d("CHATBOK", "Response: $response")
+                val jsonObject = response?.let { JSONObject(it) }
+                jsonObject?.getString("username") ?: ""
+            } catch (e: Exception) {
+                Log.e("CHAT", "Error fetching username", e)
+                ""
+            }
+        }
     }
 }

@@ -8,32 +8,66 @@
     tools:context=".ChooseLocationActivity">
 
     <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/topBarHeight"
+        android:background="@color/tomatoRed"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imageView13"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.2"
+            app:srcCompat="@drawable/back"
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/post_activity_header_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:text="Set Post's Location"
+            android:textColor="@color/white"
+            android:textSize="@dimen/topBarFontSize"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+
+    <!-- Bottom Button Layout -->
+
+    <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
 
         <AutoCompleteTextView
             android:id="@+id/locationAutoCompleteTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:hint="Enter location"
             android:completionThreshold="1"
-            android:paddingStart="16dp"
-            android:textSize="18sp"
             android:focusable="true"
-            android:focusableInTouchMode="true"/>
+            android:focusableInTouchMode="true"
+            android:hint="Enter location"
+            android:paddingStart="16dp"
+            android:textSize="18sp" />
     </LinearLayout>
 
-
-
-    <!-- Bottom Button Layout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="70dp"
