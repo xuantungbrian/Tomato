@@ -28,12 +28,12 @@ export class PostController {
         res.json(await this.postService.createPost(post))
     }
 
-    getPosts = async (req: Request, res: Response, next: NextFunction) => {
+    getPublicPost = async (req: Request, res: Response, next: NextFunction) => {
         try{
             const {parsedStartLat, parsedEndLat, parsedStartLong, parsedEndLong } =  parseLocationParam(req)
         
             // Call service with the query params
-            res.json(await this.postService.getPosts(
+            res.json(await this.postService.getPublicPost(
                 parsedStartLat, 
                 parsedEndLat, 
                 parsedStartLong, 

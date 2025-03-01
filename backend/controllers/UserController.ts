@@ -11,6 +11,7 @@ export class UserController {
     constructor() {
         this.userService = new UserService();
         this.handleGoogleSignIn = this.handleGoogleSignIn.bind(this);
+        this.getUser = this.getUser.bind(this)
     }
 
     async createUser(req: Request, res: Response, next: NextFunction) { // TODO: Likely not be used so I have not tested this, cleanup later
@@ -19,8 +20,9 @@ export class UserController {
     }
 
 
-    async getUser(req: Request, res: Response, next: NextFunction) { // TODO: Likely not be used so I have not tested this, cleanup later
-        return this.userService.getUser((req as any).user.id);
+    async getUser(req: Request, res: Response, next: NextFunction) { 
+        const userId = req.params.id
+        return res.status(200).json(await this.userService.getUser(userId));
     }
 
     async handleGoogleSignIn(req: Request, res: Response, next: NextFunction){

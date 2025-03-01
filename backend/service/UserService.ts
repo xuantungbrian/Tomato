@@ -8,7 +8,7 @@ export class UserService {
 
     async createUser(id: string, name: string) {
         try {
-            const newUser = new UserModel({ _id: id, name })
+            const newUser = new UserModel({ _id: id, username: name })
             return newUser.save()
         } catch(error) {
             console.error("Error creating user:", error);
@@ -18,6 +18,8 @@ export class UserService {
 
     async getUser(id: string) {
         try {
+            let user = await UserModel.findById(id)
+            console.log("USER: ", user) 
             return UserModel.findById(id)
         } catch(error) {
             console.error("Error getting user:", error);
@@ -40,7 +42,6 @@ export class UserService {
 
         // Check if user exists, otherwise create a new one
         let user = await this.getUser(payload.sub);
-        console.log("USER: ", user)
     
         if (!user) {
             user = await this.createUser(payload.sub, payload.name);
