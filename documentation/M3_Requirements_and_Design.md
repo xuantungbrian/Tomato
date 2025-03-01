@@ -2,7 +2,14 @@
 
 ## 1. Change History
 <!-- Leave blank for M3 -->
-- Added more detailed interfaces for all the different components
+1. 3.3. Functional Requirements: 3/1/2025 13:35
+      - The numbering in the Failure Scenarios section of each functional requirement was changed to make the section easier to read
+2. 4.1. Main Components: 3/1/2025 13:56
+      - The interfaces in each of the main components were changed to accurately reflect the names and functionalities present in the code we are now using
+      - The purpose for the Recommendation component was changed to accurately reflect the methodology we are currently using to recommend locations
+3. 4.2. Databases: 3/1/2025 2:13
+       - The MessageDB was added and the description for ChatDB to accurately reflect how we decided to store chatrooms and messages in seperate databases.
+
 
 ## 2. Project Description
 Our app allows people to keep a history of all the places they have traveled to and thus acts as a travel advisory for others and a travel journal for themselves. Our target audience is young people who like to travel and take photos. Such users typically will have a large amount of photos compiled chronologically in a photo app i.e. Google Photos, but without much sense of where they were taken. As such, our solution involves viewing and navigating around a map with pins that show the user’s past images, as well as small optional notes that they can add. Furthermore, users can receive recommendations for future travel locations based on their travel history. When viewing other people's notes, they can optionally chat with the person taking a photo to ask about the logistics of traveling there (i.e. Do they accept cash? How much equipment did you bring?)
@@ -325,6 +332,8 @@ Our app allows people to keep a history of all the places they have traveled to 
 2. **PostDB**
     - **Purpose**: Stores database of posts, where a post represents a list of images associated to a location with an optional description.
 3. **ChatDB**
+    - **Purpose**: Stores user chatrooms.
+4. **MessageDB**
     - **Purpose**: Stores chat messages.
 
 ### **4.3. External Modules**
