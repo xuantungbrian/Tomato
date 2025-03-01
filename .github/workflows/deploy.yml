@@ -44,6 +44,7 @@ jobs:
             DB_URI= ${{ vars.PROD_DB_URI }}
             WEB_CLIENT_ID= ${{ secrets.WEB_CLIENT_ID }}
             JWT_SECRET= ${{ secrets.JWT_SECRET }}
+            WSS_PORT= ${{ vars.WSS_PORT || 3001 }} 
             EOF
 
             # JWT_SECRET= $( node -e "console.log(require('crypto').randomBytes(64).toString('hex'))" )
