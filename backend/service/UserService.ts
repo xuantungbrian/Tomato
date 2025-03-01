@@ -6,9 +6,9 @@ const client = new OAuth2Client(process.env.WEB_CLIENT_ID);
 
 export class UserService {
 
-    async createUser(id: string, name: string) {
+    async createUser(id: string, name: string, firebaseToken: String) {
         try {
-            const newUser = new UserModel({ _id: id, username: name })
+            const newUser = new UserModel({ _id: id, username: name, firebaseToken })
             return newUser.save()
         } catch(error) {
             console.error("Error creating user:", error);
@@ -27,7 +27,7 @@ export class UserService {
         }
     }
 
-    async signInWithGoogle(googleToken: String){
+    async signInWithGoogle(googleToken: String, firebaseToken: String){
         // Verify Google token
         const ticket = await client.verifyIdToken({
             idToken: googleToken.replace('Bearer ', ''),
@@ -44,7 +44,7 @@ export class UserService {
         let user = await this.getUser(payload.sub);
     
         if (!user) {
-            user = await this.createUser(payload.sub, payload.name);
+            user = await this.createUser(payload.sub, payload.name, firebaseToken);
             console.log("CREATED NEW USER")
         }
 

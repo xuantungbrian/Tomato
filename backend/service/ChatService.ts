@@ -30,6 +30,18 @@ export class ChatService {
         }
     }
 
+    // Get chat with chatId
+    async getChat(id: string) {
+        try {
+            const chat = await ChatModel.findOne({ _id: id})
+            return chat
+        } catch(err) {
+            console.error("Error getting chat: " + err)
+            return null
+        }
+    }
+
+    // Get chat with userId
     async getChats(id: string) {
         try {
             const chats = await ChatModel.find().or([{ member_1 : id}, {member_2: id}])
