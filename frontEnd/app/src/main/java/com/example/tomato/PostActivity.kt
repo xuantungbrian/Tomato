@@ -1,6 +1,7 @@
 package com.example.tomato
 
-import android.graphics.BitmapFactory
+import ChatItem
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -16,12 +17,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import java.util.Date
+import com.google.gson.Gson
+import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 class PostActivity : AppCompatActivity() {
     private var isOwner: Boolean = false
+
+    companion object {
+        private const val TAG = "PostActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +58,21 @@ class PostActivity : AppCompatActivity() {
             headerText.text = "Your Post"
         }
 
-
+        sendMessageButton.setOnClickListener {
+            val currentUserId = UserCredentialManager.getUserId(this)
+            if (userId != null && currentUserId != null && userId != currentUserId) {
+                lifecycleScope.launch {
+                    val chat = createChat(currentUserId, userId)
+                    if (chat != null) {
+                        val intent = Intent(this@PostActivity, ChatActivity::class.java)
+                        intent.putExtra("chatId", chat.chatId)
+                        startActivity(intent)
+                    }
+                }
+            } else {
+                Log.d(TAG, "userId or targetUserId is null")
+            }
+        }
 
         val images = intent.getParcelableArrayListExtra<Uri>("images")
         val location = intent.getStringExtra("location")
@@ -88,8 +110,24 @@ class PostActivity : AppCompatActivity() {
                 darkCard.layoutParams = layoutParams
             }
         })
+    }
 
+    suspend fun createChat(currentUserId: String, targetUserId: String): ChatItem? {
+        val body = JSONObject()
+            .put("member_1", currentUserId)
+            .put("member_2", targetUserId)
+            .toString()
 
+        val response = HTTPRequest.sendPostRequest(
+            "${BuildConfig.SERVER_ADDRESS}/chats",
+            body,
+            this@PostActivity)
+
+        if (response != null) {
+            val chat = Gson().fromJson(response, ChatItem::class.java)
+            return chat
+        }
+        return null
     }
 }
 

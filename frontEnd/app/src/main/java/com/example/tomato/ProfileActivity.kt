@@ -1,9 +1,8 @@
 package com.example.tomato
 
 import PostHelper
+import ChatItem
 import android.content.Intent
-import android.graphics.BitmapFactory
-import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,9 +20,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
-import java.util.Locale
-
-
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -59,9 +55,14 @@ class ProfileActivity : AppCompatActivity() {
                 val yourPostAdapter = ProfilePostAdapter(yourPostList)
                 yourPostRecyclerView.adapter = yourPostAdapter
             }
+
+            val chatList: List<ChatItem> = getChatList()
+            Log.d(TAG, "chatlist: $chatList")
+            val chatRecyclerView = findViewById<RecyclerView>(R.id.chatRecyclerView)
+            chatRecyclerView.layoutManager = LinearLayoutManager(this@ProfileActivity)
+            val chatAdapter = ChatAdapter(chatList)
+            chatRecyclerView.adapter = chatAdapter
         }
-
-
     }
 
     /**
@@ -104,6 +105,24 @@ class ProfileActivity : AppCompatActivity() {
 
         return postList
     }
+
+    /**
+     * Fetch the list of chats.
+     */
+    private suspend fun getChatList(): List<ChatItem> {
+        val response = HTTPRequest.sendGetRequest(
+            "${BuildConfig.SERVER_ADDRESS}/chats",
+            this@ProfileActivity
+        )
+        Log.d(TAG, "message: $response")
+        val chats = Gson().fromJson(response, Array<ChatItem>::class.java)
+
+        val chatList = mutableListOf<ChatItem>()
+        for (chat in chats) {
+            chatList.add(ChatItem(chat.chatId, chat.member_1, chat.member_2))
+        }
+        return chatList
+    }
 }
 
 class ProfilePostAdapter(
@@ -116,7 +135,9 @@ class ProfilePostAdapter(
         private val postLocation: TextView = itemView.findViewById(R.id.profile_post_location)
 
         fun bind(post: PostItem) {
-            postImage.setImageURI(post.imageData[0])
+            if (post.imageData.isNotEmpty()) {
+                postImage.setImageURI(post.imageData[0])
+            }
             postLocation.text = post.location
 
             itemView.setOnClickListener{
@@ -146,3 +167,35 @@ class ProfilePostAdapter(
 
     override fun getItemCount(): Int = postList.size
 }
+
+class ChatAdapter(private val chatList: List<ChatItem>) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
+    private lateinit var currentUserId: String
+
+    class ChatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val senderTextView: TextView = itemView.findViewById(R.id.chatTargetUser)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.chat_item, parent, false)
+        currentUserId = UserCredentialManager.getUserId(parent.context) ?: ""
+        return ChatViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
+        val chatItem = chatList[position]
+        if (chatItem.member_1 == currentUserId) {
+            holder.senderTextView.text = chatItem.member_2
+        } else {
+            holder.senderTextView.text = chatItem.member_1
+        }
+        holder.itemView.setOnClickListener {
+            val intent = Intent(holder.itemView.context, ChatActivity::class.java)
+            intent.putExtra("chatId", chatItem.chatId)
+            holder.itemView.context.startActivity(intent)
+        }
+    }
+
+    override fun getItemCount(): Int = chatList.size
+}
+
