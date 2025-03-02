@@ -29,10 +29,12 @@ export class RecommendationController {
         }
 
         let potential_places : any[] = []
+        console.log("SIMILAR USERS: ", similar_users.length)
         if (similar_users.length > 0) {
             for (let i = 0; i < 3 && similar_users.length > 0; i++) {
                 const most_similar = this.mode(similar_users)
                 const most_similar_posts = await this.postService.getUserPost(most_similar, true)
+                console.log("most similar posts: ", most_similar_posts?.length)
                 most_similar_posts?.forEach(sim_post => {
                     if (!just_coords.includes((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))) {
                         potential_places.push((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))
@@ -56,6 +58,7 @@ export class RecommendationController {
         }
 
         let best_places = []
+        console.log("POTENTIAL PLACES: ", potential_places.length)
 
         while (potential_places.length > 0 && best_places.length <= max) {
             let best_place = this.mode(potential_places)
@@ -63,7 +66,7 @@ export class RecommendationController {
             potential_places = this.deleteOccurences(potential_places, best_place) as any[]
         }
 
-        let best_posts : any[] = new Array(10);
+        let best_posts : any[] = []
         for(let i = 0; i < max; i++) {
             let place = best_places[i]
             if (!place) {
@@ -73,9 +76,13 @@ export class RecommendationController {
             let long = parseFloat(place.split(" ", 2)[1] as string) as number
             console.log(lat + "c" + long)
             let posts = await this.postService.getPostsAtLocation(lat, long) as Array<any>
-            best_posts[i] = posts
+            for(let post of posts){
+                best_posts.push(post)
+            }
         }
-        res.json({posts : best_posts})
+
+        console.log("BEST POSTS: ", best_posts.length)
+        return res.json({posts: best_posts})
     }
 
     mode(arr : Array<any>) : any {
