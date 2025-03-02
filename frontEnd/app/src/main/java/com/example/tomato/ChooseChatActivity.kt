@@ -39,6 +39,7 @@ class ChooseChatActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val chatRooms = getChatList()
             val recyclerView = findViewById<RecyclerView>(R.id.chatList)
+            Log.d(TAG, "chatRooms: ${chatRooms.size}")
             recyclerView.adapter = ChatListAdapter(chatRooms)
             recyclerView.layoutManager = LinearLayoutManager(this@ChooseChatActivity)
 
