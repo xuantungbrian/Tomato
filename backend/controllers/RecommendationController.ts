@@ -15,6 +15,7 @@ export class RecommendationController {
         const posts = await this.postService.getPosts(userId)
         let similar_users : Array<String> = []
         let just_coords : String[] = []
+        let promise
 
         posts?.forEach(post => {
             let lat : number = post.latitude as number
@@ -22,9 +23,10 @@ export class RecommendationController {
             const posts_at_location = this.postService.getPostsAtLocation(lat, long)
             just_coords.push(lat.toString().concat(" ", long.toString()))
 
-            posts_at_location.then(user_posts => {
+            promise = posts_at_location.then(user_posts => {
                 user_posts?.forEach(user_post => {
-                    similar_users.push(user_post.userId as String)
+                    if (user_post.userId != userId)
+                        similar_users.push(user_post.userId as String)
                 })
             })
         })
