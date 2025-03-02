@@ -2,7 +2,14 @@
 
 ## 1. Change History
 <!-- Leave blank for M3 -->
-- Added more detailed interfaces for all the different components
+1. 3.3. Functional Requirements: 3/1/2025 13:35
+      - The numbering in the Failure Scenarios section of each functional requirement was changed to make the section easier to read
+2. 4.1. Main Components: 3/1/2025 13:56
+      - The interfaces in each of the main components were changed to accurately reflect the names and functionalities present in the code we are now using
+      - The purpose for the Recommendation component was changed to accurately reflect the methodology we are currently using to recommend locations
+3. 4.2. Databases: 3/1/2025 2:13
+      - The MessageDB was added and the description for ChatDB to accurately reflect how we decided to store chatrooms and messages in seperate databases.
+
 
 ## 2. Project Description
 Our app allows people to keep a history of all the places they have traveled to and thus acts as a travel advisory for others and a travel journal for themselves. Our target audience is young people who like to travel and take photos. Such users typically will have a large amount of photos compiled chronologically in a photo app i.e. Google Photos, but without much sense of where they were taken. As such, our solution involves viewing and navigating around a map with pins that show the user’s past images, as well as small optional notes that they can add. Furthermore, users can receive recommendations for future travel locations based on their travel history. When viewing other people's notes, they can optionally chat with the person taking a photo to ask about the logistics of traveling there (i.e. Do they accept cash? How much equipment did you bring?)
@@ -244,14 +251,11 @@ Our app allows people to keep a history of all the places they have traveled to 
 1. **User**
     - **Purpose**: Manages user authentication and user data.
     - **Rationale**: Our backend may involve repetitive operations on querying User's database. This module provides a wrapper to the query and aligns with Dont Repeat Yourself principle.
-
-
     - **Interfaces**: 
         1. `public static bool signInWithGoogle(String token)`
             - **Purpose**: Verifies user's Google ID token. Returns true If user is successfully authenticated, otherwise returns false.
         2. `public static User getUser(String userID)`
             - **Purpose**: Wrapper for database query to get User information, given userID.
-              
         3. `public static User createUser(User new_user)`
             - **Purpose**: Adds a new user the application and saves the user in the database.
 
@@ -262,28 +266,20 @@ Our app allows people to keep a history of all the places they have traveled to 
     - **Interfaces**: 
         1. `public static String createPost(Post post)`
             - **Purpose**: creates and uploads a post where user explicitly provides the locations associated to the images. If isPrivate is True, the post is only visible to the user, otherwise it's visible to the public
-
         2. `public static bool updatePost(String postID, Post new_post)`
             - **Purpose**: edit a post.
-              
         3. `public static bool deletePost(String postID)`
-            - **Purpose**: deletes a post.
-              
+            - **Purpose**: deletes a post.     
         4. `public static List<Post> getPostAtLocation(int latitude, int longitude)`
             - **Purpose**: retrieve all posts that are at the specific location, shown by the latitude and longitude.
-
         5. `public static List<Post> getPublicPost(int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
             - **Purpose**: retrieve all public posts based on the given map boundary.
-              
         6. `public static List<Post> getPostById(String post_id)`
             - **Purpose**: retrieve the post with the given id.
-
         7. `public static List<Post> getPosts(int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
             - **Purpose**: retrieve all posts based on the given map boundary.
-          
         8. `public static List<Post> getAuthenticatedUserPost(String userId, bool userPostOnly, int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
             - **Purpose**:  If userPostOnly is true, retrieves all posts belonging to the user within the given region. If it's false, retrieves all posts that are viewable to the user in that region.
-          
         9. `public static List<Post> getEveryPost()`
             - **Purpose**: retrieve all posts.
 
@@ -293,25 +289,20 @@ Our app allows people to keep a history of all the places they have traveled to 
     - **Interfaces**: 
         1. `public static ChatMessage addMessage(String chatroom_id, String sender, String message)`
             - **Purpose**: Send message and add it to the database.
-      
         2. `public static List<ChatMessage> getChatMessages(String chatID)`
             - **Purpose**: Retrieve chat history for a particular chat.
-      
         3. `public static Chat createChat(String member_1, String member_2)`
             - **Purpose**: Creates a new chat between two users, returns the existing chat if one already exists between two users.
-      
         4. `public static Chat getChat(String userId)`
             - **Purpose**: Retrieves all chats that a user is apart of.
-      
         5. `public static Chat deleteChat(String chatId)`
             - **Purpose**: Deletes a chat with the given id.
-      
         6. `public static ChatMessage deleteChat(String chatId)`
             - **Purpose**: Deletes a message with the given id.
 
 
 4. **Recommendation System**
-    - **Purpose**: Recommend posts based on user's history or current trend.
+    - **Purpose**: Recommend posts based on user's similarity compared to other users and current trends.
     - **Rationale**: Recommendation system is made as its own component for better separation of concern in developing recommendation system algorithm.
     - **Interfaces**: 
         1. `public static List<Post> getRecommendation(String userID)`
@@ -325,6 +316,8 @@ Our app allows people to keep a history of all the places they have traveled to 
 2. **PostDB**
     - **Purpose**: Stores database of posts, where a post represents a list of images associated to a location with an optional description.
 3. **ChatDB**
+    - **Purpose**: Stores user chatrooms.
+4. **MessageDB**
     - **Purpose**: Stores chat messages.
 
 ### **4.3. External Modules**
