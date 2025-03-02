@@ -3,14 +3,16 @@
 ## 1. Change History
 <!-- Leave blank for M3 -->
 1. 3.3. Functional Requirements: 3/1/2025 13:35
-      - The numbering in the Failure Scenarios section of each functional requirement was changed to make the section easier to read
+      - The numbering in the Failure Scenarios section of each functional requirement was changed to make the section easier to read.
 2. 4.1. Main Components: 3/1/2025 13:56
-      - The interfaces in each of the main components were changed to accurately reflect the names and functionalities present in the code we are now using
-      - The purpose for the Recommendation component was changed to accurately reflect the methodology we are currently using to recommend locations
+      - The interfaces in each of the main components were changed to accurately reflect the names and functionalities present in the code we are now using as these are more in depth than those that were present before.
+      - The purpose for the Recommendation component was changed to accurately reflect the methodology we are currently using to recommend locations.
 3. 4.2. Databases: 3/1/2025 14:13
-      - The MessageDB was added and the description for ChatDB to accurately reflect how we decided to store chatrooms and messages in seperate databases.
-4. 4.8. Main Project Complexity Design: 22:29
-      - The recommendation algorithm was changed in the documentation to reflect how it currently works in the code we are using, as this differs from the original algorithm we had in mind.
+      - The MessageDB was added and the description for ChatDB to accurately reflect how we decided to store chatrooms and messages in seperate databases to make the databases more organized.
+4. 4.8. Main Project Complexity Design: 3/1/2025 22:29
+      - The recommendation algorithm was changed in the documentation to reflect how it currently works in the code we are using, as this differs from the original algorithm we had in mind as we found that the current algorithm yields more relevant results. 
+5. 3.1. Use-Case Diagram: 3/1/2025
+      - We changed the diagram so that the Search Locations and Display Map no longer include Login User as we realized that users that have not yet been logged in should be able to access these functionalities.
 
 
 ## 2. Project Description
@@ -41,12 +43,12 @@ Our app allows people to keep a history of all the places they have traveled to 
                 2. App successfully connects to Google Maps API
                 3. App opens the map to the user’s general location
             - **Failure scenario(s)**:
-                - a1. User has not allowed the app to see their location
-                    - a1a. Makes a request to the user to allow the app to access their location
-                    - a1b. If users agrees, the map will open showing the user’s general location
-                    - a1c. Otherwise opens the map to Vancouver as opposed to their current location
-                - b1. Google Maps API is not available
-                    - b1a. A toast will appear telling the user that Google Maps is unavailable and to try again later
+                - 1a. User has not allowed the app to see their location
+                    - 1a1. Makes a request to the user to allow the app to access their location
+                    - 1a2. If users agrees, the map will open showing the user’s general location
+                    - 1a3. Otherwise opens the map to Vancouver as opposed to their current location
+                - 2a. Google Maps API is not available
+                    - 2a1. A toast will appear telling the user that Google Maps is unavailable and to try again later
 
         2. **Displays posted pictures as pins on the map**
             - **Description**: Displays pictures posted by the user and others users as pins on the map
