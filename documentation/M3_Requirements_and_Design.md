@@ -6,7 +6,7 @@
 - 4.1 Main Components: 2/25/2025 
       - Previously, to obtain posts, there were only single /posts routes and this includes obtaining private and public posts. However, this is unsecure because users may exploit this by changing query param and obtain private posts of others. Therefore, we separate posts into /posts and /posts-authenticated where /posts is used by non-authenticated user and can only obtain public posts. On the other hand, /posts-authenticated can be used to obtain private posts but only the posts from the requesting user.
 
-3.3 Functional Requirements (Chat): 3/2/2025 
+- 3.3 Functional Requirements (Chat): 3/2/2025 
       - To trigger chat, previously we named the button as "Chat", but we think it would be more descriptive to rename it as "Send Message".
 
 - 4.1. Main Components: 3/1/2025 13:56
