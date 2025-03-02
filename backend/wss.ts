@@ -47,15 +47,25 @@ const startWSS = () => {
                     console.error("Cannot find this user")
                 }
                 const receiverInfo = await userService.getUser(receiverId)
-                const receiverFirebaseToken = receiverInfo?.firebaseToken || ""
+                const receiverFirebaseToken = receiverInfo?.firebaseToken || [""]
+                let recipientFound = false;
                 for (let client of wss.clients) {
                     if (wsRoomMapping.get(client) === chatId) {
                         if (client.readyState === WebSocket.OPEN) {
                             client.send(JSON.stringify(message));
+                            if (client !== ws) {
+                                recipientFound = true;
+                            }
                         }
                     }
                 }
-                sendPushNotification(receiverFirebaseToken, message.message, chatId)
+                if (!recipientFound) {
+                    for (let token of receiverFirebaseToken) {
+                        if (token) {
+                            sendPushNotification(token, message.message, chatId)
+                        }
+                    }
+                }
             } catch (error) {
                 console.error(`Error processing message: ${error}`);
             }
@@ -65,9 +75,6 @@ const startWSS = () => {
 
 // Function to send push notification
 function sendPushNotification(token: string, message: string, chatId: string) {
-    if (!token) {
-        console.error("No token acquired")
-    }
     const payload = {
         notification: {
             title: "You have a new Message",
@@ -80,6 +87,16 @@ function sendPushNotification(token: string, message: string, chatId: string) {
         android: {
             priority: "high"
         },
+        apns: {
+            headers: {
+                "apns-priority": "10",
+            },
+        },
+        webpush: {
+            headers: {
+                urgency: "high",
+            },
+        },
     };
 
     admin.messaging().send(payload as any)
@@ -90,6 +107,5 @@ function sendPushNotification(token: string, message: string, chatId: string) {
             console.log("Error sending message:", error);
         });
 }
-
 
 export default startWSS;
