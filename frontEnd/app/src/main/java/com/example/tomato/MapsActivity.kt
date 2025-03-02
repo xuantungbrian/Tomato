@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.BitmapShader
@@ -16,6 +17,7 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.RadialGradient
 import android.graphics.Shader
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -32,6 +34,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -56,6 +60,8 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -265,20 +271,42 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun sendSignInRequest(token: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
 
-        val body = JSONObject()
-            .put("token", token)
-            .toString()
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    1
+                )
+            }
+        }
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                // Handle failure
+                Log.w("Firebase", "Fetching FCM registration token failed", task.exception)
+                return@addOnCompleteListener
+            }
+            val body = JSONObject()
+                .put("googleToken", token)
+                .put("firebaseToken", task.result)
+                .toString()
 
-        lifecycleScope.launch {
-            val response = HTTPRequest.sendPostRequest("${BuildConfig.SERVER_ADDRESS}/user/auth", body, this@MapsActivity)
-            Log.d(TAG, "sendPostRequest: $response")
-            if (response != null) {
-                val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
-                JwtManager.saveToken(this@MapsActivity, signInResponse.token)
-                val userID = signInResponse.userID
-                UserCredentialManager.saveUserId(this@MapsActivity, userID)
-                updateProfile()
+            lifecycleScope.launch {
+                val response = HTTPRequest.sendPostRequest(
+                    "${BuildConfig.SERVER_ADDRESS}/user/auth",
+                    body,
+                    this@MapsActivity
+                )
+                Log.d(TAG, "sendPostRequest: $response")
+                if (response != null) {
+                    val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
+                    JwtManager.saveToken(this@MapsActivity, signInResponse.token)
+                    val userID = signInResponse.userID
+                    UserCredentialManager.saveUserId(this@MapsActivity, userID)
+                    updateProfile()
+                }
             }
         }
     }
