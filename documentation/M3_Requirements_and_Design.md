@@ -1,9 +1,9 @@
 # M3 - Requirements and Design
 
 ## 1. Change History
-<!-- Leave blank for M3 -->
 1. 3.3. Functional Requirements: 3/1/2025 13:35
       - The numbering in the Failure Scenarios section of each functional requirement was changed to make the section easier to read.
+      - Changed the recommendation system functional requirements from the user requesting recommendations to recommendations seamelessly appearing if enabled
 2. 4.1. Main Components: 3/1/2025 13:56
       - The interfaces in each of the main components were changed to accurately reflect the names and functionalities present in the code we are now using as these are more in depth than those that were present before.
       - The purpose for the Recommendation component was changed to accurately reflect the methodology we are currently using to recommend locations.
@@ -175,11 +175,10 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Description**: Shows the user similar places to go to based on their previous travels and searches
             - **Primary actor(s)**: User, Google Maps API
             - **Main success scenario**:
-                1. User clicks on the Suggest a Location button
-                2. User specifies whether it should be nearby or anywhere
-                3. App returns a popup of a description of the suggested location
-                4. User clicks away from the popup
-                5. App navigates to the location on the map and shows posts from users who have been there
+                1. User specifies whether or not to see recommended locations by others via the Filter
+                2. App seamlessly shows popups of recommended posts alongside their own posts on the map
+                3. App also shows under profile a list of recommended locations
+                4. App can show details of the post and message those other users when clicked on
             - **Failure scenario(s)**:
                 - 5a. Posts could not be fetched
                     - 5a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
@@ -274,7 +273,7 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Purpose**: edit a post.
         3. `public static bool deletePost(String postID)`
             - **Purpose**: deletes a post.     
-        4. `public static List<Post> getPostAtLocation(int latitude, int longitude)`
+        4. `public static List<Post> getPostsAtLocation(int latitude, int longitude)`
             - **Purpose**: retrieve all posts that are at the specific location, shown by the latitude and longitude.
         5. `public static List<Post> getPublicPost(int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
             - **Purpose**: retrieve all public posts based on the given map boundary.
@@ -337,6 +336,7 @@ Our app allows people to keep a history of all the places they have traveled to 
 
 3. **Google Map API** 
     - **Purpose**: Render map with posts pinpointed on it.
+
 4. **FireBase Cloud Messaging** 
     - **Purpose**: Notify users of new chat messages.
 
