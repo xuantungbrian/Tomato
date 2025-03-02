@@ -192,6 +192,7 @@ class ProfilePostAdapter(
 
             itemView.setOnClickListener{
                 val intent = Intent(itemView.context, PostActivity::class.java)
+                intent.putExtra("postId", post.postId)
                 intent.putExtra("userId", post.userId)
                 intent.putExtra("images", ArrayList(post.imageData))
                 intent.putExtra("location", post.location)

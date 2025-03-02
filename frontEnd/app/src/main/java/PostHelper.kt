@@ -15,7 +15,7 @@ object PostHelper {
     fun rawPostToPostItem(rawPost: PostItemRaw, context: Context): PostItem {
         val address = parseLocation(rawPost.latitude, rawPost.longitude, context)
         val imageURIs = byteToURIs(postImagesToByteArrays(rawPost.images), context.cacheDir, context)
-        return PostItem(imageURIs, address, rawPost.date, rawPost.note, rawPost.private, rawPost.userId)
+        return PostItem(rawPost._id, imageURIs, address, rawPost.date, rawPost.note, rawPost.private, rawPost.userId)
     }
 
     /**
@@ -37,6 +37,7 @@ object PostHelper {
         val postItem = PostHelper.rawPostToPostItem(post, context)
 
         val intent = Intent(context, PostActivity::class.java)
+        intent.putExtra("postId", postItem.postId)
         intent.putExtra("userId", postItem.userId)
         intent.putExtra("images", ArrayList(postItem.imageData))
         intent.putExtra("location", postItem.location)
