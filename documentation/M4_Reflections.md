@@ -28,6 +28,6 @@ AI Technology was used in the creation of the MVP.
 
 ## 3. Contributions of each team member
 - Rumbi Chinamo: 
-- Bryan Tanady: 
+- Bryan Tanady: Handled all frontEnd except chats, notification, location autocomplete input. Manage the integration between frontEnd and backEnd for all features, except chat and notification. Extend backend functionality (separate route for public and authenticated user route, separate Google Sign In and JWT Token Verification). Estimated time spent: 60 hours 
 - Xuan Tung Luu: 
 - James: Backend Development, Backend Deployment, Documentation - 15 hours 
