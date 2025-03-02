@@ -76,10 +76,13 @@ function sendPushNotification(token: string, message: string, chatId: string) {
         token: token,
         data: {
             chatId: chatId,
-        }
+        },
+        android: {
+            priority: "high"
+        },
     };
 
-    admin.messaging().send(payload)
+    admin.messaging().send(payload as any)
         .then((response: any) => {
             console.log("Successfully sent message:", response);
         })
