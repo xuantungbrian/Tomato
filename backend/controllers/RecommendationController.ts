@@ -11,12 +11,16 @@ export class RecommendationController {
 
     getRecommendation = async (req: Request, res: Response, next: NextFunction) => {
         const userId = (req as any).user.id
-        const posts = await this.postService.getPosts(userId)
+        const posts = await this.postService.getUserPost(userId, false)
         let similar_users : Array<String> = []
         let just_coords : String[] = []
+        
+        // User hasn't posted any, can't recommend anything
+        if (posts == null || posts.length == 0){
+            return res.json({coordinates: []})
+        }
 
-        let count = 0
-        posts?.forEach(post => {
+        posts.forEach(post => {
             let lat : number = post.latitude as number
             let long : number = post.longitude as number
             const posts_at_location = this.postService.getPostsAtLocation(lat, long)
@@ -33,7 +37,7 @@ export class RecommendationController {
         if (similar_users.length > 0) {
             for (let i = 0; i < 3 && similar_users.length > 0; i++) {
                 const most_similar = this.mode(similar_users)
-                const most_similar_posts = await this.postService.getPosts(most_similar)
+                const most_similar_posts = await this.postService.getUserPost(most_similar, false)
                 most_similar_posts?.forEach(sim_post => {
                     if (!just_coords.includes((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))) {
                         potential_places.push((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))

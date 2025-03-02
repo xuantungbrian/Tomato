@@ -67,7 +67,7 @@ export class PostController {
             const parsedUserPostOnly = userPostOnly == "true"
 
             const userId = (req as any).user.id
-            res.json(await this.postService.getAuthenticatedUserPost(userId, parsedUserPostOnly, parsedStartLat,
+            res.json(await this.postService.getUserPost(userId, parsedUserPostOnly, parsedStartLat,
                                                         parsedEndLat, parsedStartLong,
                                                         parsedEndLong))
         }

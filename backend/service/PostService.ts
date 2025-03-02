@@ -132,7 +132,7 @@ export class PostService {
      * Note: If all coordinate informations are null, return all posts.
      * @throws MissingCoordinateException if coordiante information is incomplete (some are non-null)
      */
-    async getAuthenticatedUserPost(
+    async getUserPost(
         userId: string,
         userPostOnly: Boolean,
         start_lat?: number, 
@@ -157,8 +157,7 @@ export class PostService {
                 const uniquePosts = Array.from(new Set(combinedPosts.map(post => post._id.toString()))) // Use post._id to uniquely identify posts
                 .map(id => combinedPosts.find(post => post._id.toString() === id ));
 
-                return uniquePosts;
-
+                return uniquePosts.filter(post => post != null);
             }
         }
         catch (error) {
