@@ -11,11 +11,10 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="22dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.9"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
-        tools:layout_editor_absoluteX="91dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout3"
@@ -35,6 +34,8 @@
             android:completionThreshold="1"
             android:focusable="true"
             android:focusableInTouchMode="true"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
             android:hint="Search"
             android:paddingStart="40dp"
             android:textSize="18sp"
@@ -84,7 +85,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="match_parent"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:fitsSystemWindows="true"
@@ -95,7 +96,7 @@
         <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/bottom_nav_bar"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             app:backgroundTint="@color/gray"
             app:buttonGravity="bottom"
@@ -211,6 +212,19 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/map_activity_chat_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="600dp"
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="@color/lightTomatoRed"
+        android:src="@drawable/chat_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:rippleColor="@color/lightTomatoRed" />
+
     <Button
         android:id="@+id/filter_post_button"
         android:layout_width="wrap_content"
@@ -223,16 +237,5 @@
         android:textSize="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout3" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="20dp"
-        android:backgroundTint="@color/lightTomatoRed"
-        android:src="@drawable/chat_icon"
-        app:layout_constraintBottom_toTopOf="@+id/coordinatorLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:rippleColor="@color/lightTomatoRed"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -110,6 +110,11 @@ class PostActivity : AppCompatActivity() {
                 darkCard.layoutParams = layoutParams
             }
         })
+
+        val backButton = findViewById<ImageView>(R.id.post_back)
+        backButton.setOnClickListener {
+            finish()
+        }
     }
 
     suspend fun createChat(currentUserId: String, targetUserId: String): ChatItem? {

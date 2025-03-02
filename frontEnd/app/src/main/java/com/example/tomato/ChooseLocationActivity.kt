@@ -9,6 +9,7 @@ import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
@@ -106,6 +107,11 @@ class ChooseLocationActivity : ComponentActivity() {
             } else {
                 Toast.makeText(this@ChooseLocationActivity, "Please select a location", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        val backButton = findViewById<ImageView>(R.id.choose_location_back)
+        backButton.setOnClickListener {
+            finish()
         }
     }
 

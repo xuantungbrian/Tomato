@@ -23,13 +23,20 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import org.json.JSONObject
+
+data class RecommendationResponse(
+    val posts: List<PostItemRaw>
+)
 
 class ProfileActivity : AppCompatActivity() {
 
     companion object{
         private const val TAG = "ProfileActivity"
     }
-    private val progressBar: View by lazy { findViewById(R.id.YourPostProgress) }
+    private val yourPostProgress: View by lazy { findViewById(R.id.YourPostProgress) }
+    private val recommendationProgress: View by lazy { findViewById(R.id.recommendationProgress) }
+
     private lateinit var gso: GoogleSignInOptions
     private lateinit var mGoogleSignInClient: GoogleSignInClient
 
@@ -50,37 +57,69 @@ class ProfileActivity : AppCompatActivity() {
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
-
         // Update user's profile if user is signed in
         updateProfile()
 
         // Show the progress wheel
-        progressBar.visibility = View.VISIBLE
+        yourPostProgress.visibility = View.VISIBLE
 
         commonFunction.initNavBarButtons(this@ProfileActivity, this)
 
         // Initialize Recycler views for "Your Post" & "Recommendations"
         lifecycleScope.launch {
-            var yourPostList: List<PostItem>? = getYourPostList()
-            val yourPostRecyclerView = findViewById<RecyclerView>(R.id.yourPostRecycler)
-            yourPostRecyclerView.layoutManager = LinearLayoutManager(this@ProfileActivity, LinearLayoutManager.HORIZONTAL, false)
-            if (yourPostList != null) {
-                val yourPostAdapter = ProfilePostAdapter(yourPostList)
-                yourPostRecyclerView.adapter = yourPostAdapter
-            }
-
-            val chatList: List<ChatItem> = getChatList()
-            Log.d(TAG, "chatlist: $chatList")
-            val chatRecyclerView = findViewById<RecyclerView>(R.id.chatRecyclerView)
-            chatRecyclerView.layoutManager = LinearLayoutManager(this@ProfileActivity)
-            val chatAdapter = ChatAdapter(chatList)
-            chatRecyclerView.adapter = chatAdapter
+            initYourPost()
+            initRecommendation()
         }
 
+        // Initialize sign out button
         val signOutButton = findViewById<TextView>(R.id.sign_out_button)
         signOutButton.setOnClickListener {
             signOutFromGoogle()
         }
+    }
+
+    private suspend fun initRecommendation(){
+        var recommendationList: List<PostItem>? = getRecommendationList()
+        val recommendationRecyclerView = findViewById<RecyclerView>(R.id.recommendationRecyclerView)
+        recommendationRecyclerView.layoutManager = LinearLayoutManager(this@ProfileActivity, LinearLayoutManager.HORIZONTAL, false)
+        if (recommendationList != null) {
+            val recommendationAdapter = ProfilePostAdapter(recommendationList)
+            recommendationRecyclerView.adapter = recommendationAdapter
+        }
+    }
+
+    private suspend fun getRecommendationList(): List<PostItem>? {
+        val response = HTTPRequest.sendGetRequest("${BuildConfig.SERVER_ADDRESS}/recommendations",
+            this@ProfileActivity)
+
+        Log.d(TAG, "Response: $response")
+
+        val gson = Gson()
+        val posts = gson.fromJson(response, RecommendationResponse::class.java).posts
+
+        val postList = mutableListOf<PostItem>()
+
+        for (post in posts){
+            postList.add(PostHelper.rawPostToPostItem(post, this))
+        }
+
+        // Load is successful, remove progressBar
+        recommendationProgress.visibility = View.GONE
+
+
+        return postList
+
+    }
+
+    private suspend fun initYourPost(){
+        var yourPostList: List<PostItem>? = getYourPostList()
+        val yourPostRecyclerView = findViewById<RecyclerView>(R.id.yourPostRecycler)
+        yourPostRecyclerView.layoutManager = LinearLayoutManager(this@ProfileActivity, LinearLayoutManager.HORIZONTAL, false)
+        if (yourPostList != null) {
+            val yourPostAdapter = ProfilePostAdapter(yourPostList)
+            yourPostRecyclerView.adapter = yourPostAdapter
+        }
+
     }
 
     private fun signOutFromGoogle(){
@@ -129,29 +168,11 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         // Load is successful, remove progressBar
-        progressBar.visibility = View.GONE
-
+        yourPostProgress.visibility = View.GONE
 
         return postList
     }
 
-    /**
-     * Fetch the list of chats.
-     */
-    private suspend fun getChatList(): List<ChatItem> {
-        val response = HTTPRequest.sendGetRequest(
-            "${BuildConfig.SERVER_ADDRESS}/chats",
-            this@ProfileActivity
-        )
-        Log.d(TAG, "message: $response")
-        val chats = Gson().fromJson(response, Array<ChatItem>::class.java)
-
-        val chatList = mutableListOf<ChatItem>()
-        for (chat in chats) {
-            chatList.add(ChatItem(chat.chatId, chat.member_1, chat.member_2))
-        }
-        return chatList
-    }
 }
 
 class ProfilePostAdapter(
@@ -196,35 +217,3 @@ class ProfilePostAdapter(
 
     override fun getItemCount(): Int = postList.size
 }
-
-class ChatAdapter(private val chatList: List<ChatItem>) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
-    private lateinit var currentUserId: String
-
-    class ChatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val senderTextView: TextView = itemView.findViewById(R.id.chatTargetUser)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.chat_item, parent, false)
-        currentUserId = UserCredentialManager.getUserId(parent.context) ?: ""
-        return ChatViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
-        val chatItem = chatList[position]
-        if (chatItem.member_1 == currentUserId) {
-            holder.senderTextView.text = chatItem.member_2
-        } else {
-            holder.senderTextView.text = chatItem.member_1
-        }
-        holder.itemView.setOnClickListener {
-            val intent = Intent(holder.itemView.context, ChatActivity::class.java)
-            intent.putExtra("chatId", chatItem.chatId)
-            holder.itemView.context.startActivity(intent)
-        }
-    }
-
-    override fun getItemCount(): Int = chatList.size
-}
-

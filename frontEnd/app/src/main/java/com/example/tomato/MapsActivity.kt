@@ -151,9 +151,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // Update profile (show clickable image) if user is logged in
         updateProfile()
 
+        // Init search location functionality
         initSearchLocation()
+
+        // Init trigger list of chat layout
+        initChatList()
     }
 
+    private fun initChatList(){
+        val chatButton = findViewById<ImageView>(R.id.map_activity_chat_button)
+        chatButton.setOnClickListener {
+            startActivity(Intent(this, ChooseChatActivity::class.java))
+        }
+    }
     private fun initSearchLocation(){
         // Initialize Places Client and Session Token
         placesClient = Places.createClient(this)
