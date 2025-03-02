@@ -38,6 +38,7 @@ jobs:
             cd /home/ubuntu/tomato/backend
             sudo rm -rf node_modules
             npm install
+            cp /home/ubuntu/serviceAccountKey.json /home/ubuntu/tomato/backend/serviceAccountKey.json
             # Write secrets into .env
             cat > .env << EOF
             PORT= ${{ vars.PROD_PORT }}

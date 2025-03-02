@@ -1,4 +1,3 @@
-import { FileService } from "../service/FileService";
 import { PostService } from "../service/PostService";
 import { Request, Response, NextFunction } from "express";
 import MissingCoordinateException from "../errors/customError";
@@ -10,11 +9,9 @@ interface ImageData {
 
 export class PostController {
     private postService: PostService;
-    private fileService: FileService;
 
     constructor() {
         this.postService = new PostService();
-        this.fileService = new FileService();
     }
 
     createPost = async (req: Request, res: Response, next: NextFunction) => {
@@ -28,12 +25,12 @@ export class PostController {
         res.json(await this.postService.createPost(post))
     }
 
-    getPosts = async (req: Request, res: Response, next: NextFunction) => {
+    getPublicPost = async (req: Request, res: Response, next: NextFunction) => {
         try{
             const {parsedStartLat, parsedEndLat, parsedStartLong, parsedEndLong } =  parseLocationParam(req)
         
             // Call service with the query params
-            res.json(await this.postService.getPosts(
+            res.json(await this.postService.getPublicPost(
                 parsedStartLat, 
                 parsedEndLat, 
                 parsedStartLong, 
@@ -67,7 +64,7 @@ export class PostController {
             const parsedUserPostOnly = userPostOnly == "true"
 
             const userId = (req as any).user.id
-            res.json(await this.postService.getAuthenticatedUserPost(userId, parsedUserPostOnly, parsedStartLat,
+            res.json(await this.postService.getUserPost(userId, parsedUserPostOnly, parsedStartLat,
                                                         parsedEndLat, parsedStartLong,
                                                         parsedEndLong))
         }
@@ -82,12 +79,11 @@ export class PostController {
 
     getPostById = async (req: Request, res: Response, next: NextFunction) => {
         const postId = req.params.id
-        const [fileData, postData] = await Promise.all([
-            this.fileService.getFileInPost(postId),
+        const [postData] = await Promise.all([
             this.postService.getPostById(postId)
         ]);
           
-        res.json({ postData, fileId: fileData});
+        res.json({ postData });
     }
 
     updatePost = async (req: Request, res: Response, next: NextFunction) => {

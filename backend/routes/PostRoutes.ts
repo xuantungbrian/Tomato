@@ -6,7 +6,7 @@ export const PostRoutes = [
     {
         method: "get",
         route: "/posts",            
-        action: postController.getPosts,
+        action: postController.getPublicPost,
         validation: [],
     },
     {
