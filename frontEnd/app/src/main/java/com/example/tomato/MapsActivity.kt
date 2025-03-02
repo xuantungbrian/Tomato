@@ -165,9 +165,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun initChatList(){
+
         val chatButton = findViewById<ImageView>(R.id.map_activity_chat_button)
         chatButton.setOnClickListener {
-            startActivity(Intent(this, ChooseChatActivity::class.java))
+            if (UserCredentialManager.isLoggedIn(this@MapsActivity)) {
+                startActivity(Intent(this@MapsActivity, ChooseChatActivity::class.java))
+            }
+            else {
+                android.app.AlertDialog.Builder(this@MapsActivity)
+                    .setTitle("Login is required to chat with others")
+                    .setNegativeButton("Okay", null)
+                    .show()
+            }
         }
     }
     private fun initSearchLocation(){

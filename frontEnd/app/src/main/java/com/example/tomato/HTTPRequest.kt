@@ -44,6 +44,39 @@ object HTTPRequest {
         }
     }
 
+    /**
+     * Sends a DELETE request to the specified URL.
+     */
+    suspend fun sendDeleteRequest(url: String, context: Context): String? {
+
+        // Use IO dispatcher to perform network operations (connect to backend)
+        return withContext(Dispatchers.IO){
+            val client = OkHttpClient()
+
+            val token = JwtManager.getToken(context)
+            val request = Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer $token") // Attach the JWT
+                .delete()
+                .build()
+
+            try {
+                // Execute the request synchronously on the IO dispatcher
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        throw IOException("Unexpected code $response")
+                    }
+                    // Return the response data as a String
+                    response.body?.string()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+
+
 
     /**
      * Sends a POST request to the specified URL with the provided request body.

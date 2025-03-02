@@ -216,7 +216,7 @@
         android:id="@+id/map_activity_chat_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="600dp"
+        android:layout_marginTop="550dp"
         android:layout_marginEnd="20dp"
         android:backgroundTint="@color/lightTomatoRed"
         android:src="@drawable/chat_icon"
