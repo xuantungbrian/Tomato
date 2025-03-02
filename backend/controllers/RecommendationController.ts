@@ -71,7 +71,6 @@ export class RecommendationController {
             }
             let lat = parseFloat(place.split(" ", 2)[0] as string) as number
             let long = parseFloat(place.split(" ", 2)[1] as string) as number
-            console.log(lat + "c" + long)
             let posts = await this.postService.getPostsAtLocation(lat, long) as Array<any>
             best_posts[i] = posts
         }
