@@ -1,11 +1,14 @@
 # M3 - Requirements and Design
 
 ## 1. Change History
-- 4.1 Main Components: 2/25/2025 18:59
+- 3.3 Functional Requirements (Recommendation): 3/1/2025
+      - The recommendation was originally thought to be part of a filter, where user can opt to show or don't show the recommended posts on the map. However, we then realize the control is too cluttered if recommendation is in the filter. It would have a better separation of concern if there is a dedicated recommendation section that shows all recommended posts for the user, and this will be located in the Profile Page.
+- 4.1 Main Components: 2/25/2025 
       - Previously, to obtain posts, there were only single /posts routes and this includes obtaining private and public posts. However, this is unsecure because users may exploit this by changing query param and obtain private posts of others. Therefore, we separate posts into /posts and /posts-authenticated where /posts is used by non-authenticated user and can only obtain public posts. On the other hand, /posts-authenticated can be used to obtain private posts but only the posts from the requesting user.
-- 3.3. Functional Requirements: 3/1/2025 13:35
-      - The numbering in the Failure Scenarios section of each functional requirement was changed to make the section easier to read.
-      - Changed the recommendation system functional requirements from the user requesting recommendations to recommendations seamelessly appearing if enabled-
+
+3.3 Functional Requirements (Chat): 3/2/2025 
+      - To trigger chat, previously we named the button as "Chat", but we think it would be more descriptive to rename it as "Send Message".
+
 - 4.1. Main Components: 3/1/2025 13:56
       - The interfaces in each of the main components were changed to accurately reflect the names and functionalities present in the code we are now using as these are more in depth than those that were present before.
       - The purpose for the Recommendation component was changed to accurately reflect the methodology we are currently using to recommend locations.
@@ -177,10 +180,10 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Description**: Shows the user similar places to go to based on their previous travels and searches
             - **Primary actor(s)**: User, Google Maps API
             - **Main success scenario**:
-                1. User specifies whether or not to see recommended locations by others via the Filter
-                2. App seamlessly shows popups of recommended posts alongside their own posts on the map
-                3. App also shows under profile a list of recommended locations
-                4. App can show details of the post and message those other users when clicked on
+              1. User opens Profile Page.
+              2. The loading bar will spin, waiting to fetch the recommendation for the user.
+              3. Recommendation posts will be displayed on the Recommendation section, located under "Your Post" section.
+              4. Each recommendation is clickable and will bring the user to the detail of the post.
             - **Failure scenario(s)**:
                 - 5a. Posts could not be fetched
                     - 5a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
@@ -197,7 +200,7 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Primary actor(s)**: User, Google Maps API 
             - **Main success scenario**:
                 1. User clicks on the pin of another user’s post
-                2. User clicks on the Chat button
+                2. User clicks on the Send Message button
                 3. App creates a new chat room with both users in it
                 4. User sends a message to the other user
             - **Failure scenario(s)**:
