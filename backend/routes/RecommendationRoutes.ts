@@ -8,5 +8,6 @@ export const RecommendationRoutes = [
         route: "/recommendations",            
         action: recommendationController.getRecommendation,
         validation: [],
+        protected: true,
     }
 ]
