@@ -39,7 +39,8 @@ export const PostRoutes = [
         method: "delete",
         route: "/posts/:id",          
         action: postController.deletePost,
-        validation: []
+        validation: [],
+        protected: true
     },
     {
         method: "get",

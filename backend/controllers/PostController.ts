@@ -1,6 +1,7 @@
 import { PostService } from "../service/PostService";
 import { Request, Response, NextFunction } from "express";
 import MissingCoordinateException from "../errors/customError";
+import { PostModel } from "../model/PostModel";
 
 interface ImageData {
     fileData: Buffer;
@@ -95,7 +96,17 @@ export class PostController {
 
     deletePost = async (req: Request, res: Response, next: NextFunction) => {
         const postId = req.params.id
-        res.json(await this.postService.deletePost(postId))
+
+        // Ensure that the post really belongs to the user
+        const userId = (req as any).user.id
+        const post = await PostModel.findById(postId)
+
+        if(post?.userId !== userId){
+            res.status(401).send({message: "Unauthorized"})
+        }
+        else{
+            res.json(await this.postService.deletePost(postId))
+        }
     }
 
     getEveryPost = async (req: Request, res: Response, next: NextFunction) => {    
