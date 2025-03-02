@@ -1,14 +1,18 @@
 # M3 - Requirements and Design
 
 ## 1. Change History
-<!-- Leave blank for M3 -->
 1. 3.3. Functional Requirements: 3/1/2025 13:35
-      - The numbering in the Failure Scenarios section of each functional requirement was changed to make the section easier to read
+      - The numbering in the Failure Scenarios section of each functional requirement was changed to make the section easier to read.
+      - Changed the recommendation system functional requirements from the user requesting recommendations to recommendations seamelessly appearing if enabled
 2. 4.1. Main Components: 3/1/2025 13:56
-      - The interfaces in each of the main components were changed to accurately reflect the names and functionalities present in the code we are now using
-      - The purpose for the Recommendation component was changed to accurately reflect the methodology we are currently using to recommend locations
-3. 4.2. Databases: 3/1/2025 2:13
-      - The MessageDB was added and the description for ChatDB to accurately reflect how we decided to store chatrooms and messages in seperate databases.
+      - The interfaces in each of the main components were changed to accurately reflect the names and functionalities present in the code we are now using as these are more in depth than those that were present before.
+      - The purpose for the Recommendation component was changed to accurately reflect the methodology we are currently using to recommend locations.
+3. 4.2. Databases: 3/1/2025 14:13
+      - The MessageDB was added and the description for ChatDB to accurately reflect how we decided to store chatrooms and messages in seperate databases to make the databases more organized.
+4. 4.8. Main Project Complexity Design: 3/1/2025 22:29
+      - The recommendation algorithm was changed in the documentation to reflect how it currently works in the code we are using, as this differs from the original algorithm we had in mind as we found that the current algorithm yields more relevant results. 
+5. 3.1. Use-Case Diagram: 3/1/2025 22:59
+      - We changed the diagram so that the Search Locations and Display Map no longer include Login User as we realized that users that have not yet been logged in should be able to access these functionalities.
 
 
 ## 2. Project Description
@@ -39,12 +43,12 @@ Our app allows people to keep a history of all the places they have traveled to 
                 2. App successfully connects to Google Maps API
                 3. App opens the map to the user’s general location
             - **Failure scenario(s)**:
-                - a1. User has not allowed the app to see their location
-                    - a1a. Makes a request to the user to allow the app to access their location
-                    - a1b. If users agrees, the map will open showing the user’s general location
-                    - a1c. Otherwise opens the map to Vancouver as opposed to their current location
-                - b1. Google Maps API is not available
-                    - b1a. A toast will appear telling the user that Google Maps is unavailable and to try again later
+                - 1a. User has not allowed the app to see their location
+                    - 1a1. Makes a request to the user to allow the app to access their location
+                    - 1a2. If users agrees, the map will open showing the user’s general location
+                    - 1a3. Otherwise opens the map to Vancouver as opposed to their current location
+                - 2a. Google Maps API is not available
+                    - 2a1. A toast will appear telling the user that Google Maps is unavailable and to try again later
 
         2. **Displays posted pictures as pins on the map**
             - **Description**: Displays pictures posted by the user and others users as pins on the map
@@ -171,11 +175,10 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Description**: Shows the user similar places to go to based on their previous travels and searches
             - **Primary actor(s)**: User, Google Maps API
             - **Main success scenario**:
-                1. User clicks on the Suggest a Location button
-                2. User specifies whether it should be nearby or anywhere
-                3. App returns a popup of a description of the suggested location
-                4. User clicks away from the popup
-                5. App navigates to the location on the map and shows posts from users who have been there
+                1. User specifies whether or not to see recommended locations by others via the Filter
+                2. App seamlessly shows popups of recommended posts alongside their own posts on the map
+                3. App also shows under profile a list of recommended locations
+                4. App can show details of the post and message those other users when clicked on
             - **Failure scenario(s)**:
                 - 5a. Posts could not be fetched
                     - 5a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
@@ -270,7 +273,7 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Purpose**: edit a post.
         3. `public static bool deletePost(String postID)`
             - **Purpose**: deletes a post.     
-        4. `public static List<Post> getPostAtLocation(int latitude, int longitude)`
+        4. `public static List<Post> getPostsAtLocation(int latitude, int longitude)`
             - **Purpose**: retrieve all posts that are at the specific location, shown by the latitude and longitude.
         5. `public static List<Post> getPublicPost(int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
             - **Purpose**: retrieve all public posts based on the given map boundary.
@@ -278,7 +281,7 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Purpose**: retrieve the post with the given id.
         7. `public static List<Post> getPosts(int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
             - **Purpose**: retrieve all posts based on the given map boundary.
-        8. `public static List<Post> getAuthenticatedUserPost(String userId, bool userPostOnly, int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
+        8. `public static List<Post> getUserPost(String userId, bool userPostOnly, int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
             - **Purpose**:  If userPostOnly is true, retrieves all posts belonging to the user within the given region. If it's false, retrieves all posts that are viewable to the user in that region.
         9. `public static List<Post> getEveryPost()`
             - **Purpose**: retrieve all posts.
@@ -333,6 +336,7 @@ Our app allows people to keep a history of all the places they have traveled to 
 
 3. **Google Map API** 
     - **Purpose**: Render map with posts pinpointed on it.
+
 4. **FireBase Cloud Messaging** 
     - **Purpose**: Notify users of new chat messages.
 
@@ -378,74 +382,62 @@ Our app allows people to keep a history of all the places they have traveled to 
 ### **4.8. Main Project Complexity Design**
 **Suggestion Algorithm**
 - **Description**: The suggestion algorithm will suggest new locations with corresponding pins with pictures of those locations appearing on the map, if the suggestion feature is enabled.
-- **Why complex?**: The suggestion algorithm will work on centroids, determined using K-means clustering, showing general areas where the user has been, and subsequently suggest other centroids that the user has not been to, based on "popularity" of the centroid and proximity to the user.
+- **Why complex?**: The algorithm contains nested loops and specialized calls to the database that had to be designed specifically for this suggestion algorithm.
 - **Design**:
-    - **Input**: User's past visited locations, popularity of non-visited locations, proximity to user's past locations
+    - **Input**: Requesting user's id, number of locations to suggest
     - **Output**: A list of pins corresponding to recommended locations
-    - **Main computational logic**: Firstly to cluster the user's existing memories and store the location of those centroids. Subsequently, the total information of other users will be used to generate more centroids, whose proximity to the user will be calculated and ranked before suggesting.
+    - **Main computational logic**: The suggestion algorithm pick locations to suggest based off of the post of other users and how similar those users posts were to the requesting user's posts. The most popular locations amongst the most similar users will be then suggested to the user.
     - **Pseudo-code**: 
         ```
-        FUNCTION suggest_locations(past_memories, current_location, radius_of_interest, num_clusters, novelty_weight, proximity_weight):
-            // Step 1: Cluster past memories
-            clusters = CLUSTER(past_memories, num_clusters)  // e.g., using K-Means
-            centroids = CALCULATE_CENTROIDS(clusters)
+        FUNCTION get_recommendations(user_id, num_locations):
+            // Step 1: Get User Post Locations
+            user_post_locations = GET_USER_POST_LOCATIONS_FROM_ID(user_id)
 
-            // Step 2: Generate candidate locations
-            candidate_locations = GENERATE_CANDIDATES(current_location, radius_of_interest)
+            // Step 2: Get similar users
+            similar_users = []
+            FOR location IN user_post_locations:
+                similar_user_list = GET_USER_IDS_WITH_POSTS_AT_LOCATION(location)
+                APPEND similar_user_list TO similar_users
 
-            // Step 3: Filter unexplored locations
-            unexplored_locations = []
-            FOR location IN candidate_locations:
-                IF IS_UNEXPLORED(location, centroids, min_distance=20):
-                    unexplored_locations.APPEND(location)
+            // Step 3: Get most similar users
+            most_similar_users = []
+            FOR 1 to 3:
+                most_similar = GET_MODE(similar_users)
+                REMOVE ALL most_similar FROM similar_user
+                APPEND most_similar TO most_similar_users
 
-            // Step 4: Rank locations by novelty and proximity
-            ranked_locations = []
-            FOR location IN unexplored_locations:
-                novelty_score = CALCULATE_NOVELTY_SCORE(location, past_memories)
-                proximity_score = CALCULATE_PROXIMITY_SCORE(location, current_location)
-                final_score = (novelty_weight * novelty_score) + (proximity_weight * proximity_score)
-                ranked_locations.APPEND((location, final_score))
+            // Step 4: Get most popular locations amongst the most similar users
+            similar_locations = []
+            FOR user IN most_similar_users:
+                APPEND GET_USER_POST_LOCATIONS_FROM_ID(user) TO similar_locations
+        
+            REMOVE ALL user_post_locations FROM similar_locations
 
             // Step 5: Sort and return top suggestions
-            ranked_locations.SORT_BY_SCORE(final_score, descending=True)
-            top_suggestions = ranked_locations.TAKE(3)  // Top 3 suggestions
+            ranked_locations = SORT_BY_MODE(similar_locations)
+            top_suggestions = ranked_locations.TAKE(num_locations)  // Take top suggestions
             RETURN top_suggestions
 
-        FUNCTION CLUSTER(past_memories, num_clusters):
-            // Use a clustering algorithm (e.g., K-Means) to group past memories
-            RETURN clusters
+        FUNCTION GET_USER_POST_LOCATIONS_FROM_ID(user_id):
+            // Gets all the locations of the posts with the given user_id from the database
+            RETURN user_post_locations
 
-        FUNCTION CALCULATE_CENTROIDS(clusters):
-            // Calculate the centroid (average latitude and longitude) of each cluster
-            RETURN centroids
+        FUNCTION GET_USER_IDS_WITH_POSTS_AT_LOCATION(location):
+            // Gets all the user ids with posts at the given location from the database
+            RETURN user_ids
 
-        FUNCTION GENERATE_CANDIDATES(current_location, radius_of_interest):
-            // Generate candidate locations within the radius of interest
-            RETURN candidate_locations
+        FUNCTION GET_MODE(array):
+            // Retrieves the value that appears the most in the array
+            RETURN most_popular
 
-        FUNCTION IS_UNEXPLORED(location, centroids, min_distance):
-            // Check if the location is far enough from all centroids
-            FOR centroid IN centroids:
-                IF DISTANCE(location, centroid) < min_distance:
-                    RETURN False
-            RETURN True
-
-        FUNCTION CALCULATE_NOVELTY_SCORE(location, past_memories):
-            // Calculate the average distance from the location to all past memories
-            total_distance = 0
-            FOR memory IN past_memories:
-                total_distance += DISTANCE(location, memory)
-            RETURN total_distance / LENGTH(past_memories)
-
-        FUNCTION CALCULATE_PROXIMITY_SCORE(location, current_location):
-            // Calculate the inverse of the distance from the location to the current location
-            distance = DISTANCE(location, current_location)
-            RETURN 1 / (distance + 1e-6)  // Avoid division by zero
-
-        FUNCTION DISTANCE(location1, location2):
-            // Calculate the geodesic distance between two (latitude, longitude) pairs
-            RETURN GEODESIC_DISTANCE(location1, location2)
+        FUNCTION SORT_BY_MODE(array):
+            // Sorts the array in descending order based on how many times they appear in the array
+            sorted_array = []
+            WHILE array IS NOT EMPTY:
+                most_popular = GET_MODE(array)
+                REMOVE ALL most_popular FROM array
+                APPEND most_popular TO sorted_array
+            RETURN sorted_array
         
         ```
 

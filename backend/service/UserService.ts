@@ -27,7 +27,7 @@ export class UserService {
         }
     }
 
-    async signInWithGoogle(googleToken: String, firebaseToken: String){
+    async signInWithGoogle(googleToken: String, firebaseToken: string){
         // Verify Google token
         const ticket = await client.verifyIdToken({
             idToken: googleToken.replace('Bearer ', ''),
@@ -46,6 +46,11 @@ export class UserService {
         if (!user) {
             user = await this.createUser(payload.sub, payload.name, firebaseToken);
             console.log("CREATED NEW USER")
+        } else {
+            if (!user.firebaseToken.includes(firebaseToken)) {
+                user.firebaseToken.push(firebaseToken);
+                user.save(); //TODO: Need to invalidate the token when user sign out
+            }            
         }
 
         // Generate JWT
