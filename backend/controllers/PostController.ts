@@ -27,7 +27,7 @@ export class PostController {
     }
 
     getPosts = async (req: Request, res: Response, next: NextFunction) => {
-        const userId = (req as any).user.id
+        const userId = (req as any).body.id
         res.json(await this.postService.getPosts(userId))
     }
 

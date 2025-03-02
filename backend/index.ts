@@ -25,11 +25,11 @@ app.get('/', (req: Request, res: Response) => {
 
 const allRoutes = [...PostRoutes, ...FileRoutes, ...UserRoutes, ...ChatRoutes, ...RecommendationRoutes]
 allRoutes.forEach((route) => {
-    const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
+    //const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
 
     (app as any)[route.method](
         route.route,
-        ...middlewares,
+      //  ...middlewares,
         route.validation,
         async (req: express.Request, res: Response, next: NextFunction) => {
             const errors = validationResult(req);
