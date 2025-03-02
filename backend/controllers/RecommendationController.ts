@@ -11,11 +11,11 @@ export class RecommendationController {
 
     getRecommendation = async (req: Request, res: Response, next: NextFunction) => {
         const userId = (req as any).user.id
+        const max = (req as any).query ? parseInt((req as any).query as string) : 10
         const posts = await this.postService.getPosts(userId)
         let similar_users : Array<String> = []
         let just_coords : String[] = []
 
-        let count = 0
         posts?.forEach(post => {
             let lat : number = post.latitude as number
             let long : number = post.longitude as number
@@ -54,13 +54,25 @@ export class RecommendationController {
 
         let best_places = []
 
-        while (potential_places.length > 0) {
+        while (potential_places.length > 0 && best_places.length <= max) {
             let best_place = this.mode(potential_places)
             best_places.push(best_place)
             potential_places = this.deleteOccurences(potential_places, best_place) as any[]
         }
 
-        res.json({coordinates : best_places})
+        let best_posts : any[] = new Array(10);
+        for(let i = 0; i < max; i++) {
+            let place = best_places[i]
+            if (!place) {
+                break;
+            }
+            const {latitude, longitude} = place.split(" ", 2)
+            let lat = parseFloat(latitude as string) as number
+            let long = parseFloat(longitude as string) as number
+            let posts = await this.postService.getPostsAtLocation(lat, long) as Array<any>
+            best_posts[i] = posts
+        }
+        res.json({posts : best_posts})
     }
 
     mode(arr : Array<any>) : any {
