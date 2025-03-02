@@ -1,6 +1,9 @@
 # M3 - Requirements and Design
 
 ## 1. Change History
+- 3.4 Non Functional Requirement: 2/22/2025
+      - We previously mentioned that there must never be more than 10 pins on the map at any given time to avoid cluttering the map. However, removing pins from the map/limiting them will definitely make the app lose information and users would suffer from that loss of information. Therefore, we make it less restrictive where pins must not block other pins making them unclickable -- If they are too close together, cluster them into a single clickable pin. Using this clustering algorithm, we could obtain the original goal of avoiding cluttering the map while also preserving information for the users.
+|
 - 3.3 Functional Requirements (Recommendation): 3/1/2025
       - The recommendation was originally thought to be part of a filter, where user can opt to show or don't show the recommended posts on the map. However, we then realize the control is too cluttered if recommendation is in the filter. It would have a better separation of concern if there is a dedicated recommendation section that shows all recommended posts for the user, and this will be located in the Profile Page.
 - 4.1 Main Components: 2/25/2025 
@@ -247,9 +250,9 @@ Our app allows people to keep a history of all the places they have traveled to 
 ### **3.4. Non-Functional Requirements**
 <a name="nfr1"></a>
 
-1. **No more than 10 pins on the screen at any time**
-    - **Description**: No more than 10 pins will be shown on a user’s map at any given time.
-    - **Justification**: This allows for there to be less clutter on the screen if the user posts many images.
+1. **Pins of other posts must not prevent other pins' clickablity**
+    - **Description**:, If posts are close together and hard to click, they must be grouped into a single clickable pin.
+    - **Justification**:  When multiple posts are close, it is natural that the pins will cover each other and would block other pins making them hard to click or worse not clickable at all. This must be resolved with clustering algorithm 
 2. **At most 4 clicks to access any of the use cases**
     - **Description**: No more than 4 clicks are necessary to access any of the main use cases
     - **Justification**: This allows for the user to navigate the app easily and makes every use case within a comfortable reach from the user.
