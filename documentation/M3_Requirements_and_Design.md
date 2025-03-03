@@ -18,7 +18,7 @@
 - 4.2. Databases: 3/1/2025 
       - The MessageDB was added and the description for ChatDB to accurately reflect how we decided to store chatrooms and messages in seperate databases to make the databases more organized.
 - 4.8. Main Project Complexity Design: 3/1/2025 22:29
-      - The recommendation algorithm was changed in the documentation to reflect how it currently works in the code we are using, as this differs from the original algorithm we had in mind as we found that the current algorithm yields more relevant results. 
+      - The recommendation algorithm was changed in the documentation to reflect how it currently works in the code we are using, as this differs from the original algorithm we had in mind as we found that the current algorithm yields more relevant results. Previously our algorithm focused more on the distance between the locations of different posts and suggests location nearby to posts the requesting user has made in the past, however now we focus more on the similarity between users by way of post location similarity and prioritize suggesting locations that similar users have been to.
 - 3.1. Use-Case Diagram: 3/1/2025 
       - We changed the diagram so that the Search Locations and Display Map no longer include Login User as we realized that users that have not yet been logged in should be able to access these functionalities.
 - 3.3 - Functional Requirements (Display Map): 3/2/2025
