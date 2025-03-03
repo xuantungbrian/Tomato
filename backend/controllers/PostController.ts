@@ -114,7 +114,7 @@ export class PostController {
     }
 
     getPostsAtLocation = async (req: Request, res: Response, next: NextFunction) => {
-        const coordinates = (req as any).body    
+        const coordinates = (req as any).query    
         res.json(await this.postService.getPostsAtLocation(coordinates.lat, coordinates.long));
     }
 }
