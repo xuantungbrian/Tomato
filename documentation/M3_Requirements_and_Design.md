@@ -12,16 +12,16 @@
 - 3.3 Functional Requirements (Chat): 3/2/2025 
       - To trigger chat, previously we named the button as "Chat", but we think it would be more descriptive to rename it as "Send Message".
 
-- 4.1. Main Components: 3/1/2025 13:56
+- 4.1. Main Components: 3/1/2025 
       - The interfaces in each of the main components were changed to accurately reflect the names and functionalities present in the code we are now using as these are more in depth than those that were present before.
       - The purpose for the Recommendation component was changed to accurately reflect the methodology we are currently using to recommend locations.
-- 4.2. Databases: 3/1/2025 14:13
+- 4.2. Databases: 3/1/2025 
       - The MessageDB was added and the description for ChatDB to accurately reflect how we decided to store chatrooms and messages in seperate databases to make the databases more organized.
 - 4.8. Main Project Complexity Design: 3/1/2025 22:29
       - The recommendation algorithm was changed in the documentation to reflect how it currently works in the code we are using, as this differs from the original algorithm we had in mind as we found that the current algorithm yields more relevant results. 
-- 3.1. Use-Case Diagram: 3/1/2025 22:59
+- 3.1. Use-Case Diagram: 3/1/2025 
       - We changed the diagram so that the Search Locations and Display Map no longer include Login User as we realized that users that have not yet been logged in should be able to access these functionalities.
-- 3.3 - Functional Requirements (Display Map):
+- 3.3 - Functional Requirements (Display Map): 3/2/2025
       - Previously when user didn't grant the app location permission, the app would bring the view to Vancouver as default view. However, we changed this and set latitude longitude (0, 0) as the default view. This is because setting Vancouver as the default view seems like a very biased decision (especially if users are not based in Canada), hence we used (0, 0) which is the default location for a lot of location-based apps. 
 
 ## 2. Project Description
