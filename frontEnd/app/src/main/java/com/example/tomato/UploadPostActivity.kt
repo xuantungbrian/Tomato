@@ -34,13 +34,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
+data class PostResponse(
+    val postData: PostItemRaw
+)
 
 class UploadPostActivity : AppCompatActivity() {
 
@@ -55,6 +62,11 @@ class UploadPostActivity : AppCompatActivity() {
     private var postLongitude: Double = 0.0
     private var postLocationName: String = ""
     private var postDate: String = ""
+
+    // Only relevant if the user is updating a post
+    private var toUpdate: Boolean = false
+    private var postId: String = ""
+    private var postDateRaw: String = ""
 
     companion object {
         private const val TAG = "UploadPostActivity"
@@ -99,7 +111,59 @@ class UploadPostActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        toUpdate = intent.getBooleanExtra("toUpdate", false)
         initImageViewer()
+
+        if(toUpdate){
+            val postIdRaw = intent.getStringExtra("postId")
+            val images = intent.getParcelableArrayListExtra<Uri>("images")
+            val location = intent.getStringExtra("location")
+            val date = intent.getStringExtra("date")
+            val note = intent.getStringExtra("note")
+            val private = intent.getBooleanExtra("private", false)
+
+            postId = postIdRaw.toString()
+            imageUris = images ?: mutableListOf()
+            if (location != null) {
+                postLocationName = location
+            }
+            postDate = date?.let { commonFunction.convertDateToString(it) }.toString()
+            if (date != null) {
+                postDateRaw = date
+            }
+
+            postVisibility = if (private) "Private" else "Public"
+            imageAdapter.addImage(images ?: mutableListOf())
+            imageAdapter.notifyDataSetChanged()
+            val postText = findViewById<TextView>(R.id.noteText)
+            postText.text = note
+            updateViewSwitch()
+            updateLocation()
+            updateDate()
+            updateVisibility()
+
+            val uploadPostButton = findViewById<Button>(R.id.upload_post_button)
+            uploadPostButton.text = "Update Post"
+
+            val headerText = findViewById<TextView>(R.id.post_activity_header_text)
+            headerText.text = "Update Post"
+
+            lifecycleScope.launch {
+                val response = HTTPRequest.sendGetRequest("${BuildConfig.SERVER_ADDRESS}/posts/$postId", this@UploadPostActivity)
+                val gson = Gson()
+                val post = gson.fromJson(response, PostResponse::class.java).postData
+                postLatitude = post.latitude
+                postLongitude = post.longitude
+            }
+        }
+        else{
+            val uploadPostButton = findViewById<Button>(R.id.upload_post_button)
+            uploadPostButton.text = "Upload Post"
+
+            val headerText = findViewById<TextView>(R.id.post_activity_header_text)
+            headerText.text = "Upload Post"
+        }
+
         addClickListenersToPostInfoButtons()
         Log.d(TAG, "onCreate")
 
@@ -107,6 +171,13 @@ class UploadPostActivity : AppCompatActivity() {
         backButton.setOnClickListener {
             finish()
         }
+
+
+    }
+
+    private fun showUpdatePostActivity(images: ArrayList<Uri>?, location: String?, date: String?, note: String?, private: Boolean){
+
+
     }
 
     /**
@@ -190,7 +261,18 @@ class UploadPostActivity : AppCompatActivity() {
             val note = findViewById<TextView>(R.id.noteText).text.toString()
             val postIsPrivate = postVisibility == "Private"
             val dateFormatter = SimpleDateFormat("dd/MM/yyyy")
-            val date: Date? = dateFormatter.parse(postDate)
+
+
+            var date: Date? = null
+            if(toUpdate){
+                val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+                inputFormat.timeZone = TimeZone.getTimeZone("UTC") // Critical: Set timezone to UTC
+
+                date = inputFormat.parse(postDateRaw)
+            }
+            else{
+                date = dateFormatter.parse(postDate)
+            }
 
             val body = JSONObject()
                 .put("latitude", postLatitude)
@@ -202,18 +284,35 @@ class UploadPostActivity : AppCompatActivity() {
                 .toString()
 
             lifecycleScope.launch {
-                val response = HTTPRequest.sendPostRequest(
-                    "${BuildConfig.SERVER_ADDRESS}/posts",
-                    body, this@UploadPostActivity
-                )
+                var response: String?
+
+                if(toUpdate) {
+                    response = HTTPRequest.sendPutRequest(
+                        "${BuildConfig.SERVER_ADDRESS}/posts/$postId",
+                        body, this@UploadPostActivity
+                    )
+
+                }
+                else{
+                    response = HTTPRequest.sendPostRequest(
+                        "${BuildConfig.SERVER_ADDRESS}/posts",
+                        body, this@UploadPostActivity
+                    )
+                }
+
                 Log.d(TAG, "Response: $response")
                 Log.d(TAG, "JSON Body: $body")
+
+                var text = "upload"
+                if(toUpdate){
+                    text = "update"
+                }
 
                 //TODO: Handle response
                 if (response != null) {
                     Toast.makeText(
                         this@UploadPostActivity,
-                        "Post uploaded successfully",
+                        "Post ${text}ed successfully",
                         Toast.LENGTH_SHORT
                     ).show()
                     val gson = Gson()
@@ -223,7 +322,7 @@ class UploadPostActivity : AppCompatActivity() {
                 } else {
                     Toast.makeText(
                         this@UploadPostActivity,
-                        "Post upload failed",
+                        "Post ${text} failed",
                         Toast.LENGTH_SHORT
                     ).show()
                 }

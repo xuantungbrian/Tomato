@@ -105,8 +105,11 @@ class PostActivity : AppCompatActivity() {
                 .show()
         }
 
+        val postId = intent.getStringExtra("postId")
         val images = intent.getParcelableArrayListExtra<Uri>("images")
         val location = intent.getStringExtra("location")
+        val latitude = intent.getDoubleExtra("latitude", 0.0)
+        val longitude = intent.getDoubleExtra("longitude", 0.0)
         val date = intent.getStringExtra("date")
         val note = intent.getStringExtra("note")
         val private = intent.getBooleanExtra("private", false)
@@ -114,6 +117,20 @@ class PostActivity : AppCompatActivity() {
         postLocation.text = location
 
         val postDate: TextView = findViewById(R.id.post_activity_postDate)
+
+        val updatePostButton: LinearLayout = findViewById(R.id.update_post_button)
+        updatePostButton.setOnClickListener {
+            val intent = Intent(this, UploadPostActivity::class.java)
+            intent.putExtra("postId", postId)
+            intent.putExtra("images", images)
+            intent.putExtra("location", location)
+            intent.putExtra("date", date)
+            intent.putExtra("note", note)
+            intent.putExtra("private", private)
+            intent.putExtra("toUpdate", true)
+            startActivity(intent)
+            finish()
+        }
 
         // Update post's date
         postDate.text = "Posted on ${commonFunction.convertDateToString(date.toString())}"
