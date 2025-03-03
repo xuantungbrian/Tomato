@@ -1,17 +1,25 @@
 # M3 - Requirements and Design
 
 ## 1. Change History
-1. 3.3. Functional Requirements: 3/1/2025 13:35
-      - The numbering in the Failure Scenarios section of each functional requirement was changed to make the section easier to read.
-      - Changed the recommendation system functional requirements from the user requesting recommendations to recommendations seamelessly appearing if enabled
-2. 4.1. Main Components: 3/1/2025 13:56
+- 3.4 Non Functional Requirement: 2/22/2025
+      - We previously mentioned that there must never be more than 10 pins on the map at any given time to avoid cluttering the map. However, removing pins from the map/limiting them will definitely make the app lose information and users would suffer from that loss of information. Therefore, we make it less restrictive where pins must not block other pins making them unclickable -- If they are too close together, cluster them into a single clickable pin. Using this clustering algorithm, we could obtain the original goal of avoiding cluttering the map while also preserving information for the users.
+|
+- 3.3 Functional Requirements (Recommendation): 3/1/2025
+      - The recommendation was originally thought to be part of a filter, where user can opt to show or don't show the recommended posts on the map. However, we then realize the control is too cluttered if recommendation is in the filter. It would have a better separation of concern if there is a dedicated recommendation section that shows all recommended posts for the user, and this will be located in the Profile Page.
+- 4.1 Main Components: 2/25/2025 
+      - Previously, to obtain posts, there were only single /posts routes and this includes obtaining private and public posts. However, this is unsecure because users may exploit this by changing query param and obtain private posts of others. Therefore, we separate posts into /posts and /posts-authenticated where /posts is used by non-authenticated user and can only obtain public posts. On the other hand, /posts-authenticated can be used to obtain private posts but only the posts from the requesting user.
+
+- 3.3 Functional Requirements (Chat): 3/2/2025 
+      - To trigger chat, previously we named the button as "Chat", but we think it would be more descriptive to rename it as "Send Message".
+
+- 4.1. Main Components: 3/1/2025 13:56
       - The interfaces in each of the main components were changed to accurately reflect the names and functionalities present in the code we are now using as these are more in depth than those that were present before.
       - The purpose for the Recommendation component was changed to accurately reflect the methodology we are currently using to recommend locations.
-3. 4.2. Databases: 3/1/2025 14:13
+- 4.2. Databases: 3/1/2025 14:13
       - The MessageDB was added and the description for ChatDB to accurately reflect how we decided to store chatrooms and messages in seperate databases to make the databases more organized.
-4. 4.8. Main Project Complexity Design: 3/1/2025 22:29
+- 4.8. Main Project Complexity Design: 3/1/2025 22:29
       - The recommendation algorithm was changed in the documentation to reflect how it currently works in the code we are using, as this differs from the original algorithm we had in mind as we found that the current algorithm yields more relevant results. 
-5. 3.1. Use-Case Diagram: 3/1/2025 22:59
+- 3.1. Use-Case Diagram: 3/1/2025 22:59
       - We changed the diagram so that the Search Locations and Display Map no longer include Login User as we realized that users that have not yet been logged in should be able to access these functionalities.
 
 
@@ -175,10 +183,10 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Description**: Shows the user similar places to go to based on their previous travels and searches
             - **Primary actor(s)**: User, Google Maps API
             - **Main success scenario**:
-                1. User specifies whether or not to see recommended locations by others via the Filter
-                2. App seamlessly shows popups of recommended posts alongside their own posts on the map
-                3. App also shows under profile a list of recommended locations
-                4. App can show details of the post and message those other users when clicked on
+              1. User opens Profile Page.
+              2. The loading bar will spin, waiting to fetch the recommendation for the user.
+              3. Recommendation posts will be displayed on the Recommendation section, located under "Your Post" section.
+              4. Each recommendation is clickable and will bring the user to the detail of the post.
             - **Failure scenario(s)**:
                 - 5a. Posts could not be fetched
                     - 5a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
@@ -195,7 +203,7 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Primary actor(s)**: User, Google Maps API 
             - **Main success scenario**:
                 1. User clicks on the pin of another user’s post
-                2. User clicks on the Chat button
+                2. User clicks on the Send Message button
                 3. App creates a new chat room with both users in it
                 4. User sends a message to the other user
             - **Failure scenario(s)**:
@@ -242,9 +250,9 @@ Our app allows people to keep a history of all the places they have traveled to 
 ### **3.4. Non-Functional Requirements**
 <a name="nfr1"></a>
 
-1. **No more than 10 pins on the screen at any time**
-    - **Description**: No more than 10 pins will be shown on a user’s map at any given time.
-    - **Justification**: This allows for there to be less clutter on the screen if the user posts many images.
+1. **Pins of other posts must not prevent other pins' clickablity**
+    - **Description**:, If posts are close together and hard to click, they must be grouped into a single clickable pin.
+    - **Justification**:  When multiple posts are close, it is natural that the pins will cover each other and would block other pins making them hard to click or worse not clickable at all. This must be resolved with clustering algorithm 
 2. **At most 4 clicks to access any of the use cases**
     - **Description**: No more than 4 clicks are necessary to access any of the main use cases
     - **Justification**: This allows for the user to navigate the app easily and makes every use case within a comfortable reach from the user.
