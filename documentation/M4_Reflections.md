@@ -27,7 +27,7 @@ AI Technology was used in the creation of the MVP.
     Salient examples include code that uses depreciated methods only, so the code has to be rewritten to fit modern frameworks.
 
 ## 3. Contributions of each team member
-- Rumbi Chinamo: 
+- Rumbi Chinamo: Chat Backend, Recommendation algorithm, Documentation - 25 hours
 - Bryan Tanady: Handled all frontEnd except chats, notification, location autocomplete input. Manage the integration between frontEnd and backEnd for all features, except chat and notification. Extend backend functionality (separate route for public and authenticated user route, separate Google Sign In and JWT Token Verification). Estimated time spent: 60 hours 
 - Xuan Tung Luu: Chat, notification, location autocomplete, posts related feature - 30 hours
 - James: Backend Development, Backend Deployment, Documentation - 15 hours 
