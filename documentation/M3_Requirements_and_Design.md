@@ -21,10 +21,11 @@
       - The recommendation algorithm was changed in the documentation to reflect how it currently works in the code we are using, as this differs from the original algorithm we had in mind as we found that the current algorithm yields more relevant results. 
 - 3.1. Use-Case Diagram: 3/1/2025 22:59
       - We changed the diagram so that the Search Locations and Display Map no longer include Login User as we realized that users that have not yet been logged in should be able to access these functionalities.
-
+- 3.3 - Functional Requirements (Display Map):
+      - Previously when user didn't grant the app location permission, the app would bring the view to Vancouver as default view. However, we changed this and set latitude longitude (0, 0) as the default view. This is because setting Vancouver as the default view seems like a very biased decision (especially if users are not based in Canada), hence we used (0, 0) which is the default location for a lot of location-based apps. 
 
 ## 2. Project Description
-Our app allows people to keep a history of all the places they have traveled to and thus acts as a travel advisory for others and a travel journal for themselves. Our target audience is young people who like to travel and take photos. Such users typically will have a large amount of photos compiled chronologically in a photo app i.e. Google Photos, but without much sense of where they were taken. As such, our solution involves viewing and navigating around a map with pins that show the user’s past images, as well as small optional notes that they can add. Furthermore, users can receive recommendations for future travel locations based on their travel history. When viewing other people's notes, they can optionally chat with the person taking a photo to ask about the logistics of traveling there (i.e. Do they accept cash? How much equipment did you bring?)
+Our app allows people to keep a history of all the places they have traveled to and thus acts as a travel advisory forf others and a travel journal for themselves. Our target audience is young people who like to travel and take photos. Such users typically will have a large amount of photos compiled chronologically in a photo app i.e. Google Photos, but without much sense of where they were taken. As such, our solution involves viewing and navigating around a map with pins that show the user’s past images, as well as small optional notes that they can add. Furthermore, users can receive recommendations for future travel locations based on their travel history. When viewing other people's notes, they can optionally chat with the person taking a photo to ask about the logistics of traveling there (i.e. Do they accept cash? How much equipment did you bring?)
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram**
@@ -54,7 +55,7 @@ Our app allows people to keep a history of all the places they have traveled to 
                 - 1a. User has not allowed the app to see their location
                     - 1a1. Makes a request to the user to allow the app to access their location
                     - 1a2. If users agrees, the map will open showing the user’s general location
-                    - 1a3. Otherwise opens the map to Vancouver as opposed to their current location
+                    - 1a3. Otherwise opens the map to latitude longitude (0, 0) as opposed to their current location
                 - 2a. Google Maps API is not available
                     - 2a1. A toast will appear telling the user that Google Maps is unavailable and to try again later
 
