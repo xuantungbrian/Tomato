@@ -33,7 +33,8 @@ export const PostRoutes = [
         method: "put",
         route: "/posts/:id",          
         action: postController.updatePost,
-        validation: []
+        validation: [],
+        protected: true
     },
     {
         method: "delete",
