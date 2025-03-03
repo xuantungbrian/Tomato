@@ -316,8 +316,8 @@ Our app allows people to keep a history of all the places they have traveled to 
     - **Purpose**: Recommend posts based on user's similarity compared to other users and current trends.
     - **Rationale**: Recommendation system is made as its own component for better separation of concern in developing recommendation system algorithm.
     - **Interfaces**: 
-        1. `public static List<Post> getRecommendation(String userID)`
-            - **Purpose**: Recommend posts based on user's travel history and user's current location. 
+        1. `public static List<Post> getRecommendation(String userID, int max)`
+            - **Purpose**: Recommend posts based on user's travel history. 
 
 
 
