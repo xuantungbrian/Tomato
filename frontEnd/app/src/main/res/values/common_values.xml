@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="topBarHeight">68dp</dimen>
+    <dimen name="topBarFontSize">22dp</dimen>
+    <dimen name="topBarMarginStart">40dp</dimen>
+    <dimen name="normalFontSize">20dp</dimen>
+</resources>

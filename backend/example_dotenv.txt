@@ -1,0 +1,16 @@
+SERVER_=localhost
+# SERVER_PORT=3000
+PORT=3000
+WSS_PORT=3001
+
+# IF TESTING ON LOCAL MACHINE:
+DB_URI='mongodb://127.0.0.1:27017'
+
+# FOR USE ON DOCKER OR DEPLOYMENT:
+# DB_URI='mongodb://mongo:27017'
+
+JWT_SECRET= 
+# generated with: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+
+WEB_CLIENT_ID=
+# same web application client id for frontend

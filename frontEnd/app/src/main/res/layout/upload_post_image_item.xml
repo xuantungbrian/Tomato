@@ -1,0 +1,29 @@
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    >
+
+    <ImageView
+        android:id="@+id/upload_post_postImage"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:scaleType="centerCrop" />
+
+    <ImageButton
+        android:id="@+id/removeImageButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="top|end"
+        android:background="@drawable/circular_gray_background"
+        android:padding="4dp"
+        android:layout_margin="10dp"
+        android:src="@drawable/upload_post_remove_image"
+        android:contentDescription="Remove Image"/>
+
+</androidx.cardview.widget.CardView>
