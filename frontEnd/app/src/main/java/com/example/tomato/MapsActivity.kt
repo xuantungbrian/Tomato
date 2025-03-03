@@ -1,5 +1,6 @@
 package com.example.tomato
 
+import android.Manifest
 import JwtManager
 import PostHelper
 import android.annotation.SuppressLint
@@ -17,6 +18,7 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.RadialGradient
 import android.graphics.Shader
+import android.location.Location
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -46,6 +48,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.tomato.databinding.ActivityMapsBinding
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -85,6 +89,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         private const val TAG = "MapsActivity"
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1
+
     }
 
     private var userPostOnly: Boolean = false
@@ -99,10 +105,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var placesClient: PlacesClient
     private lateinit var sessionToken: AutocompleteSessionToken
     private lateinit var autoCompleteTextView: AutoCompleteTextView
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var searchLatitude: Double? = null
     private var searchLongitude: Double? = null
-    private var searchLocationName: String? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -162,7 +167,59 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Init trigger list of chat layout
         initChatList()
+
+        // Init user's current location and map display
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        // Request location permissions first
+        if (checkLocationPermission()) {
+            initMap()
+        } else {
+            requestLocationPermission()
+        }
+
     }
+
+    private fun checkLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestLocationPermission() {
+        ActivityCompat.requestPermissions(
+            this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            LOCATION_PERMISSION_REQUEST_CODE
+        )
+    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                initMap()
+            }
+        }
+    }
+
+    private fun initMap() {
+        val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.mapFragment) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+    }
+
+    private fun getUserLocation() {
+        if (checkLocationPermission()) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                Log.d(TAG, "User location: $location")
+                location?.let {
+                    val userLatLng = LatLng(it.latitude, it.longitude)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f))
+                }
+            }
+        }
+    }
+
 
     private fun initChatList(){
 
@@ -344,6 +401,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         googleMap.setOnCameraIdleListener {
             getPostsOnScreen(googleMap)
         }
+
+        if (checkLocationPermission()) {
+            mMap.isMyLocationEnabled = true
+            getUserLocation()
+
+        }
+
         mMap.setOnMarkerClickListener { marker ->
             Toast.makeText(this, "Loading post...", Toast.LENGTH_SHORT).show()
             val tag = marker.tag
