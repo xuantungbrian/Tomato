@@ -6,10 +6,14 @@
 * ```ec2-3-147-101-160.us-east-2.compute.amazonaws.com```
 
 2. Complexity
-* Complexity is found in the "Get Location Recommendations" use case. It is done by finding "similar" users posting in your area, then finding the most "popular" areas from these similar users and sorting them before passing them onto the user. Updated detailed implementation is in 4.8 of M3_Requirements_and_Design
+
+    Complexity is found in the "Get Location Recommendations" use case. It is done by finding "similar" users posting in your area, then finding the most "popular" areas from these similar users and sorting them before passing them onto the user. Updated detailed implementation is in 4.8 of M3_Requirements_and_Design
 
 3. Commit Hash of MVP version in Git: 
-* ```   ```
+
+    Short: ``` 6598bba  ```
+
+    Full SHA: ``` 6598bba1112faeae9ede6f1162e906e525455f93 ```
 
 ## 2. AI Reflections
 AI Technology was used in the creation of the MVP.
