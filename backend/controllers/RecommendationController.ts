@@ -19,7 +19,7 @@ export class RecommendationController {
         for (const post of posts ?? []) {
             let lat : number = post.latitude as number ? post.latitude as number : 0
             let long : number = post.longitude as number ? post.longitude as number : 0
-            const posts_at_location = await this.postService.getPostsAtLocation(lat, long)
+            const posts_at_location = await this.postService.getPostsAtLocation(lat, long, true)
             just_coords.push(lat.toString().concat(" ", long.toString()))
 
             posts_at_location?.forEach(user_post => {
@@ -32,7 +32,7 @@ export class RecommendationController {
         if (similar_users.length > 0) {
             for (let i = 0; i < 3 && similar_users.length > 0; i++) {
                 const most_similar = this.mode(similar_users)
-                const most_similar_posts = await this.postService.getUserPost(most_similar, true)
+                const most_similar_posts = await this.postService.getUserPost(most_similar, false)
                 most_similar_posts?.forEach(sim_post => {
                     if (!just_coords.includes((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))) {
                         potential_places.push((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))
@@ -71,7 +71,7 @@ export class RecommendationController {
             }
             let lat = parseFloat(place.split(" ", 2)[0] as string) as number
             let long = parseFloat(place.split(" ", 2)[1] as string) as number
-            let posts = await this.postService.getPostsAtLocation(lat, long) as Array<any>
+            let posts = await this.postService.getPostsAtLocation(lat, long, false) as Array<any>
             best_posts[i] = posts
         }
         res.json({posts : best_posts})
