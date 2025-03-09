@@ -149,7 +149,7 @@ export class PostService {
                 return userPost
             }
             else{
-                const publicPost = await this.getPosts(start_lat, end_lat, start_long, end_long) || [];
+                const publicPost = await this.getPublicPost(start_lat, end_lat, start_long, end_long) || [];
 
                 const combinedPosts = [...userPost, ...publicPost]
 

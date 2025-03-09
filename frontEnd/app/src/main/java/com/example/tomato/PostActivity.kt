@@ -11,10 +11,13 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.compose.material3.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -47,14 +50,16 @@ class PostActivity : AppCompatActivity() {
 
         val sendMessageButton: Button = findViewById(R.id.post_activity_send_message_button)
         val headerText: TextView = findViewById(R.id.post_activity_header_text)
+        val deletePostButton: LinearLayout = findViewById(R.id.delete_post_button)
 
         if (!isOwner) {
             sendMessageButton.visibility = View.VISIBLE
+            deletePostButton.visibility = View.GONE
             headerText.text = "Post"
-
         }
         else {
             sendMessageButton.visibility = View.GONE
+            deletePostButton.visibility = View.VISIBLE
             headerText.text = "Your Post"
         }
 
@@ -72,6 +77,32 @@ class PostActivity : AppCompatActivity() {
             } else {
                 Log.d(TAG, "userId or targetUserId is null")
             }
+        }
+
+        deletePostButton.setOnClickListener {
+            android.app.AlertDialog.Builder(this@PostActivity)
+                .setTitle("Are you sure you want to delete this post?")
+                .setPositiveButton("Yes") { _, _ ->
+                    lifecycleScope.launch {
+                        val response = HTTPRequest.sendDeleteRequest("${BuildConfig.SERVER_ADDRESS}/posts/${intent.getStringExtra("postId")}"
+                                                    , this@PostActivity)
+                        if(response != null){
+                            // Create an intent for MainActivity
+                            val intent = Intent(this@PostActivity, MapsActivity::class.java).apply {
+                                // Clear the back stack so that the user can't go back to previous screens
+                                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            startActivity(intent)
+                            finish() // Finish the current activity
+                        }
+                        else{
+                            Toast.makeText(this@PostActivity, "Failed to delete post", Toast.LENGTH_SHORT).show()
+                        }
+
+                    }
+                }
+                .setNegativeButton("No", null)
+                .show()
         }
 
         val images = intent.getParcelableArrayListExtra<Uri>("images")
@@ -110,6 +141,11 @@ class PostActivity : AppCompatActivity() {
                 darkCard.layoutParams = layoutParams
             }
         })
+
+        val backButton = findViewById<ImageView>(R.id.post_back)
+        backButton.setOnClickListener {
+            finish()
+        }
     }
 
     suspend fun createChat(currentUserId: String, targetUserId: String): ChatItem? {

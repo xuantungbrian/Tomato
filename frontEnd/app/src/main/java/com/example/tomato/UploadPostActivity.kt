@@ -102,6 +102,11 @@ class UploadPostActivity : AppCompatActivity() {
         initImageViewer()
         addClickListenersToPostInfoButtons()
         Log.d(TAG, "onCreate")
+
+        val backButton = findViewById<ImageView>(R.id.upload_post_back)
+        backButton.setOnClickListener {
+            finish()
+        }
     }
 
     /**
@@ -222,6 +227,11 @@ class UploadPostActivity : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+            }
+
+            val backButton = findViewById<ImageView>(R.id.upload_post_back)
+            backButton.setOnClickListener {
+                finish()
             }
         }
     }

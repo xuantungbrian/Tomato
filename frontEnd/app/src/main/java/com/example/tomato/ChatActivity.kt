@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -58,12 +59,18 @@ class ChatActivity : AppCompatActivity() {
             )
             runOnUiThread {
                 chatMessageAdapter.addMessages(listOf(newMessage))
+                chatRecyclerView.scrollToPosition(chatMessageAdapter.itemCount - 1)
             }
         }
 
         chatWebSocket.connect()
         sendButton.setOnClickListener {
             sendMessage()
+        }
+
+        val backButton = findViewById<ImageView>(R.id.chat_back)
+        backButton.setOnClickListener {
+            finish()
         }
 
     }
@@ -105,6 +112,10 @@ class ChatActivity : AppCompatActivity() {
             }
             runOnUiThread {
                 chatMessageAdapter.updateMessages(messages) // Update RecyclerView
+                // Scroll to bottom after initial load
+                if (chatMessageAdapter.itemCount > 0) {
+                    chatRecyclerView.scrollToPosition(chatMessageAdapter.itemCount - 1)
+                }
             }
         }
     }

@@ -3,6 +3,7 @@ package com.example.tomato
 import android.net.Uri
 
 data class PostItem(
+    val postId: String,
     val imageData: List<Uri>,
     val location: String,
     val date: String,
@@ -12,6 +13,7 @@ data class PostItem(
 )
 
 data class PostItemRaw(
+    val _id: String,
     val images: List<PostImage>,
     val latitude: Double,
     val longitude: Double,
