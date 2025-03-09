@@ -11,8 +11,8 @@
 
     <View
         android:id="@+id/view"
-        android:layout_width="414dp"
-        android:layout_height="395dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_marginTop="356dp"
         android:background="@color/tomatoRed"
         android:visibility="visible"

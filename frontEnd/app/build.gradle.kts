@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -49,7 +50,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -66,15 +66,16 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.firebase.messaging.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation ("androidx.compose.ui:ui:1.5.0")
     implementation("androidx.credentials:credentials:1.3.0")
-
-
-    // optional - needed for credentials support from play services, for devices running
-    // Android 13 and below.
+    implementation("org.java-websocket:Java-WebSocket:1.5.3")
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging:23.3.1")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
@@ -82,7 +83,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation ("com.squareup.okhttp3:okhttp:4.9.2")
     implementation("androidx.security:security-crypto:1.0.0")
-
-
-
+    implementation ("com.google.maps.android:android-maps-utils:3.0.0")
+    implementation ("com.google.android.gms:play-services-auth:20.5.0")
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
 }

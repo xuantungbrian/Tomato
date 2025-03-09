@@ -1,8 +1,8 @@
 package com.example.tomato
 
-import android.graphics.BitmapFactory
-import android.location.Geocoder
-import android.media.Image
+import PostHelper
+import ChatItem
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,27 +17,16 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.common.reflect.TypeToken
+import com.bumptech.glide.Glide
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
-import java.util.Locale
+import org.json.JSONObject
 
-
-data class PostItem(val imageData: ByteArray, val location: String)
-data class PostItemRaw(
-    val images: List<PostImage>,
-    val latitude: Double,
-    val longitude: Double
-)
-
-data class PostImage(
-    val fileData: FileData,
-    val fileType: String
-)
-
-data class FileData(
-    val type: String,
-    val data: List<Int>
+data class RecommendationResponse(
+    val posts: List<PostItemRaw>
 )
 
 class ProfileActivity : AppCompatActivity() {
@@ -45,7 +34,11 @@ class ProfileActivity : AppCompatActivity() {
     companion object{
         private const val TAG = "ProfileActivity"
     }
-    private val progressBar: View by lazy { findViewById(R.id.YourPostProgress) }
+    private val yourPostProgress: View by lazy { findViewById(R.id.YourPostProgress) }
+    private val recommendationProgress: View by lazy { findViewById(R.id.recommendationProgress) }
+
+    private lateinit var gso: GoogleSignInOptions
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,76 +50,161 @@ class ProfileActivity : AppCompatActivity() {
             insets
         }
 
-        // Show the progress bar
-        progressBar.visibility = View.VISIBLE
+        // Initialize Google Sign-In options
+        gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .build()
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        // Update user's profile if user is signed in
+        updateProfile()
+
+        // Show the progress wheel
+        yourPostProgress.visibility = View.VISIBLE
+
+        commonFunction.initNavBarButtons(this@ProfileActivity, this)
 
         // Initialize Recycler views for "Your Post" & "Recommendations"
         lifecycleScope.launch {
-            var yourPostList: List<PostItem>? = getYourPostList()
-            val yourPostRecyclerView = findViewById<RecyclerView>(R.id.yourPostRecycler)
-            yourPostRecyclerView.layoutManager = LinearLayoutManager(this@ProfileActivity, LinearLayoutManager.HORIZONTAL, false)
-            if (yourPostList != null) {
-                val yourPostAdapter = PostAdapter(yourPostList)
-                yourPostRecyclerView.adapter = yourPostAdapter
-            }
+            initYourPost()
+            initRecommendation()
+        }
 
+        // Initialize sign out button
+        val signOutButton = findViewById<TextView>(R.id.sign_out_button)
+        signOutButton.setOnClickListener {
+            signOutFromGoogle()
+        }
+    }
+
+    private suspend fun initRecommendation(){
+        var recommendationList: List<PostItem>? = getRecommendationList()
+        val recommendationRecyclerView = findViewById<RecyclerView>(R.id.recommendationRecyclerView)
+        recommendationRecyclerView.layoutManager = LinearLayoutManager(this@ProfileActivity, LinearLayoutManager.HORIZONTAL, false)
+        if (recommendationList != null) {
+            val recommendationAdapter = ProfilePostAdapter(recommendationList)
+            recommendationRecyclerView.adapter = recommendationAdapter
+        }
+    }
+
+    private suspend fun getRecommendationList(): List<PostItem>? {
+        val response = HTTPRequest.sendGetRequest("${BuildConfig.SERVER_ADDRESS}/recommendations",
+            this@ProfileActivity)
+
+        Log.d(TAG, "Response: $response")
+
+        val gson = Gson()
+        val posts = gson.fromJson(response, RecommendationResponse::class.java).posts
+
+        val postList = mutableListOf<PostItem>()
+
+        for (post in posts){
+            postList.add(PostHelper.rawPostToPostItem(post, this))
+        }
+
+        // Load is successful, remove progressBar
+        recommendationProgress.visibility = View.GONE
+
+
+        return postList
+
+    }
+
+    private suspend fun initYourPost(){
+        var yourPostList: List<PostItem>? = getYourPostList()
+        val yourPostRecyclerView = findViewById<RecyclerView>(R.id.yourPostRecycler)
+        yourPostRecyclerView.layoutManager = LinearLayoutManager(this@ProfileActivity, LinearLayoutManager.HORIZONTAL, false)
+        if (yourPostList != null) {
+            val yourPostAdapter = ProfilePostAdapter(yourPostList)
+            yourPostRecyclerView.adapter = yourPostAdapter
+        }
+
+    }
+
+    private fun signOutFromGoogle(){
+        mGoogleSignInClient.signOut()
+            .addOnCompleteListener(this) {
+                Log.d(TAG, "User signed out from Google")
+                UserCredentialManager.clearCredentials(this)
+                val intent = Intent(this, MapsActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+    }
+
+    /**
+     * Update profile's username and image based on the current logged in user.
+     */
+    private fun updateProfile(){
+        val usernameView = findViewById<TextView>(R.id.profile_activity_username)
+        val profileImageView = findViewById<ImageView>(R.id.profile_activity_profile_image)
+
+        val (username, profileImageURI) = UserCredentialManager.getUserProfile(this)
+        usernameView.text = username
+        if (profileImageURI != null) {
+            Glide.with(this)
+                .load(profileImageURI)
+                .into(profileImageView)
         }
     }
 
     /**
-     * Obtain the list of PostItem of current logged in user.
+     * Obtain the list of PostItem uploaded by current logged in user.
      */
     suspend fun getYourPostList(): List<PostItem>? {
 
-        val response = HTTPRequest.sendGetRequest("${BuildConfig.SERVER_ADDRESS}/posts",
+        val response = HTTPRequest.sendGetRequest("${BuildConfig.SERVER_ADDRESS}/posts-authenticated/?userPostOnly=true",
             this@ProfileActivity)
 
         val gson = Gson()
         val posts = gson.fromJson(response, Array<PostItemRaw>::class.java)
+        Log.d(TAG, "Response: $response")
 
         val postList = mutableListOf<PostItem>()
-        val geocoder = Geocoder(this, java.util.Locale("en", Locale.getDefault().country))
 
         for (post in posts){
-            val imageData = post.images.firstOrNull()?.fileData?.data?.map { it.toByte() }?.toByteArray()
-            val location = geocoder.getFromLocation(post.latitude, post.longitude, 1)
-            Log.d(TAG, "latitude: ${post.latitude}, longitude: ${post.longitude}")
-            Log.d(TAG, "Location: $location")
-            if (location != null){
-                Log.d(TAG, "Location: $location")
-                Log.d(TAG, "Image: ${imageData?.size}")
-                val address = commonFunction.parseLocation(post.latitude, post.longitude, this)
-                postList.add(PostItem(imageData!!, address))
-
-                // Load is successful, remove progressBar
-                progressBar.visibility = View.GONE
-            }
+            postList.add(PostHelper.rawPostToPostItem(post, this))
         }
+
+        // Load is successful, remove progressBar
+        yourPostProgress.visibility = View.GONE
 
         return postList
     }
+
 }
 
-class PostAdapter(
+class ProfilePostAdapter(
     private val postList: List<PostItem>
-) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
+) : RecyclerView.Adapter<ProfilePostAdapter.PostViewHolder>() {
 
     // 1. Define a ViewHolder
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val postImage: ImageView = itemView.findViewById(R.id.postImage)
-        private val postLocation: TextView = itemView.findViewById(R.id.postLocation)
+        private val postImage: ImageView = itemView.findViewById(R.id.profile_post_image)
+        private val postLocation: TextView = itemView.findViewById(R.id.profile_post_location)
 
         fun bind(post: PostItem) {
-            // Convert ByteArray to a Bitmap ( raw bytes)
-            val bitmap = BitmapFactory.decodeByteArray(post.imageData, 0, post.imageData.size)
-            postImage.setImageBitmap(bitmap)
-
-            // Set the date text
+            if (post.imageData.isNotEmpty()) {
+                postImage.setImageURI(post.imageData[0])
+            }
             postLocation.text = post.location
+
+            itemView.setOnClickListener{
+                val intent = Intent(itemView.context, PostActivity::class.java)
+                intent.putExtra("postId", post.postId)
+                intent.putExtra("userId", post.userId)
+                intent.putExtra("images", ArrayList(post.imageData))
+                intent.putExtra("location", post.location)
+                intent.putExtra("date", post.date)
+                intent.putExtra("note", post.note)
+                intent.putExtra("private", post.private)
+                itemView.context.startActivity(intent)
+            }
         }
     }
 
-    // 2. Inflate item layout
+    // 2. Inflate (convert XML to viewable element) item layout
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.profile_post_item, parent, false)

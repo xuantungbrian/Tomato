@@ -3,7 +3,7 @@ const { GridFsStorage } = require('multer-gridfs-storage');
 
 // Set up GridFS storage engine
 // TODO: Set up the environment for database name and not default test one
-const url = process.env.MONGODB_URI + "test"
+const url = process.env.DB_URI + "test"
 console.log("url "+ url)
 const storage = new GridFsStorage({
   url,

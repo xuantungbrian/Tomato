@@ -2,10 +2,6 @@ import mongoose from "mongoose"
 
 const Schema = mongoose.Schema;
 
-interface ImageData {
-  fileData: Buffer;
-  fileType: string;
-}
 
 const PostModelSchema = new Schema({
   latitude: Number,
@@ -17,7 +13,7 @@ const PostModelSchema = new Schema({
   }],
   date: Date,
   note: String,
-  private: Boolean
+  isPrivate: Boolean
 });
 
 export const PostModel = mongoose.model("Post", PostModelSchema);

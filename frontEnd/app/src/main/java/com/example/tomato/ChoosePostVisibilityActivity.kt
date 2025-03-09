@@ -2,6 +2,7 @@ package com.example.tomato
 
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.activity.enableEdgeToEdge
@@ -35,6 +36,12 @@ class ChoosePostVisibilityActivity : AppCompatActivity() {
                 finish()
             }
         }
+
+        val backButton = findViewById<ImageView>(R.id.choose_post_visibility_back)
+        backButton.setOnClickListener{
+            finish()
+        }
+
 
     }
 }

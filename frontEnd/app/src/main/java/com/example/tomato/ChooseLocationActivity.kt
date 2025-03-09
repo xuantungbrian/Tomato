@@ -1,225 +1,170 @@
-//// ChooseLocationActivity.kt
 package com.example.tomato
-//
-//import android.content.Context
-//import android.location.Geocoder
-//import android.os.Bundle
-//import android.widget.Toast
+
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import android.location.Location
+import android.os.Bundle
+import android.util.Log
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.ComponentActivity
-//import androidx.activity.compose.setContent
-//import androidx.activity.enableEdgeToEdge
-//import androidx.compose.foundation.layout.Arrangement
-//import androidx.compose.foundation.layout.Box
-//import androidx.compose.foundation.layout.Column
-//import androidx.compose.foundation.layout.fillMaxSize
-//import androidx.compose.foundation.layout.padding
-//import androidx.compose.material3.Button
-//import androidx.compose.material3.ExperimentalMaterial3Api
-//import androidx.compose.material3.FloatingActionButton
-//import androidx.compose.material3.Scaffold
-//import androidx.compose.material3.Text
-//import androidx.compose.material3.TextField
-//import androidx.compose.material3.TopAppBar
-//import androidx.compose.runtime.Composable
-//import androidx.compose.runtime.LaunchedEffect
-//import androidx.compose.runtime.getValue
-//import androidx.compose.runtime.mutableStateOf
-//import androidx.compose.runtime.remember
-//import androidx.compose.runtime.setValue
-//import androidx.compose.ui.Alignment
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.platform.LocalContext
-//import androidx.compose.ui.unit.dp
-//import androidx.lifecycle.viewmodel.compose.viewModel
-//import com.google.maps.android.compose.GoogleMap
-//import com.google.maps.android.compose.MapProperties
-//import com.google.maps.android.compose.MapUiSettings
-//import com.google.maps.android.compose.Marker
-//import com.google.maps.android.compose.MarkerState
-//import com.google.maps.android.compose.rememberCameraPositionState
-//import kotlinx.coroutines.launch
-//import kotlinx.coroutines.withContext
-//
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.location.LocationServices
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
+import com.google.android.libraries.places.api.net.PlacesClient
+import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+
 class ChooseLocationActivity : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
-//        setContent {
-//            TOMAToTheme {
-//                val viewModel: LocationViewModel = viewModel()
-//                ChooseLocationScreen(viewModel) {
-//                    // Handle location selection completion
-//                    finish()
-//                }
-//            }
-//        }
-//    }
+    private lateinit var placesClient: PlacesClient
+    private lateinit var sessionToken: AutocompleteSessionToken
+    private lateinit var autoCompleteTextView: AutoCompleteTextView
+
+    // Store the latitude and longitude as variables
+    private var latitude: Double? = null
+    private var longitude: Double? = null
+    private var locationName: String? = null
+
+    companion object {
+        private const val TAG = "ChooseLocationActivity"
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_choose_location)
+
+        // Initialize Places API
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, BuildConfig.MAP_API_KEY)
+        }
+
+        // Initialize Places Client and Session Token
+        placesClient = Places.createClient(this)
+        sessionToken = AutocompleteSessionToken.newInstance()
+
+        // Find AutoCompleteTextView in the layout
+        autoCompleteTextView = findViewById(R.id.locationAutoCompleteTextView)
+        // Instantiate the autocomplete helper
+
+        PlaceAutocompleteHelper(
+            context = this,
+            autoCompleteTextView = autoCompleteTextView,
+            placesClient = placesClient,
+            sessionToken = sessionToken,
+            onPredictionSelected = { prediction ->
+                // Handle the selected prediction
+                val placeId = prediction.placeId
+                val fetchPlaceRequest = com.google.android.libraries.places.api.net.FetchPlaceRequest.builder(
+                    placeId,
+                    listOf(com.google.android.libraries.places.api.model.Place.Field.LAT_LNG)
+                ).build()
+
+                placesClient.fetchPlace(fetchPlaceRequest)
+                    .addOnSuccessListener { response ->
+                        val place = response.place
+                        place.latLng?.let {
+                            latitude = it.latitude
+                            longitude = it.longitude
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        // Handle failure
+                    }
+            },
+            onUseCurrentLocation = {
+                // launch a coroutine to obtain the location
+                lifecycleScope.launch {
+                    val (lat, lon) = getCurrentLocation()
+                    latitude = lat
+                    longitude = lon
+                    autoCompleteTextView.setText(getLocationFromCoordinates(latitude!!, longitude!!))
+                }
+            }
+        )
+
+        val proceedButton = findViewById<Button>(R.id.submitLocationButton)
+        proceedButton.setOnClickListener{
+            // Make sure that location is selected (either by "Use Current Location" or from AutoComplete)
+            if (latitude != null && longitude != null) {
+                    locationName = autoCompleteTextView.text.toString()
+                    val resultIntent = intent
+                    resultIntent.putExtra("latitude", latitude)
+                    resultIntent.putExtra("longitude", longitude)
+                    resultIntent.putExtra("locationName", locationName)
+                    setResult(RESULT_OK, resultIntent)
+                    finish()
+            } else {
+                Toast.makeText(this@ChooseLocationActivity, "Please select a location", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        val backButton = findViewById<ImageView>(R.id.choose_location_back)
+        backButton.setOnClickListener {
+            finish()
+        }
+    }
+
+    /**
+     * Obtain user's current location (latitude, longitude).
+     */
+    private suspend fun getCurrentLocation(): Pair<Double, Double> {
+        return suspendCoroutine { continuation ->
+            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+                continuation.resume(Pair(0.0, 0.0))  // Return fallback values if permission is not granted
+                return@suspendCoroutine
+            }
+
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { location: Location? ->
+                    if (location != null) {
+                        continuation.resume(Pair(location.latitude, location.longitude))
+                    } else {
+                        continuation.resume(Pair(0.0, 0.0))  // Fallback location
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("LocationError", "Failed to get location: ${exception.message}")
+                    continuation.resume(Pair(0.0, 0.0))  // Return fallback values on failure
+                }
+        }
+    }
+
+    /**
+     * Translate latitude and longitude to address and display it to the user.
+     */
+    private fun getLocationFromCoordinates(latitude: Double, longitude: Double): String {
+        val geocoder = Geocoder(this, java.util.Locale("en", "US"))
+        try {
+            val addresses: MutableList<android.location.Address>? = geocoder.getFromLocation(latitude, longitude, 1)
+            Log.d(TAG, "latitude: $latitude, longitude: $longitude")
+            Log.d(TAG, "Address: $addresses")
+            if (addresses != null) {
+                if (addresses.isNotEmpty()) {
+                    val fullAddress = commonFunction.parseLocation(latitude, longitude, this)
+                    return fullAddress
+                } else {
+                    Log.e("GeocoderError", "No address found for this location.")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("GeocoderError", "Error fetching address: ${e.message}")
+        }
+        return ""
+    }
 }
-//
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun ChooseLocationScreen(
-//    viewModel: LocationViewModel,
-//    onComplete: () -> Unit
-//) {
-//    val context = LocalContext.current
-//    var searchQuery by remember { mutableStateOf("") }
-//    val cameraPositionState = rememberCameraPositionState()
-//
-//    // Sync ViewModel's camera position with the state
-//    LaunchedEffect(viewModel.cameraPosition) {
-//        viewModel.cameraPosition?.let {
-//            cameraPositionState.position = it
-//        }
-//    }
-//
-//    Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                title = { Text("Choose Location") }
-//            )
-//        },
-//        floatingActionButton = {
-//            FloatingActionButton(
-//                onClick = { viewModel.getCurrentLocation(context) }
-//            ) {
-//                Text("Current")
-//            }
-//        }
-//    ) { innerPadding ->
-//        Column(
-//            modifier = Modifier
-//                .padding(innerPadding)
-//                .fillMaxSize(),
-//            verticalArrangement = Arrangement.Top
-//        ) {
-//            TextField(
-//                value = searchQuery,
-//                onValueChange = { searchQuery = it },
-//                modifier = Modifier.padding(16.dp),
-//                placeholder = { Text("Search location...") },
-//                singleLine = true,
-//                trailingIcon = {
-//                    Button(onClick = {
-//                        viewModel.searchLocation(context, searchQuery)
-//                    }) {
-//                        Text("Search")
-//                    }
-//                }
-//            )
-//
-//            Box(modifier = Modifier.weight(1f)) {
-//                GoogleMap(
-//                    modifier = Modifier.fillMaxSize(),
-//                    cameraPositionState = cameraPositionState,
-//                    properties = MapProperties(),
-//                    uiSettings = MapUiSettings(zoomControlsEnabled = false)
-//                ) {
-//                    viewModel.selectedLocation.value?.let { location ->
-//                        Marker(
-//                            state = MarkerState(position = location),
-//                            title = "Selected Location",
-//                            snippet = "${location.latitude}, ${location.longitude}",
-//                            draggable = true,
-//                            onDragEnd = { newPosition ->
-//                                viewModel.updateSelectedLocation(newPosition)
-//                                viewModel.cameraPosition = CameraPosition.fromLatLngZoom(newPosition, 15f)
-//                            }
-//                        )
-//                    }
-//                }
-//            }
-//
-//            Button(
-//                onClick = {
-//                    viewModel.selectedLocation.value?.let {
-//                        Toast.makeText(
-//                            context,
-//                            "Location selected: ${it.latitude}, ${it.longitude}",
-//                            Toast.LENGTH_LONG
-//                        ).show()
-//                        onComplete()
-//                    }
-//                },
-//                modifier = Modifier
-//                    .align(Alignment.CenterHorizontally)
-//                    .padding(16.dp)
-//            ) {
-//                Text("Confirm Location")
-//            }
-//        }
-//    }
-//}
-//
-//// LocationViewModel.kt
-//package com.example.tomato
-//
-//import android.content.Context
-//import android.location.Location
-//import androidx.lifecycle.ViewModel
-//import com.google.android.gms.location.LocationServices
-//import com.google.android.gms.maps.model.CameraPosition
-//import com.google.android.gms.maps.model.LatLng
-//import kotlinx.coroutines.CoroutineScope
-//import kotlinx.coroutines.Dispatchers
-//import kotlinx.coroutines.launch
-//import kotlinx.coroutines.tasks.await
-//import kotlinx.coroutines.withContext
-//import java.io.IOException
-//
-//class LocationViewModel : ViewModel() {
-//    val selectedLocation = mutableStateOf<LatLng?>(null)
-//    var cameraPosition: CameraPosition? by mutableStateOf(null)
-//        private set
-//
-//    fun updateSelectedLocation(latLng: LatLng) {
-//        selectedLocation.value = latLng
-//    }
-//
-//    fun searchLocation(context: Context, query: String) {
-//        if (query.isEmpty()) return
-//
-//        CoroutineScope(Dispatchers.IO).launch {
-//            try {
-//                val geocoder = Geocoder(context)
-//                val addresses = geocoder.getFromLocationName(query, 1)
-//                addresses?.firstOrNull()?.let {
-//                    val latLng = LatLng(it.latitude, it.longitude)
-//                    withContext(Dispatchers.Main) {
-//                        selectedLocation.value = latLng
-//                        cameraPosition = CameraPosition.fromLatLngZoom(latLng, 15f)
-//                    }
-//                }
-//            } catch (e: IOException) {
-//                withContext(Dispatchers.Main) {
-//                    Toast.makeText(context, "Search failed: ${e.message}", Toast.LENGTH_SHORT).show()
-//                }
-//            }
-//        }
-//    }
-//
-//    fun getCurrentLocation(context: Context) {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            try {
-//                val locationClient = LocationServices.getFusedLocationProviderClient(context)
-//                val location: Location? = locationClient.lastLocation.await()
-//
-//                location?.let {
-//                    val latLng = LatLng(it.latitude, it.longitude)
-//                    withContext(Dispatchers.Main) {
-//                        selectedLocation.value = latLng
-//                        cameraPosition = CameraPosition.fromLatLngZoom(latLng, 15f)
-//                    }
-//                } ?: run {
-//                    withContext(Dispatchers.Main) {
-//                        Toast.makeText(context, "Unable to get current location", Toast.LENGTH_SHORT).show()
-//                    }
-//                }
-//            } catch (e: SecurityException) {
-//                withContext(Dispatchers.Main) {
-//                    Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
-//                }
-//            }
-//        }
-//    }
-//}
