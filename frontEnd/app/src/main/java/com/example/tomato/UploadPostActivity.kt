@@ -244,10 +244,6 @@ class UploadPostActivity : AppCompatActivity() {
         updateDate()
     }
 
-    /**
-     * Ensure the post contains image(s), visibility, location, and date.
-     * @return true if the post is valid, false otherwise.
-     */
     private fun verifyUploadRequirement(): Boolean{
         if(imageUris.isEmpty()){
             Toast.makeText(this, "Please add at least one image", Toast.LENGTH_SHORT).show()
