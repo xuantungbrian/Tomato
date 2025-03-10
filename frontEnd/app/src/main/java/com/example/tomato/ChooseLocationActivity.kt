@@ -115,9 +115,6 @@ class ChooseLocationActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * Obtain user's current location (latitude, longitude).
-     */
     private suspend fun getCurrentLocation(): Pair<Double, Double> {
         return suspendCoroutine { continuation ->
             val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -145,9 +142,6 @@ class ChooseLocationActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * Translate latitude and longitude to address and display it to the user.
-     */
     private fun getLocationFromCoordinates(latitude: Double, longitude: Double): String {
         val geocoder = Geocoder(this, java.util.Locale("en", "US"))
         try {

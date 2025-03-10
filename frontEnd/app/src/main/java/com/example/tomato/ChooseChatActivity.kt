@@ -51,9 +51,7 @@ class ChooseChatActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Fetch the list of chats.
-     */
+
     private suspend fun getChatList(): List<ChatItem> {
         val response = HTTPRequest.sendGetRequest(
             "${BuildConfig.SERVER_ADDRESS}/chats",

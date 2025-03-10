@@ -299,9 +299,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
-    /**
-     * If user is logged in, display the profile image on the top right
-     */
     private fun updateProfile(){
         val sign_in_button = findViewById<Button>(R.id.sign_in_button)
         val profile_button = findViewById<ImageView>(R.id.map_activity_profile_button)

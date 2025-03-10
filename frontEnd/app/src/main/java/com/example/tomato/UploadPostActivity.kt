@@ -74,7 +74,6 @@ class UploadPostActivity : AppCompatActivity() {
         }
     }
 
-    // Register post Location launcher (the form to obtain the post's location)
     private val postLocationActivityLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -109,9 +108,6 @@ class UploadPostActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Add click listeners to the post info buttons (location, visibility, date).
-     */
     private fun addClickListenersToPostInfoButtons() {
         // Add click listener to the + button (add photos) so it opens album/gallery.
         val addPhotosButton = findViewById<ImageView>(R.id.addPhotoButton)
@@ -166,9 +162,6 @@ class UploadPostActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Send a POST request to the server to upload post.
-     */
     private fun uploadPost(){
         // Ensure the post contains required items
         if (verifyUploadRequirement()) {
@@ -236,9 +229,6 @@ class UploadPostActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Clear all input fields
-     */
     private fun clearFields(){
         imageUris = mutableListOf()
         postVisibility = ""
@@ -279,10 +269,6 @@ class UploadPostActivity : AppCompatActivity() {
         return true
     }
 
-    /**
-     * Update the visibility text and set the logo to blue.
-     * @requires postVisibility to be updated before calling this function.
-     */
     private fun updateLocation(){
         if(postLocationName == ""){
             setLogoToBlack(R.drawable.upload_post_location, R.id.setLocationImage)
@@ -297,10 +283,6 @@ class UploadPostActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Update the visibility text and set the logo to blue.
-     * @requires postVisibility to be updated before calling this function.
-     */
     private fun updateVisibility(){
         if(postVisibility == ""){
             setLogoToBlack(R.drawable.visibility, R.id.setVisibilityImage)
@@ -315,10 +297,6 @@ class UploadPostActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Update the date text and set the logo to blue.
-     * @requires postDate to be updated before calling this function.
-     */
     private fun updateDate(){
         if(postDate == ""){
             setLogoToBlack(R.drawable.upload_post_date, R.id.setDateImage)
@@ -330,10 +308,7 @@ class UploadPostActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Initialize the image viewer/ViewSwitch where the default view is the empty box.
-     * Otherwise shows the RecyclerView of uploaded images.
-     */
+
     private fun initImageViewer(){
         // Init viewSwitcher & Show the empty view
         uploadViewSwitch = findViewById(R.id.uploadViewSwitch)
@@ -349,9 +324,6 @@ class UploadPostActivity : AppCompatActivity() {
     }
 
 
-    /**
-     * Set the logo to blue, indicating the field is non-empty.
-     */
     private fun setLogoToBlue(logoID: Int, imageID: Int){
         val logo = ContextCompat.getDrawable(this, logoID)
         val image = findViewById<ImageView>(imageID)
@@ -361,9 +333,6 @@ class UploadPostActivity : AppCompatActivity() {
         image.setImageDrawable(logo)
     }
 
-    /**
-     * Set the logo to black, indicating the field is empty.
-     */
     private fun setLogoToBlack(logoID: Int, imageID: Int){
         val logo = ContextCompat.getDrawable(this, logoID)
         val image = findViewById<ImageView>(imageID)
@@ -374,14 +343,6 @@ class UploadPostActivity : AppCompatActivity() {
 
     }
 
-    /**
-     * Update the UI based on whether there are uploaded images.
-     * UI is set to default empty box when there are no uploaded images.
-     * Otherwise shows the RecyclerView of uploaded images.
-     *
-     * @requires default empty box display to be at index 0 of the ViewSwitcher
-     * and the uploaded images view at index 1.
-     */
     private fun updateViewSwitch(){
         if(imageUris.isEmpty()){
             uploadViewSwitch.displayedChild = 0
@@ -390,9 +351,7 @@ class UploadPostActivity : AppCompatActivity() {
             uploadViewSwitch.displayedChild = 1
         }
     }
-    /**
-     * Launches the image picker (album) to select multiple images.
-     */
+
     private val getMultipleImagesLauncher = registerForActivityResult(
         ActivityResultContracts.GetMultipleContents()
     ) {
