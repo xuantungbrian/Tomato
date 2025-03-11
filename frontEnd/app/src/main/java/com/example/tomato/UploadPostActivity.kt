@@ -177,9 +177,10 @@ class UploadPostActivity : AppCompatActivity() {
 
             // JSON-ify the base64strings array so it can be parsed easily on the server
             val imageArray = JSONArray(base64Strings)
+            val noteText = findViewById<TextView>(R.id.noteText)
 
 
-            val note = findViewById<TextView>(R.id.noteText).text.toString()
+            val note = noteText.text.toString()
             val postIsPrivate = postVisibility == "Private"
             val dateFormatter = SimpleDateFormat("dd/MM/yyyy")
             val date: Date? = dateFormatter.parse(postDate)
@@ -211,7 +212,18 @@ class UploadPostActivity : AppCompatActivity() {
                     val gson = Gson()
                     val post = gson.fromJson(response, PostItemRaw::class.java)
                     PostHelper.showPostActivity(post, this@UploadPostActivity)
-                    clearFields()
+
+                    //clear fields
+                    imageUris = mutableListOf()
+                    postVisibility = ""
+                    postLocationName = ""
+                    postDate = ""
+
+                    noteText.text = ""
+                    updateViewSwitch()
+                    updateVisibility()
+                    updateLocation()
+                    updateDate()
                 } else {
                     Toast.makeText(
                         this@UploadPostActivity,
@@ -226,21 +238,6 @@ class UploadPostActivity : AppCompatActivity() {
                 finish()
             }
         }
-    }
-
-    private fun clearFields(){
-        imageUris = mutableListOf()
-        postVisibility = ""
-        postLocationName = ""
-        postDate = ""
-
-        val postText = findViewById<TextView>(R.id.noteText)
-        postText.text = ""
-
-        updateViewSwitch()
-        updateVisibility()
-        updateLocation()
-        updateDate()
     }
 
     private fun verifyUploadRequirement(): Boolean{
