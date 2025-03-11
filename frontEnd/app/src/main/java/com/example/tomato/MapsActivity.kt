@@ -359,26 +359,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (!task.isSuccessful) {
                 // Handle failure
                 Log.w("Firebase", "Fetching FCM registration token failed", task.exception)
-                return@addOnCompleteListener
             }
-            val body = JSONObject()
-                .put("googleToken", token)
-                .put("firebaseToken", task.result)
-                .toString()
+            else {
+                val body = JSONObject()
+                    .put("googleToken", token)
+                    .put("firebaseToken", task.result)
+                    .toString()
 
-            lifecycleScope.launch {
-                val response = HTTPRequest.sendPostRequest(
-                    "${BuildConfig.SERVER_ADDRESS}/user/auth",
-                    body,
-                    this@MapsActivity
-                )
-                Log.d(TAG, "sendPostRequest: $response")
-                if (response != null) {
-                    val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
-                    JwtManager.saveToken(this@MapsActivity, signInResponse.token)
-                    val userID = signInResponse.userID
-                    UserCredentialManager.saveUserId(this@MapsActivity, userID)
-                    updateProfile()
+                lifecycleScope.launch {
+                    val response = HTTPRequest.sendPostRequest(
+                        "${BuildConfig.SERVER_ADDRESS}/user/auth",
+                        body,
+                        this@MapsActivity
+                    )
+                    Log.d(TAG, "sendPostRequest: $response")
+                    if (response != null) {
+                        val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
+                        JwtManager.saveToken(this@MapsActivity, signInResponse.token)
+                        val userID = signInResponse.userID
+                        UserCredentialManager.saveUserId(this@MapsActivity, userID)
+                        updateProfile()
+                    }
                 }
             }
         }
