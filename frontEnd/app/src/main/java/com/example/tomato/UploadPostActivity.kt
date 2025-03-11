@@ -49,7 +49,6 @@ class UploadPostActivity : AppCompatActivity() {
     private lateinit var uploadViewSwitch: ViewSwitcher
     private var postVisibility: String = ""
 
-    /** Variables that are related to post's component **/
     private var imageUris = mutableListOf<Uri>()
     private var postLatitude: Double = 0.0
     private var postLongitude: Double = 0.0

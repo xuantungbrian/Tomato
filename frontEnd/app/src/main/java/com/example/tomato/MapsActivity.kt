@@ -454,41 +454,37 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             if (response != null) {
-                try {
-                    val gson = Gson()
-                    val postArray = gson.fromJson(response, Array<PostItemRaw>::class.java)
-                    val projection = mMap.projection
-                    val clusters = mutableMapOf<Pair<Int, Int>, MutableList<PostItemRaw>>()
 
-                    // Group posts into grid cells based on screen coordinates
-                    for (post in postArray) {
-                        val screenPoint = projection.toScreenLocation(LatLng(post.latitude, post.longitude))
-                        val cellX = (screenPoint.x / gridSize).toInt()
-                        val cellY = (screenPoint.y / gridSize).toInt()
-                        val key = Pair(cellX, cellY)
-                        clusters.getOrPut(key) { mutableListOf() }.add(post)
-                    }
+                val gson = Gson()
+                val postArray = gson.fromJson(response, Array<PostItemRaw>::class.java)
+                val projection = mMap.projection
+                val clusters = mutableMapOf<Pair<Int, Int>, MutableList<PostItemRaw>>()
 
-                    // Clear existing markers and add new ones
-                    mMap.clear()
-                    for (cluster in clusters.values) {
-                        if (cluster.size == 1) {
-                            val post = cluster[0]
-                            val postLocation = LatLng(post.latitude, post.longitude)
-                            val marker = showSinglePostMarker(post, postLocation)
-                            marker.tag = cluster
-                        } else {
-                            val averageLat = cluster.map { it.latitude }.average()
-                            val averageLng = cluster.map { it.longitude }.average()
-                            val location = LatLng(averageLat, averageLng)
-                            val representativePost = cluster[0] // Use first post as representative
-                            val marker = showAggregatedMarker(representativePost, cluster.size, location)
-                            marker.tag = cluster
-                        }
+                // Group posts into grid cells based on screen coordinates
+                for (post in postArray) {
+                    val screenPoint = projection.toScreenLocation(LatLng(post.latitude, post.longitude))
+                    val cellX = (screenPoint.x / gridSize).toInt()
+                    val cellY = (screenPoint.y / gridSize).toInt()
+                    val key = Pair(cellX, cellY)
+                    clusters.getOrPut(key) { mutableListOf() }.add(post)
+                }
+
+                // Clear existing markers and add new ones
+                mMap.clear()
+                for (cluster in clusters.values) {
+                    if (cluster.size == 1) {
+                        val post = cluster[0]
+                        val postLocation = LatLng(post.latitude, post.longitude)
+                        val marker = showSinglePostMarker(post, postLocation)
+                        marker.tag = cluster
+                    } else {
+                        val averageLat = cluster.map { it.latitude }.average()
+                        val averageLng = cluster.map { it.longitude }.average()
+                        val location = LatLng(averageLat, averageLng)
+                        val representativePost = cluster[0] // Use first post as representative
+                        val marker = showAggregatedMarker(representativePost, cluster.size, location)
+                        marker.tag = cluster
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Log.e(TAG, "Error parsing response: ${e.message}")
                 }
             }
         }
