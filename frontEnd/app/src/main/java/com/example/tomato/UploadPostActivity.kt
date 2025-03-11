@@ -266,12 +266,12 @@ class UploadPostActivity : AppCompatActivity() {
 
     private fun updateLocation(){
         if(postLocationName == ""){
-            setLogoToBlack(R.drawable.upload_post_location, R.id.setLocationImage)
+            setLogoColor(R.drawable.upload_post_location, R.id.setLocationImage, R.color.black)
             val locationText = findViewById<TextView>(R.id.setLocationText)
             locationText.text = "Location"
         }
         else{
-            setLogoToBlue(R.drawable.upload_post_location, R.id.setLocationImage)
+            setLogoColor(R.drawable.upload_post_location, R.id.setLocationImage, R.color.blue)
             val locationText = findViewById<TextView>(R.id.setLocationText)
             locationText.text = postLocationName
 
@@ -280,12 +280,12 @@ class UploadPostActivity : AppCompatActivity() {
 
     private fun updateVisibility(){
         if(postVisibility == ""){
-            setLogoToBlack(R.drawable.visibility, R.id.setVisibilityImage)
+            setLogoColor(R.drawable.visibility, R.id.setVisibilityImage, R.color.black)
             val visibilityText = findViewById<TextView>(R.id.setVisibilityText)
             visibilityText.text = "Visibility"
         }
         else{
-            setLogoToBlue(R.drawable.visibility, R.id.setVisibilityImage)
+            setLogoColor(R.drawable.visibility, R.id.setVisibilityImage, R.color.blue)
             val visibilityText = findViewById<TextView>(R.id.setVisibilityText)
             visibilityText.text = postVisibility
 
@@ -294,12 +294,12 @@ class UploadPostActivity : AppCompatActivity() {
 
     private fun updateDate(){
         if(postDate == ""){
-            setLogoToBlack(R.drawable.upload_post_date, R.id.setDateImage)
+            setLogoColor(R.drawable.upload_post_date, R.id.setDateImage, R.color.black)
         }
         else {
             val dateText = findViewById<TextView>(R.id.setDateText)
             dateText.text = postDate
-            setLogoToBlue(R.drawable.upload_post_date, R.id.setDateImage)
+            setLogoColor(R.drawable.upload_post_date, R.id.setDateImage, R.color.blue)
         }
     }
 
@@ -318,24 +318,12 @@ class UploadPostActivity : AppCompatActivity() {
 
     }
 
-
-    private fun setLogoToBlue(logoID: Int, imageID: Int){
+    private fun setLogoColor(logoID: Int, imageID: Int, colorID: Int){
         val logo = ContextCompat.getDrawable(this, logoID)
         val image = findViewById<ImageView>(imageID)
-
-        val color = ContextCompat.getColor(this, R.color.blue)
+        val color = ContextCompat.getColor(this, colorID)
         logo?.setTint(color)
         image.setImageDrawable(logo)
-    }
-
-    private fun setLogoToBlack(logoID: Int, imageID: Int){
-        val logo = ContextCompat.getDrawable(this, logoID)
-        val image = findViewById<ImageView>(imageID)
-
-        val color = ContextCompat.getColor(this, R.color.black)
-        logo?.setTint(color)
-        image.setImageDrawable(logo)
-
     }
 
     private fun updateViewSwitch(){
