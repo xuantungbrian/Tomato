@@ -199,9 +199,6 @@ class UploadPostActivity : AppCompatActivity() {
                     "${BuildConfig.SERVER_ADDRESS}/posts",
                     body, this@UploadPostActivity
                 )
-                Log.d(TAG, "Response: $response")
-                Log.d(TAG, "JSON Body: $body")
-
                 //TODO: Handle response
                 if (response != null) {
                     Toast.makeText(
@@ -290,11 +287,12 @@ class UploadPostActivity : AppCompatActivity() {
     }
 
     private fun updateDate(){
+        val dateText = findViewById<TextView>(R.id.setDateText)
         if(postDate == ""){
             setLogoColor(R.drawable.upload_post_date, R.id.setDateImage, R.color.black)
+            dateText.text = "Date"
         }
         else {
-            val dateText = findViewById<TextView>(R.id.setDateText)
             dateText.text = postDate
             setLogoColor(R.drawable.upload_post_date, R.id.setDateImage, R.color.blue)
         }
