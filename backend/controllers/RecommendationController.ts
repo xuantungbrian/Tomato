@@ -1,6 +1,6 @@
 import { AuthenticatedRequest } from "..";
 import { Post, PostService } from "../service/PostService";
-import { NextFunction, Response} from "express";
+import { NextFunction, Response} from "express"; 
 
 export class RecommendationController {
     private postService: PostService;
@@ -10,7 +10,6 @@ export class RecommendationController {
         this.postService = new PostService();
     }
 
-    // eslint-disable-next-line no-unused-vars
     getRecommendation = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         const userId : string = req.user.id
         const max : number = !isNaN(Number(req.query.max)) ? parseInt(req.query.max as string, 10) : 10
@@ -52,7 +51,7 @@ export class RecommendationController {
             every_post?.forEach(all_post => {
                 let lati : number = all_post.latitude as number ? all_post.latitude as number : 0
                 let longi : number = all_post.longitude as number ? all_post.longitude as number : 0
-                const curr_coord = lati.toString().concat(" ", longi.toString())
+                const curr_coord : string = lati.toString().concat(" ", longi.toString())
                 if (!just_coords.includes(curr_coord)) {
                     potential_places.push(curr_coord)
                 }
@@ -63,20 +62,20 @@ export class RecommendationController {
         console.log("POTENTIAL PLACES: ", potential_places.length)
 
         while (potential_places.length > 0 && best_places.length <= max) {
-            let best_place = this.mode(potential_places)
+            let best_place : string = this.mode(potential_places)
             best_places.push(best_place)
             potential_places = this.deleteOccurences(potential_places, best_place) as any[]
         }
 
-        let best_posts : any[] = []
+        let best_posts : Post[] = []
         for(let i = 0; i < max; i++) {
-            let place = best_places[i]
+            let place : string = best_places[i]
             if (!place) {
                 break;
             }
-            let lat = parseFloat(place.split(" ", 2)[0] as string) as number
-            let long = parseFloat(place.split(" ", 2)[1] as string) as number
-            let posts = await this.postService.getPostsAtLocation(lat, long, false) as Array<any>
+            let lat : number = parseFloat(place.split(" ", 2)[0] as string) as number
+            let long : number = parseFloat(place.split(" ", 2)[1] as string) as number
+            let posts : Post[] = await this.postService.getPostsAtLocation(lat, long, false) as Post[]
             for(let post of posts){
                 best_posts.push(post)
             }
@@ -85,14 +84,14 @@ export class RecommendationController {
         return res.json({posts: best_posts})
     }
 
-    mode(arr : Array<any>) : any {
+    mode(arr : string[]) : string {
         return arr.sort((a,b) =>
               arr.filter(v => v===a).length
             - arr.filter(v => v===b).length
-        ).pop();
+        ).pop() || '';
     }
 
-    deleteOccurences(a : Array<any>, e : any) {
+    deleteOccurences(a : string[], e : string) : string[] | -1 {
         if (!a.includes(e)) {
             return -1;
         }
