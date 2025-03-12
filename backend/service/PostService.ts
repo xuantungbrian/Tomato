@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 import { PostModel } from "../model/PostModel";
 import MissingCoordinateException from "../errors/customError";
 
-interface ImageData{
+export interface ImageData{
     fileData: Buffer,
     fileType: string,
 }
 
-interface Post {
+export interface Post {
     latitude: number,
     longitude: number,
     images: ImageData[], 

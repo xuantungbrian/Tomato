@@ -1,9 +1,6 @@
-import { PostService } from "../service/PostService";
+import { AuthenticatedRequest } from "..";
+import { Post, PostService } from "../service/PostService";
 import { NextFunction, Request, Response} from "express";
-
-export interface RecRequest extends Request {
-    user: { id: string }; 
-}
 
 export class RecommendationController {
     private postService: PostService;
@@ -13,12 +10,14 @@ export class RecommendationController {
         this.postService = new PostService();
     }
 
-    getRecommendation = async (req: Request, res: Response, next: NextFunction) => {
-        const userId : string = (req as RecRequest).user.id
+    // eslint-disable-next-line no-unused-vars
+    getRecommendation = async (req: AuthenticatedRequest, res: Response) => {
+        const userId : string = req.user.id
         const max : number = !isNaN(Number(req.query.max)) ? parseInt(req.query.max as string, 10) : 10
-        const posts = await this.postService.getUserPost(userId, true)
-        let similar_users : Array<String> = []
-        let just_coords : String[] = []
+        const posts : Post[] = (await this.postService.getUserPost(userId, true)) as Post[]
+        // let similar_users : Array<String> = []
+        let similar_users : string[] = []
+        let just_coords : string[] = []
         for (const post of posts ?? []) {
             let lat : number = post.latitude as number ? post.latitude as number : 0
             let long : number = post.longitude as number ? post.longitude as number : 0
@@ -27,7 +26,7 @@ export class RecommendationController {
 
             posts_at_location?.forEach((user_post) => {
                 if (user_post.userId != userId)
-                    similar_users.push(user_post.userId as String)
+                    similar_users.push(user_post.userId as string)
             })
         }
         let potential_places : string[] = []
@@ -43,7 +42,8 @@ export class RecommendationController {
                     }
                 })
 
-                similar_users = this.deleteOccurences(similar_users, most_similar) as Array<String>
+                // similar_users = this.deleteOccurences(similar_users, most_similar) as Array<String>
+                similar_users = this.deleteOccurences(similar_users, most_similar) as string[]
             }
         }
         else {
