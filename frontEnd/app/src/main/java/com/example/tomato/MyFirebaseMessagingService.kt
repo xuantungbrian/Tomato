@@ -11,6 +11,9 @@ import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
+/**
+ * Firebase messaging service to handle notifications
+ */
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     companion object {

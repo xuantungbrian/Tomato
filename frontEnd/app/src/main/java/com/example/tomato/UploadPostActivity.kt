@@ -42,6 +42,9 @@ import java.util.Date
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+/**
+ * Activity for uploading a post.
+ */
 class UploadPostActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView

@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 
+/**
+ * Singleton class that manages user's credential (sign-in/sign-out)
+ */
 object UserCredentialManager {
     fun saveUserId(context: Context, userId: String) {
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)

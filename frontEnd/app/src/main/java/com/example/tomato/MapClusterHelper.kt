@@ -31,6 +31,9 @@ import java.lang.Math.max
 import java.lang.Math.min
 
 
+/**
+ * Helper class to show post/cluster of posts on the map
+ */
 class MapClusterHelper(private val activity: MapsActivity,
                        private val mMap: GoogleMap
 ){

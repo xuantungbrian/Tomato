@@ -27,6 +27,9 @@ import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+/**
+ * Activity for choosing a location for a post to be uploaded.
+ */
 class ChooseLocationActivity : ComponentActivity() {
     private lateinit var placesClient: PlacesClient
     private lateinit var sessionToken: AutocompleteSessionToken

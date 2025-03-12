@@ -24,6 +24,9 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.UUID
 
+/**
+ * Common functions used in multiple activities.
+ */
 object commonFunction {
     /**
      * Given the latitude and longitude of a location get the string representation of the location.

@@ -8,6 +8,9 @@ import androidx.core.content.ContextCompat
 
 const val LOCATION_PERMISSION_REQUEST_CODE = 1
 
+/**
+ * Helper class for handling location permissions.
+ */
 object LocationPermission {
      fun checkLocationPermission(context: Activity): Boolean {
         return ContextCompat.checkSelfPermission(

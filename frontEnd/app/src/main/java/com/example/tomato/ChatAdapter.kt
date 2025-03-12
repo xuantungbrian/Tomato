@@ -13,6 +13,9 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 
+/**
+ * Class to manage the chat messaging display.
+ */
 class ChatMessageAdapter(private var messages: MutableList<ChatMessage>, context: Context) : RecyclerView.Adapter<ChatMessageAdapter.ChatViewHolder>() {
     private lateinit var currentUserId: String
     private val context = context

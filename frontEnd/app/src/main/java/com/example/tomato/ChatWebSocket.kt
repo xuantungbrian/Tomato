@@ -5,6 +5,9 @@ import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
 
+/**
+ * Client's websocket for chat features.
+ */
 class ChatWebSocket(serverUri: URI, private val onMessageReceived: (String) -> Unit) : WebSocketClient(serverUri) {
 
     override fun onOpen(handshakedata: ServerHandshake?) {

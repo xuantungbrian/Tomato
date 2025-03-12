@@ -27,6 +27,9 @@ import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
+/**
+ * Activity to show a post
+ */
 class PostActivity : AppCompatActivity() {
     private var isOwner: Boolean = false
 

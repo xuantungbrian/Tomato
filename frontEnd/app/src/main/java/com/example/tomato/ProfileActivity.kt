@@ -29,6 +29,9 @@ data class RecommendationResponse(
     val posts: List<PostItemRaw>
 )
 
+/**
+ * Activity to show user's profile (username, post, recommendation)
+ */
 class ProfileActivity : AppCompatActivity() {
 
     companion object{

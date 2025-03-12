@@ -4,6 +4,9 @@ import androidx.security.crypto.MasterKeys
 import java.io.IOException
 import java.security.GeneralSecurityException
 
+/**
+ * Class for managing JWT tokens (authentication).
+ */
 object JwtManager {
     private const val PREFS_NAME = "secure_prefs"
     private const val JWT_KEY = "jwt_token"

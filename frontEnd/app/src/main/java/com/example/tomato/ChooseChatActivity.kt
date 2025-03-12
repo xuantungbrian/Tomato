@@ -23,6 +23,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
+/**
+ * Activity showing list of chats for current logged-in user.
+ */
 class ChooseChatActivity : AppCompatActivity() {
     private val TAG = "ChooseChatActivity"
 
