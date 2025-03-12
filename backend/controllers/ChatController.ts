@@ -1,5 +1,7 @@
 import { ChatService } from "../service/ChatService";
 import { Request, Response, NextFunction } from "express"
+import { AuthenticatedRequest } from "../index";
+
 
 export class ChatController {
     private chatService: ChatService;
@@ -8,34 +10,34 @@ export class ChatController {
         this.chatService = new ChatService();
     }
 
-    createChat = async (req: Request, res: Response, next: NextFunction) => {
-        let chat = (req as any).body
-        res.json(await this.chatService.createChat(chat.member_1, chat.member_2))
+    createChat = async (req: Request<{ id: string }, {}, { member_1: string; member_2: string }>, res: Response, next: NextFunction) => {
+        const { member_1, member_2 } = req.body;
+        res.json(await this.chatService.createChat(member_1, member_2));
     }
 
-    getChats = async (req: Request, res: Response, next: NextFunction) => {
-        const userId = (req as any).user.id
-        res.json(await this.chatService.getChats(userId))
+    getChats = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        const userId = req.user.id; 
+        res.json(await this.chatService.getChats(userId));
     }
 
-    getChatMessages = async (req: Request, res: Response, next: NextFunction) => {
-        const chatId = (req as any).params.id
+    getChatMessages = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+        const chatId = req.params.id
         res.json(await this.chatService.getChatMessages(chatId));
     }
 
-    addMessage = async (req: Request, res: Response, next: NextFunction) => {
-        let message = (req as any).body
-        let chatroom_id = (req as any).params.id
+    addMessage = async (req: Request<{ id: string }, {}, { sender: string; message: string }>, res: Response, next: NextFunction) => {
+        let message = req.body
+        let chatroom_id = req.params.id
         res.json(await this.chatService.addMessage(chatroom_id, message.sender, message.message))
     }
 
-    deleteMessage = async (req: Request, res: Response, next: NextFunction) => {
-        const messageId = (req as any).params.message_id
-        res.json(await this.chatService.deleteMessage(messageId))
+    deleteMessage = async (req: Request<{ message_id: string }>, res: Response, next: NextFunction) => {
+        const messageId = req.params.message_id;
+        res.json(await this.chatService.deleteMessage(messageId));
     }
 
-    deleteChat = async (req: Request, res: Response, next: NextFunction) => {
-        const chatId = (req as any).params.id
-        res.json(await this.chatService.deleteChat(chatId))
+    deleteChat = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+        const chatId = req.params.id;
+        res.json(await this.chatService.deleteChat(chatId));
     }
 }

@@ -1,39 +1,40 @@
-import { PostService } from "../service/PostService";
-import { Request, Response, NextFunction } from "express";
-
+import { AuthenticatedRequest } from "..";
+import { Post, PostService } from "../service/PostService";
+import { NextFunction, Response} from "express";
 
 export class RecommendationController {
     private postService: PostService;
+
 
     constructor() {
         this.postService = new PostService();
     }
 
-    getRecommendation = async (req: Request, res: Response, next: NextFunction) => {
-        const userId = (req as any).user.id
-        const max = !isNaN((req as any).query) ? parseInt((req as any).query as string) : 10
-        const posts = await this.postService.getUserPost(userId, true)
-        let similar_users : Array<String> = []
-        let just_coords : String[] = []
-        
-        for (const post of posts ?? []) {
-            let lat : number = post.latitude as number ? post.latitude as number : 0
-            let long : number = post.longitude as number ? post.longitude as number : 0
-            const posts_at_location = await this.postService.getPostsAtLocation(lat, long)
+    // eslint-disable-next-line no-unused-vars
+    getRecommendation = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        const userId : string = req.user.id
+        const max : number = !isNaN(Number(req.query.max)) ? parseInt(req.query.max as string, 10) : 10
+        const posts : Post[] = (await this.postService.getUserPost(userId, true)) as Post[]
+        // let similar_users : Array<String> = []
+        let similar_users : string[] = []
+        let just_coords : string[] = []
+        for (const post of posts) {
+            let lat : number = post.latitude ? post.latitude : 0
+            let long : number = post.longitude ? post.longitude : 0
+            const posts_at_location : Post[] = await this.postService.getPostsAtLocation(lat, long) as Post[]
             just_coords.push(lat.toString().concat(" ", long.toString()))
 
-            posts_at_location?.forEach(user_post => {
+            posts_at_location?.forEach((user_post) => {
                 if (user_post.userId != userId)
-                    similar_users.push(user_post.userId as String)
+                    similar_users.push(user_post.userId as string)
             })
         }
-
-        let potential_places : any[] = []
+        let potential_places : string[] = []
         console.log("SIMILAR USERS: ", similar_users.length)
         if (similar_users.length > 0) {
             for (let i = 0; i < 3 && similar_users.length > 0; i++) {
-                const most_similar = this.mode(similar_users)
-                const most_similar_posts = await this.postService.getUserPost(most_similar, true)
+                const most_similar : string = this.mode(similar_users) // userId
+                const most_similar_posts : Post[] = await this.postService.getUserPost(most_similar, true) as Post[]
                 console.log("most similar posts: ", most_similar_posts?.length)
                 most_similar_posts?.forEach(sim_post => {
                     if (!just_coords.includes((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))) {
@@ -41,7 +42,8 @@ export class RecommendationController {
                     }
                 })
 
-                similar_users = this.deleteOccurences(similar_users, most_similar) as Array<String>
+                // similar_users = this.deleteOccurences(similar_users, most_similar) as Array<String>
+                similar_users = this.deleteOccurences(similar_users, most_similar) as string[]
             }
         }
         else {
@@ -79,7 +81,6 @@ export class RecommendationController {
                 best_posts.push(post)
             }
         }
-
         console.log("BEST POSTS: ", best_posts.length)
         return res.json({posts: best_posts})
     }

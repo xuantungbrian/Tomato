@@ -19,6 +19,14 @@ app.use(morgan('tiny'))
 // app.use(UploadFile) // TODO: Add this for one route only
 // TODO: Cleanup as any
 
+export interface AuthenticatedRequest extends Request {
+    user: { id: string }; 
+    params: { 
+        id: string 
+        message_id: string
+    }; 
+}
+
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
 });
@@ -31,7 +39,7 @@ allRoutes.forEach((route) => {
         route.route,
         ...middlewares,
         route.validation,
-        async (req: express.Request, res: Response, next: NextFunction) => {
+        async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 /* If there are validation errors, send a response with the error messages */
