@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import {sign} from "jsonwebtoken";
 import { UserModel, IUser } from "../model/UserModel"
 import { OAuth2Client, TokenPayload } from "google-auth-library";
 
@@ -57,7 +57,7 @@ export class UserService {
         });
 
 
-        const payload: TokenPayload | undefined = ticket.getPayload();
+        const payload = ticket.getPayload() as TokenPayload;
         if (payload === undefined || !payload?.sub || !payload.name) {
             throw new Error("Invalid Google Token");
         }
@@ -76,7 +76,7 @@ export class UserService {
         } 
         
         // Generate JWT
-        const jwtToken = jwt?.sign({ id: payload.sub, name: payload.name }, jwtSecret, {
+        const jwtToken = sign({ id: payload.sub, name: payload.name }, jwtSecret, {
             expiresIn: "999d",
             algorithm: "HS256"
         });
