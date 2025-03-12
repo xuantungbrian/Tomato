@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { UserModel, IUser } from "../model/UserModel"
 import { OAuth2Client } from "google-auth-library";
+import { JSDocNonNullableType } from "typescript";
 
 const webClientId: string = process.env.WEB_CLIENT_ID ?? "";
 const jwtSecret: string = process.env.JWT_SECRET ?? "";
@@ -13,14 +14,14 @@ if (!jwtSecret) {
     throw new Error("JWT_SECRET is not defined in environment variables");
 }
 
-const client = new OAuth2Client(webClientId);
+const client: OAuth2Client = new OAuth2Client(webClientId);
 
 
 export class UserService {
 
     async createUser(id: string, name: string, firebaseToken: string): Promise<IUser|null> {
         try {
-            const newUser = new UserModel({ _id: id, username: name, firebaseToken })
+            const newUser: IUser = new UserModel({ _id: id, username: name, firebaseToken })
             if(!newUser){
                 console.warn("USER NOT CREATED: ", id)
                 return null
@@ -34,7 +35,7 @@ export class UserService {
 
     async getUser(id: string): Promise<IUser|null> {
         try {
-            const user = await UserModel.findById(id)
+            const user: IUser|null = await UserModel.findById(id)
             if(!user){
                 console.warn("USER NOT FOUND: ", id)
                 return null;
@@ -62,7 +63,7 @@ export class UserService {
         }
 
         // Check if user exists, otherwise create a new one
-        let user = await this.getUser(payload.sub);
+        let user: IUser|null = await this.getUser(payload.sub);
     
         if (!user) {
             user = await this.createUser(payload.sub, payload.name, firebaseToken);
