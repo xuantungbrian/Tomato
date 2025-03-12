@@ -107,7 +107,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             activityScope.launch {
                 try {
                     val result = credentialManager.getCredential(request = request, context = this@MapsActivity)
-                    handleSignIn(result)
+                    val credential = result.credential
+                    if (credential !is CustomCredential || credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                        Log.e(TAG, "Unexpected type of credential")
+                    }
+
+                    try {
+                        val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                        googleCredential.displayName?.let { username ->
+                            UserCredentialManager.saveUserProfile(this@MapsActivity, username, googleCredential.profilePictureUri.toString())
+                        }
+                        sendSignInRequest(googleCredential.idToken)
+                    } catch (e: GoogleIdTokenParsingException) {
+                        Log.e(TAG, "Received an invalid google id token response", e)
+                    }
+//                    handleSignIn(result)
                 } catch (e: GetCredentialException) {
                     Log.d(TAG, "Get credential exception", e)
                 }
@@ -279,23 +293,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun handleSignIn(result: GetCredentialResponse) {
-        val credential = result.credential
-        if (credential !is CustomCredential || credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-            Log.e(TAG, "Unexpected type of credential")
-            return
-        }
-
-        try {
-            val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
-            googleCredential.displayName?.let { username ->
-                UserCredentialManager.saveUserProfile(this@MapsActivity, username, googleCredential.profilePictureUri.toString())
-            }
-            sendSignInRequest(googleCredential.idToken)
-        } catch (e: GoogleIdTokenParsingException) {
-            Log.e(TAG, "Received an invalid google id token response", e)
-        }
-    }
+//    private fun handleSignIn(result: GetCredentialResponse) {
+//        val credential = result.credential
+//        if (credential !is CustomCredential || credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+//            Log.e(TAG, "Unexpected type of credential")
+//            return
+//        }
+//
+//        try {
+//            val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
+//            googleCredential.displayName?.let { username ->
+//                UserCredentialManager.saveUserProfile(this@MapsActivity, username, googleCredential.profilePictureUri.toString())
+//            }
+//            sendSignInRequest(googleCredential.idToken)
+//        } catch (e: GoogleIdTokenParsingException) {
+//            Log.e(TAG, "Received an invalid google id token response", e)
+//        }
+//    }
 
     private fun sendSignInRequest(token: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
