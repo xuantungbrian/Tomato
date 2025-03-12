@@ -2,6 +2,7 @@ import { PostService } from "../service/PostService";
 import { Request, Response } from "express";
 import MissingCoordinateException from "../errors/customError";
 import { PostModel } from "../model/PostModel";
+import { AuthenticatedRequest } from "..";
 
 interface ImageData {
     fileData: Buffer;
@@ -15,9 +16,9 @@ export class PostController {
         this.postService = new PostService();
     }
 
-    createPost = async (req: Request, res: Response) => {
+    createPost = async (req: AuthenticatedRequest, res: Response) => {
         const post = req.body;
-        post.userId = (req as any).user.id;
+        post.userId = req.user.id;
         post.images = (post.images as string[]).map((str: string): ImageData => ({
             fileData: Buffer.from(str, 'base64'),
             fileType: 'image/jpeg'
@@ -52,7 +53,7 @@ export class PostController {
     };
 
 
-    getAuthenticatedUserPost = async (req: Request, res: Response) => {
+    getAuthenticatedUserPost = async (req: AuthenticatedRequest, res: Response) => {
         try {
             const { userPostOnly, start_lat, end_lat, start_long, end_long } = req.query;
 
@@ -64,7 +65,7 @@ export class PostController {
 
             const parsedUserPostOnly = userPostOnly == "true"
 
-            const userId = (req as any).user.id
+            const userId = req.user.id
             res.json(await this.postService.getUserPost(userId, parsedUserPostOnly, parsedStartLat,
                 parsedEndLat, parsedStartLong,
                 parsedEndLong))
@@ -87,18 +88,18 @@ export class PostController {
         res.json({ postData });
     }
 
-    updatePost = async (req: Request, res: Response) => {
+    updatePost = async (req: AuthenticatedRequest, res: Response) => {
         const postId = req.params.id
         const updatedPost = req.body
-        updatedPost.userId = (req as any).user.id
+        updatedPost.userId = req.user.id
         res.json(await this.postService.updatePost(postId, updatedPost))
     }
 
-    deletePost = async (req: Request, res: Response) => {
+    deletePost = async (req: AuthenticatedRequest, res: Response) => {
         const postId = req.params.id
 
         // Ensure that the post really belongs to the user
-        const userId = (req as any).user.id
+        const userId = req.user.id
         const post = await PostModel.findById(postId)
 
         if (post?.userId !== userId) {
