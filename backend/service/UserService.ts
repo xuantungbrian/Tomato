@@ -11,7 +11,7 @@ if (!process.env.JWT_SECRET) {
 const webClientId: string = process.env.WEB_CLIENT_ID
 const jwtSecret: string = process.env.JWT_SECRET
 
-const client: OAuth2Client = new OAuth2Client(webClientId);
+const client = new OAuth2Client(webClientId);
 
 
 export class UserService {
