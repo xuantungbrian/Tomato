@@ -2,14 +2,22 @@ import jwt from "jsonwebtoken";
 import { UserModel } from "../model/UserModel"
 import { OAuth2Client } from "google-auth-library";
 
+
+
+// Validate required environment variables
+if (!process.env.WEB_CLIENT_ID) {
+    throw new Error("WEB_CLIENT_ID is not defined in environment variables");
+}
+
 const client = new OAuth2Client(process.env.WEB_CLIENT_ID);
+
 
 export class UserService {
 
-    async createUser(id: string, name: string, firebaseToken: String) {
+    async createUser(id: string, name: string, firebaseToken: string) {
         try {
             const newUser = new UserModel({ _id: id, username: name, firebaseToken })
-            return newUser.save()
+            return await newUser.save()
         } catch(error) {
             console.error("Error creating user:", error);
             return null
@@ -18,9 +26,9 @@ export class UserService {
 
     async getUser(id: string) {
         try {
-            let user = await UserModel.findById(id)
-            console.log("USER: ", user) 
-            return UserModel.findById(id)
+            const user = await UserModel.findById(id)
+            console.log("USER: ", user)
+            return user
         } catch(error) {
             console.error("Error getting user:", error);
             return null
@@ -53,8 +61,12 @@ export class UserService {
             }            
         }
 
+        if (!process.env.JWT_SECRET) {
+            throw new Error("JWT_SECRET is not defined");
+        }
+        
         // Generate JWT
-        const jwtToken = jwt.sign({ id: payload.sub, name: payload.name }, process.env.JWT_SECRET!, {
+        const jwtToken = jwt.sign({ id: payload.sub, name: payload.name }, process.env.JWT_SECRET, {
             expiresIn: "999d",
             algorithm: "HS256"
         });
