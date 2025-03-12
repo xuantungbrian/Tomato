@@ -24,33 +24,13 @@ object HTTPRequest {
 
         // Use IO dispatcher to perform network operations (connect to backend)
         return withContext(Dispatchers.IO){
-            val client = OkHttpClient()
-
             val token = JwtManager.getToken(context)
             val request = Request.Builder()
                 .url(url)
                 .addHeader("Authorization", "Bearer $token") // Attach the JWT
                 .build()
 
-            try {
-                // Execute the request synchronously on the IO dispatcher
-                client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) {
-                        throw IOException("Unexpected code $response")
-                    }
-                    // Return the response data as a String
-                    response.body?.string()
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-                null
-            } catch (e: IllegalStateException) {
-                e.printStackTrace()
-                null
-            } catch (e: SecurityException) {
-                e.printStackTrace()
-                null
-            }
+            executeHttpRequest(request)
         }
     }
 
@@ -61,34 +41,13 @@ object HTTPRequest {
 
         // Use IO dispatcher to perform network operations (connect to backend)
         return withContext(Dispatchers.IO){
-            val client = OkHttpClient()
-
             val token = JwtManager.getToken(context)
             val request = Request.Builder()
                 .url(url)
                 .addHeader("Authorization", "Bearer $token") // Attach the JWT
                 .delete()
                 .build()
-
-            try {
-                // Execute the request synchronously on the IO dispatcher
-                client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) {
-                        throw IOException("Unexpected code $response")
-                    }
-                    // Return the response data as a String
-                    response.body?.string()
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-                null
-            } catch (e: IllegalStateException) {
-                e.printStackTrace()
-                null
-            } catch (e: SecurityException) {
-                e.printStackTrace()
-                null
-            }
+            executeHttpRequest(request)
         }
     }
 
@@ -108,8 +67,6 @@ object HTTPRequest {
 
         // Use IO dispatcher to perform network operations (connect to backend)
         return withContext(Dispatchers.IO){
-            val client = OkHttpClient()
-
             val token = JwtManager.getToken(context)
 
             val request = Request.Builder()
@@ -118,27 +75,33 @@ object HTTPRequest {
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Authorization", "Bearer $token") // Attach the JWT
                 .build()
-
-            try {
-                // Execute the request synchronously on the IO dispatcher
-                client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) {
-                        throw IOException("Unexpected code $response")
-                    }
-                    // Return the response data as a String
-                    response.body?.string()
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-                null
-            } catch (e: IllegalStateException) {
-                e.printStackTrace()
-                null
-            } catch (e: SecurityException) {
-                e.printStackTrace()
-                null
-            }
+            executeHttpRequest(request)
         }
+    }
+
+    private fun executeHttpRequest(request: Request): String? {
+
+        val client = OkHttpClient()
+        try {
+            // Execute the request synchronously on the IO dispatcher
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    throw IOException("Unexpected code $response")
+                }
+                // Return the response data as a String
+                return response.body?.string()
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return null
+        } catch (e: IllegalStateException) {
+            e.printStackTrace()
+            return null
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+            return null
+        }
+
     }
 
 

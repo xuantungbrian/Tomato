@@ -86,7 +86,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initPlace()
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, BuildConfig.MAP_API_KEY)
+        }
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.mapFragment) as SupportMapFragment
@@ -94,7 +96,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         //Init sign in button
         findViewById<Button>(R.id.sign_in_button).setOnClickListener {
-            val credentialManager = CredentialManager.create(this)
             val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(BuildConfig.WEB_CLIENT_ID)
                 .setNonce(commonFunction.generateHashedNonce())
                 .build()
@@ -104,7 +105,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             activityScope.launch {
                 try {
-                    val result = credentialManager.getCredential(request = request, context = this@MapsActivity)
+                    val result = CredentialManager.create(this@MapsActivity).getCredential(request = request, context = this@MapsActivity)
                     val credential = result.credential
                     if (credential !is CustomCredential || credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                         Log.e(TAG, "Unexpected type of credential")
@@ -160,12 +161,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             LocationPermission.requestLocationPermission(this)
         }
 
-    }
-
-    private fun initPlace(){
-        if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, BuildConfig.MAP_API_KEY)
-        }
     }
 
 
