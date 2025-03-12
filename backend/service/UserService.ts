@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { UserModel } from "../model/UserModel"
+import { UserModel, IUser } from "../model/UserModel"
 import { OAuth2Client } from "google-auth-library";
 
 
@@ -14,9 +14,13 @@ const client = new OAuth2Client(process.env.WEB_CLIENT_ID);
 
 export class UserService {
 
-    async createUser(id: string, name: string, firebaseToken: string) {
+    async createUser(id: string, name: string, firebaseToken: string): Promise<IUser|null> {
         try {
             const newUser = new UserModel({ _id: id, username: name, firebaseToken })
+            if(!newUser){
+                console.warn("USER NOT CREATED: ", id)
+                return null
+            }
             return await newUser.save()
         } catch(error) {
             console.error("Error creating user:", error);
@@ -24,9 +28,14 @@ export class UserService {
         }
     }
 
-    async getUser(id: string) {
+    async getUser(id: string): Promise<IUser|null> {
         try {
             const user = await UserModel.findById(id)
+            if(!user){
+                console.warn("USER NOT FOUND: ", id)
+                return null;
+            }
+
             console.log("USER: ", user)
             return user
         } catch(error) {
@@ -61,8 +70,8 @@ export class UserService {
             }            
         }
 
-        if (!process.env.JWT_SECRET) {
-            throw new Error("JWT_SECRET is not defined");
+        if (!process.env.JWT_SECRET || !jwt) {
+            throw new Error("JWT/JWT_SECRET is not defined correctly");
         }
         
         // Generate JWT
