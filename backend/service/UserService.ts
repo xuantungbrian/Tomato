@@ -59,12 +59,12 @@ export class UserService {
 
 
         const payload = ticket.getPayload();
-        if (!payload || !payload.sub || !payload.name) {
+        if (!payload?.sub || !payload.name) {
             throw new Error("Invalid Google Token");
         }
 
         // Check if user exists, otherwise create a new one
-        let user: IUser|null = await this.getUser(payload.sub) as IUser|null;
+        let user: IUser|null = await this.getUser(payload.sub);
     
         if (!user) {
             user = await this.createUser(payload.sub, payload.name, firebaseToken);
@@ -81,7 +81,7 @@ export class UserService {
             expiresIn: "999d",
             algorithm: "HS256"
         });
-        let userID = user!._id
+        let userID = user?._id
 
         return { token: jwtToken, userID };
     }
