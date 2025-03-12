@@ -86,9 +86,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, BuildConfig.MAP_API_KEY)
-        }
+        initPlace()
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.mapFragment) as SupportMapFragment
@@ -121,7 +119,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Received an invalid google id token response", e)
                     }
-//                    handleSignIn(result)
                 } catch (e: GetCredentialException) {
                     Log.d(TAG, "Get credential exception", e)
                 }
@@ -163,6 +160,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             LocationPermission.requestLocationPermission(this)
         }
 
+    }
+
+    private fun initPlace(){
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, BuildConfig.MAP_API_KEY)
+        }
     }
 
 
