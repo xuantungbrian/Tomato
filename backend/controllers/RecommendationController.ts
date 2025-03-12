@@ -21,7 +21,7 @@ export class RecommendationController {
         for (const post of posts) {
             let lat : number = post.latitude ? post.latitude : 0
             let long : number = post.longitude ? post.longitude : 0
-            const posts_at_location : Post[] = await this.postService.getPostsAtLocation(lat, long) as Post[]
+            const posts_at_location : Post[] = await this.postService.getPostsAtLocation(lat, long, true) as Post[]
             just_coords.push(lat.toString().concat(" ", long.toString()))
 
             posts_at_location?.forEach((user_post) => {
@@ -76,7 +76,7 @@ export class RecommendationController {
             }
             let lat = parseFloat(place.split(" ", 2)[0] as string) as number
             let long = parseFloat(place.split(" ", 2)[1] as string) as number
-            let posts = await this.postService.getPostsAtLocation(lat, long) as Array<any>
+            let posts = await this.postService.getPostsAtLocation(lat, long, false) as Array<any>
             for(let post of posts){
                 best_posts.push(post)
             }

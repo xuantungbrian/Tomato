@@ -175,9 +175,12 @@ export class PostService {
         }
     }
 
-    async getPostsAtLocation(lat: number, long: number) {
+    async getPostsAtLocation(lat: number, long: number, private_post: boolean) {
         try {
-            return PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
+            if (!private_post)
+                return PostModel.find({$and:[{latitude: lat}, {longitude: long}, {isPrivate: false}]})
+            else
+                return PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
         } catch(error) {
             console.log("Error getting all posts at the location", error)
             return null
