@@ -20,16 +20,16 @@ export interface Post {
 export class PostService {
     async getPostById(id: string) {
         try {
-            return PostModel.findById(id)
+            return await PostModel.findById(id)
         } catch(error) {
             console.log("Error to get post from ID: ", error)
             return null
         }
     }
 
-    async createPost(post: Post) {
+    async createPost(post: Post) : Promise<mongoose.Document | null> {
         try {
-            const newPost = new PostModel(post);
+            const newPost: mongoose.Document = new PostModel(post);
             await newPost.save();
             return newPost;
         } catch (error) {
@@ -39,7 +39,7 @@ export class PostService {
     }
     
 
-    async updatePost(id: string, post: Post)  {
+    async updatePost(id: string, post: Post) : Promise<mongoose.Document | null> {
         try {
             await PostModel.findByIdAndUpdate(new mongoose.Types.ObjectId(id), post)
             return PostModel.findById(id)
@@ -49,7 +49,7 @@ export class PostService {
         }
     }
 
-    async deletePost(id: string) {
+    async deletePost(id: string) : Promise<mongoose.Document | null> {
         try {  
             return PostModel.findOneAndDelete({ _id: new mongoose.Types.ObjectId(id) })
         } catch (error) {
@@ -175,9 +175,12 @@ export class PostService {
         }
     }
 
-    async getPostsAtLocation(lat: number, long: number) {
+    async getPostsAtLocation(lat: number, long: number, private_post: boolean) {
         try {
-            return PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
+            if (!private_post)
+                return PostModel.find({$and:[{latitude: lat}, {longitude: long}, {isPrivate: false}]})
+            else
+                return PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
         } catch(error) {
             console.log("Error getting all posts at the location", error)
             return null

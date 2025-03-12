@@ -1,4 +1,3 @@
-import mongoose from "mongoose"
 import { ChatModel } from "../model/ChatModel"
 import { MessageModel } from "../model/MessageModel"
 

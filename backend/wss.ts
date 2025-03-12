@@ -1,10 +1,10 @@
 import WebSocket from 'ws';
 import { ChatService } from './service/ChatService';
 import { UserService } from './service/UserService';
+import { IncomingMessage } from 'http';
 import admin from "firebase-admin";
-
-// Load Firebase credentials
 const serviceAccount = require("./serviceAccountKey.json");
+// import serviceAccount from "./serviceAccountKey.json"; // Load Firebase credentials
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -18,12 +18,17 @@ const startWSS = () => {
     const wsRoomMapping = new Map();
 
     wss.on('listening', () => {
-        console.log(`WebSocket server is running on ws://localhost:${wssPort}`);
+        console.log('WebSocket server is running on ws://localhost:%d', wssPort);
     });
 
-    wss.on('connection', (ws, req) => {
+    wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
         console.log("CONNECTION!")
-        const urlParams = new URLSearchParams((req as any).url.slice(1)); 
+        if(!req.url) {
+            console.error('No URL provided');
+            ws.close();
+            return;
+        }
+        const urlParams = new URLSearchParams(req.url.slice(1)); 
         const chatId = urlParams.get('chatId');
         
         if (!chatId) {
@@ -34,7 +39,7 @@ const startWSS = () => {
 
         wsRoomMapping.set(ws, chatId);
 
-        ws.on('message', async (data: any) => {
+        ws.on('message', async (data: WebSocket.Data) => {
             try {
                 const message = JSON.parse(data.toString()); 
                 chatService.addMessage(chatId, message.sender, message.message);
@@ -99,8 +104,8 @@ function sendPushNotification(token: string, message: string, chatId: string) {
         },
     };
 
-    admin.messaging().send(payload as any)
-        .then((response: any) => {
+    admin.messaging().send(payload as admin.messaging.Message)
+        .then((response: string) => {
             console.log("Successfully sent message:", response);
         })
         .catch((error: any) => {

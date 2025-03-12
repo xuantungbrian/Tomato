@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { UserModel } from "../model/UserModel"
 import { OAuth2Client } from "google-auth-library";
 
-const client = new OAuth2Client(process.env.WEB_CLIENT_ID);
+const client: OAuth2Client = new OAuth2Client(process.env.WEB_CLIENT_ID);
 
 export class UserService {
 

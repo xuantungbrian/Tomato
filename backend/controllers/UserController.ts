@@ -1,5 +1,5 @@
 import { UserService } from "../service/UserService";
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 
 const clientId = process.env.WEB_CLIENT_ID
@@ -19,7 +19,7 @@ export class UserController {
         return res.status(200).json(await this.userService.getUser(userId));
     }
 
-    async handleGoogleSignIn(req: Request, res: Response, next: NextFunction){ //TODO: Not just google now, need better naming
+    async handleGoogleSignIn(req: Request, res: Response){ //TODO: Not just google now, need better naming
         try{
             const { googleToken, firebaseToken } = (req as any).body;
             
