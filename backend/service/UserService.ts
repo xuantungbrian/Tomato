@@ -2,16 +2,8 @@ import jwt from "jsonwebtoken";
 import { UserModel, IUser } from "../model/UserModel"
 import { OAuth2Client } from "google-auth-library";
 
-const webClientId: string = process.env.WEB_CLIENT_ID as string;
-const jwtSecret: string = process.env.JWT_SECRET as string;
-
-if (!webClientId) {
-    throw new Error("WEB_CLIENT_ID is not defined in environment variables");
-}
-
-if (!jwtSecret) {
-    throw new Error("JWT_SECRET is not defined in environment variables");
-}
+const webClientId: string = process.env.WEB_CLIENT_ID!
+const jwtSecret: string = process.env.JWT_SECRET!
 
 const client: OAuth2Client = new OAuth2Client(webClientId);
 
@@ -48,7 +40,7 @@ export class UserService {
         }
     }
 
-    async signInWithGoogle(googleToken: String, firebaseToken: string){
+    async signInWithGoogle(googleToken: string, firebaseToken: string){
         // Verify Google token
         const ticket = await client.verifyIdToken({
             idToken: googleToken.replace('Bearer ', ''),
@@ -62,7 +54,7 @@ export class UserService {
         }
 
         // Check if user exists, otherwise create a new one
-        let user: IUser|null = await this.getUser(payload.sub);
+        const user: IUser|null = await this.getUser(payload.sub);
     
         if (!user) {
             user = await this.createUser(payload.sub, payload.name, firebaseToken);
