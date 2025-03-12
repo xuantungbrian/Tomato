@@ -1,10 +1,9 @@
 import jwt from "jsonwebtoken";
 import { UserModel, IUser } from "../model/UserModel"
 import { OAuth2Client } from "google-auth-library";
-import { JSDocNonNullableType } from "typescript";
 
-const webClientId: string = process.env.WEB_CLIENT_ID ?? "";
-const jwtSecret: string = process.env.JWT_SECRET ?? "";
+const webClientId: string = process.env.WEB_CLIENT_ID as string;
+const jwtSecret: string = process.env.JWT_SECRET as string;
 
 if (!webClientId) {
     throw new Error("WEB_CLIENT_ID is not defined in environment variables");
