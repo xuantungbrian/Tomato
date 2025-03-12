@@ -181,199 +181,199 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-
-    private fun initChatList(){
-        val chatButton = findViewById<ImageView>(R.id.map_activity_chat_button)
-        chatButton.setOnClickListener {
-            if (UserCredentialManager.isLoggedIn(this@MapsActivity)) {
-                startActivity(Intent(this@MapsActivity, ChooseChatActivity::class.java))
-            }
-            else {
-                android.app.AlertDialog.Builder(this@MapsActivity)
-                    .setTitle("Login is required to chat with others")
-                    .setNegativeButton("Okay", null)
-                    .show()
-            }
-        }
-    }
-    private fun initSearchLocation(){
-        // Initialize Places Client and Session Token
-        placesClient = Places.createClient(this)
-        sessionToken = AutocompleteSessionToken.newInstance()
-
-        // Find AutoCompleteTextView in the layout
-        autoCompleteTextView = findViewById(R.id.locationAutoCompleteTextView)
-        // Instantiate the autocomplete helper
-
-        PlaceAutocompleteHelper(
-            context = this,
-            autoCompleteTextView = autoCompleteTextView,
-            placesClient = placesClient,
-            sessionToken = sessionToken,
-            onPredictionSelected = { prediction ->
-                // Handle the selected prediction
-                val placeId = prediction.placeId
-                val fetchPlaceRequest = com.google.android.libraries.places.api.net.FetchPlaceRequest.builder(
-                    placeId,
-                    listOf(com.google.android.libraries.places.api.model.Place.Field.LAT_LNG)
-                ).build()
-
-                placesClient.fetchPlace(fetchPlaceRequest)
-                    .addOnSuccessListener { response ->
-                        val place = response.place
-                        place.latLng?.let {
-                            searchLatitude = it.latitude
-                            searchLongitude = it.longitude
-                        }
-                    }
-                    .addOnFailureListener { exception ->
-                        // Handle failure
-                    }
-            },
-
-        )
-
-        autoCompleteTextView.setOnEditorActionListener { _, actionId, event ->
-            val isEnterPressed = actionId == EditorInfo.IME_ACTION_SEARCH ||
-                    actionId == EditorInfo.IME_ACTION_DONE ||
-                    (event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER)
-            if (isEnterPressed) {
-                if (searchLatitude != null && searchLongitude != null) {
-                    moveMapCameraTo(searchLatitude!!, searchLongitude!!)
-                }
-                autoCompleteTextView.clearFocus()
-                autoCompleteTextView.clearComposingText()
-                autoCompleteTextView.text = null
-
-                true // Consume the event.
-            } else {
-                false
-            }
-        }
-    }
-
-    private fun moveMapCameraTo(latitude: Double, longitude: Double) {
-        val latLng = LatLng(latitude, longitude)
-        val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15f)
-        mMap.animateCamera(cameraUpdate)
-    }
-
-
-    private fun updateProfile(){
-        val sign_in_button = findViewById<Button>(R.id.sign_in_button)
-        val profile_button = findViewById<ImageView>(R.id.map_activity_profile_button)
-        if (UserCredentialManager.isLoggedIn(this)) {
-            sign_in_button.visibility = View.GONE
-            profile_button.visibility = View.VISIBLE
-            val (username, profilePicture) = UserCredentialManager.getUserProfile(this)
-            Glide.with(this)
-                .load(profilePicture)
-                .into(profile_button)
-            profile_button.setOnClickListener {
-                startActivity(Intent(this, ProfileActivity::class.java))
-            }
-        }
-        else{
-            sign_in_button.visibility = View.VISIBLE
-            profile_button.visibility = View.GONE
-        }
-    }
-
-    private fun handleSignIn(result: GetCredentialResponse) {
-        val credential = result.credential
-        if (credential !is CustomCredential || credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-            Log.e(TAG, "Unexpected type of credential")
-            return
-        }
-
-        try {
-            val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
-            googleCredential.displayName?.let { username ->
-                UserCredentialManager.saveUserProfile(this@MapsActivity, username, googleCredential.profilePictureUri.toString())
-            }
-            sendSignInRequest(googleCredential.idToken)
-        } catch (e: GoogleIdTokenParsingException) {
-            Log.e(TAG, "Received an invalid google id token response", e)
-        }
-    }
-
-    private fun sendSignInRequest(token: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                    1
-                )
-            }
-        }
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                // Handle failure
-                Log.w("Firebase", "Fetching FCM registration token failed", task.exception)
-            }
-            else {
-                val body = JSONObject()
-                    .put("googleToken", token)
-                    .put("firebaseToken", task.result)
-                    .toString()
-
-                lifecycleScope.launch {
-                    val response = HTTPRequest.sendPostRequest(
-                        "${BuildConfig.SERVER_ADDRESS}/user/auth",
-                        body,
-                        this@MapsActivity
-                    )
-                    Log.d(TAG, "sendPostRequest: $response")
-                    if (response != null) {
-                        val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
-                        JwtManager.saveToken(this@MapsActivity, signInResponse.token)
-                        val userID = signInResponse.userID
-                        UserCredentialManager.saveUserId(this@MapsActivity, userID)
-                        updateProfile()
-                    }
-                }
-            }
-        }
-    }
-
-    @SuppressLint("PotentialBehaviorOverride")
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        clusterHelper = MapClusterHelper(this, mMap)
-        googleMap.setOnCameraIdleListener {
-            clusterHelper.getPostsOnScreen(googleMap, userPostOnly)
-        }
-
-        if (LocationPermission.checkLocationPermission(this)) {
-            mMap.isMyLocationEnabled = true
-            getUserLocation()
-
-        }
-
-        mMap.setOnMarkerClickListener { marker ->
-            Toast.makeText(this, "Loading post...", Toast.LENGTH_SHORT).show()
-            val tag = marker.tag
-            Log.d(TAG, "Marker clicked: $tag")
-            if (tag is String) {
-                Log.d(TAG, "Single post clicked: $tag")
-                // TODO: Open post details using tag (post ID)
-            } else if (tag is List<*>) {
-                Log.d(TAG, "Aggregated marker clicked with ${tag.size} posts")
-                // TODO: Handle aggregated marker click (e.g., zoom in or show list)
-            }
-            if((tag as List<PostItemRaw>).size == 1){
-                PostHelper.showPostActivity(tag[0], this@MapsActivity)
-
-            }
-            else{
-                clusterHelper.showClusterDialog(tag as List<PostItemRaw>)
-            }
-            true
-        }
-    }
+//
+//    private fun initChatList(){
+//        val chatButton = findViewById<ImageView>(R.id.map_activity_chat_button)
+//        chatButton.setOnClickListener {
+//            if (UserCredentialManager.isLoggedIn(this@MapsActivity)) {
+//                startActivity(Intent(this@MapsActivity, ChooseChatActivity::class.java))
+//            }
+//            else {
+//                android.app.AlertDialog.Builder(this@MapsActivity)
+//                    .setTitle("Login is required to chat with others")
+//                    .setNegativeButton("Okay", null)
+//                    .show()
+//            }
+//        }
+//    }
+//    private fun initSearchLocation(){
+//        // Initialize Places Client and Session Token
+//        placesClient = Places.createClient(this)
+//        sessionToken = AutocompleteSessionToken.newInstance()
+//
+//        // Find AutoCompleteTextView in the layout
+//        autoCompleteTextView = findViewById(R.id.locationAutoCompleteTextView)
+//        // Instantiate the autocomplete helper
+//
+//        PlaceAutocompleteHelper(
+//            context = this,
+//            autoCompleteTextView = autoCompleteTextView,
+//            placesClient = placesClient,
+//            sessionToken = sessionToken,
+//            onPredictionSelected = { prediction ->
+//                // Handle the selected prediction
+//                val placeId = prediction.placeId
+//                val fetchPlaceRequest = com.google.android.libraries.places.api.net.FetchPlaceRequest.builder(
+//                    placeId,
+//                    listOf(com.google.android.libraries.places.api.model.Place.Field.LAT_LNG)
+//                ).build()
+//
+//                placesClient.fetchPlace(fetchPlaceRequest)
+//                    .addOnSuccessListener { response ->
+//                        val place = response.place
+//                        place.latLng?.let {
+//                            searchLatitude = it.latitude
+//                            searchLongitude = it.longitude
+//                        }
+//                    }
+//                    .addOnFailureListener { exception ->
+//                        // Handle failure
+//                    }
+//            },
+//
+//        )
+//
+//        autoCompleteTextView.setOnEditorActionListener { _, actionId, event ->
+//            val isEnterPressed = actionId == EditorInfo.IME_ACTION_SEARCH ||
+//                    actionId == EditorInfo.IME_ACTION_DONE ||
+//                    (event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER)
+//            if (isEnterPressed) {
+//                if (searchLatitude != null && searchLongitude != null) {
+//                    moveMapCameraTo(searchLatitude!!, searchLongitude!!)
+//                }
+//                autoCompleteTextView.clearFocus()
+//                autoCompleteTextView.clearComposingText()
+//                autoCompleteTextView.text = null
+//
+//                true // Consume the event.
+//            } else {
+//                false
+//            }
+//        }
+//    }
+//
+//    private fun moveMapCameraTo(latitude: Double, longitude: Double) {
+//        val latLng = LatLng(latitude, longitude)
+//        val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15f)
+//        mMap.animateCamera(cameraUpdate)
+//    }
+//
+//
+//    private fun updateProfile(){
+//        val sign_in_button = findViewById<Button>(R.id.sign_in_button)
+//        val profile_button = findViewById<ImageView>(R.id.map_activity_profile_button)
+//        if (UserCredentialManager.isLoggedIn(this)) {
+//            sign_in_button.visibility = View.GONE
+//            profile_button.visibility = View.VISIBLE
+//            val (username, profilePicture) = UserCredentialManager.getUserProfile(this)
+//            Glide.with(this)
+//                .load(profilePicture)
+//                .into(profile_button)
+//            profile_button.setOnClickListener {
+//                startActivity(Intent(this, ProfileActivity::class.java))
+//            }
+//        }
+//        else{
+//            sign_in_button.visibility = View.VISIBLE
+//            profile_button.visibility = View.GONE
+//        }
+//    }
+//
+//    private fun handleSignIn(result: GetCredentialResponse) {
+//        val credential = result.credential
+//        if (credential !is CustomCredential || credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+//            Log.e(TAG, "Unexpected type of credential")
+//            return
+//        }
+//
+//        try {
+//            val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
+//            googleCredential.displayName?.let { username ->
+//                UserCredentialManager.saveUserProfile(this@MapsActivity, username, googleCredential.profilePictureUri.toString())
+//            }
+//            sendSignInRequest(googleCredential.idToken)
+//        } catch (e: GoogleIdTokenParsingException) {
+//            Log.e(TAG, "Received an invalid google id token response", e)
+//        }
+//    }
+//
+//    private fun sendSignInRequest(token: String) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+//                != PackageManager.PERMISSION_GRANTED) {
+//
+//                ActivityCompat.requestPermissions(
+//                    this,
+//                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+//                    1
+//                )
+//            }
+//        }
+//        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+//            if (!task.isSuccessful) {
+//                // Handle failure
+//                Log.w("Firebase", "Fetching FCM registration token failed", task.exception)
+//            }
+//            else {
+//                val body = JSONObject()
+//                    .put("googleToken", token)
+//                    .put("firebaseToken", task.result)
+//                    .toString()
+//
+//                lifecycleScope.launch {
+//                    val response = HTTPRequest.sendPostRequest(
+//                        "${BuildConfig.SERVER_ADDRESS}/user/auth",
+//                        body,
+//                        this@MapsActivity
+//                    )
+//                    Log.d(TAG, "sendPostRequest: $response")
+//                    if (response != null) {
+//                        val signInResponse = Gson().fromJson(response, SignInResponse::class.java)
+//                        JwtManager.saveToken(this@MapsActivity, signInResponse.token)
+//                        val userID = signInResponse.userID
+//                        UserCredentialManager.saveUserId(this@MapsActivity, userID)
+//                        updateProfile()
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    @SuppressLint("PotentialBehaviorOverride")
+//    override fun onMapReady(googleMap: GoogleMap) {
+//        mMap = googleMap
+//        clusterHelper = MapClusterHelper(this, mMap)
+//        googleMap.setOnCameraIdleListener {
+//            clusterHelper.getPostsOnScreen(googleMap, userPostOnly)
+//        }
+//
+//        if (LocationPermission.checkLocationPermission(this)) {
+//            mMap.isMyLocationEnabled = true
+//            getUserLocation()
+//
+//        }
+//
+//        mMap.setOnMarkerClickListener { marker ->
+//            Toast.makeText(this, "Loading post...", Toast.LENGTH_SHORT).show()
+//            val tag = marker.tag
+//            Log.d(TAG, "Marker clicked: $tag")
+//            if (tag is String) {
+//                Log.d(TAG, "Single post clicked: $tag")
+//                // TODO: Open post details using tag (post ID)
+//            } else if (tag is List<*>) {
+//                Log.d(TAG, "Aggregated marker clicked with ${tag.size} posts")
+//                // TODO: Handle aggregated marker click (e.g., zoom in or show list)
+//            }
+//            if((tag as List<PostItemRaw>).size == 1){
+//                PostHelper.showPostActivity(tag[0], this@MapsActivity)
+//
+//            }
+//            else{
+//                clusterHelper.showClusterDialog(tag as List<PostItemRaw>)
+//            }
+//            true
+//        }
+//    }
 
 }
 
