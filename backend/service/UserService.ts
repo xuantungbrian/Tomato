@@ -22,7 +22,11 @@ export class UserService {
             return null
         }
         try {
-            const newUser: IUser = new UserModel({ _id: id, username: name, firebaseToken })
+            const newUser = new UserModel({ 
+                _id: id, 
+                username: name, 
+                firebaseToken: [firebaseToken]
+              });
             return await newUser.save()
         } catch (error: unknown) {
             if (error instanceof Error) {

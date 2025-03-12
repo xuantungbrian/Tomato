@@ -1,4 +1,4 @@
-import { Document, model, Schema } from 'mongoose';
+import { Document, model, Model, Schema } from 'mongoose';
 
 /**
  * Interface for User object
@@ -16,4 +16,4 @@ const UserModelSchema = new Schema<IUser>({
 });
  
  
-export const UserModel = model<IUser>("User", UserModelSchema);
+export const UserModel: Model<IUser>  = model<IUser>("User", UserModelSchema);
