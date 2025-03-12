@@ -9,6 +9,7 @@ import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
@@ -22,9 +23,13 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import kotlinx.coroutines.launch
+import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+/**
+ * Activity for choosing a location for a post to be uploaded.
+ */
 class ChooseLocationActivity : ComponentActivity() {
     private lateinit var placesClient: PlacesClient
     private lateinit var sessionToken: AutocompleteSessionToken
@@ -107,11 +112,13 @@ class ChooseLocationActivity : ComponentActivity() {
                 Toast.makeText(this@ChooseLocationActivity, "Please select a location", Toast.LENGTH_SHORT).show()
             }
         }
+
+        val backButton = findViewById<ImageView>(R.id.choose_location_back)
+        backButton.setOnClickListener {
+            finish()
+        }
     }
 
-    /**
-     * Obtain user's current location (latitude, longitude).
-     */
     private suspend fun getCurrentLocation(): Pair<Double, Double> {
         return suspendCoroutine { continuation ->
             val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -120,28 +127,25 @@ class ChooseLocationActivity : ComponentActivity() {
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
-                continuation.resume(Pair(0.0, 0.0))  // Return fallback values if permission is not granted
-                return@suspendCoroutine
+                continuation.resumeWith(Result.success(Pair(0.0, 0.0)))
             }
-
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener { location: Location? ->
-                    if (location != null) {
-                        continuation.resume(Pair(location.latitude, location.longitude))
-                    } else {
-                        continuation.resume(Pair(0.0, 0.0))  // Fallback location
+            else{
+                fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+                        if (location != null) {
+                            continuation.resume(Pair(location.latitude, location.longitude))
+                        } else {
+                            continuation.resume(Pair(0.0, 0.0))  // Fallback location
+                        }
                     }
-                }
-                .addOnFailureListener { exception ->
-                    Log.e("LocationError", "Failed to get location: ${exception.message}")
-                    continuation.resume(Pair(0.0, 0.0))  // Return fallback values on failure
-                }
+                    .addOnFailureListener { exception ->
+                        Log.e("LocationError", "Failed to get location: ${exception.message}")
+                        continuation.resume(Pair(0.0, 0.0))  // Return fallback values on failure
+                    }
+            }
         }
     }
 
-    /**
-     * Translate latitude and longitude to address and display it to the user.
-     */
     private fun getLocationFromCoordinates(latitude: Double, longitude: Double): String {
         val geocoder = Geocoder(this, java.util.Locale("en", "US"))
         try {
@@ -156,8 +160,12 @@ class ChooseLocationActivity : ComponentActivity() {
                     Log.e("GeocoderError", "No address found for this location.")
                 }
             }
-        } catch (e: Exception) {
-            Log.e("GeocoderError", "Error fetching address: ${e.message}")
+        } catch (e: IOException) {
+            Log.e("GeocoderError", "Network or service issue: ${e.message}")
+        } catch (e: IllegalArgumentException) {
+            Log.e("GeocoderError", "Invalid latitude or longitude: ${e.message}")
+        } catch (e: SecurityException) {
+            Log.e("GeocoderError", "Missing location permissions: ${e.message}")
         }
         return ""
     }

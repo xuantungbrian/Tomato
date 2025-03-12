@@ -1,7 +1,12 @@
 import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import java.io.IOException
+import java.security.GeneralSecurityException
 
+/**
+ * Class for managing JWT tokens (authentication).
+ */
 object JwtManager {
     private const val PREFS_NAME = "secure_prefs"
     private const val JWT_KEY = "jwt_token"
@@ -26,7 +31,11 @@ object JwtManager {
             )
             return sharedPreferences.getString(JWT_KEY, null)
         }
-        catch (e: Exception){
+        catch (e: GeneralSecurityException) {
+            e.printStackTrace()
+            return null
+        } catch (e: IOException) {
+            e.printStackTrace()
             return null
         }
     }

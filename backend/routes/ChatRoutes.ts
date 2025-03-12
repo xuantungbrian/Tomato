@@ -7,36 +7,42 @@ export const ChatRoutes = [
         method: "get",
         route: "/chats",            
         action: chatController.getChats,
-        validation: []
+        validation: [],
+        protected: true
     },
     {
         method: "get",
         route: "/chats/:id",    
         action: chatController.getChatMessages,
-        validation: []
+        validation: [],
+        protected: true
     },
     {
         method: "post",
         route: "/chats",             
         action: chatController.createChat,
-        validation: []
+        validation: [],
+        protected: true
     },
     {
         method: "post",
         route: "/chat/:id",          
         action: chatController.addMessage,
-        validation: []
+        validation: [],
+        protected: true
     },
     {
         method: "delete",
         route: "/chats/:id",          
         action: chatController.deleteChat,
-        validation: []
+        validation: [],
+        protected: true
     },
     {
         method: "delete",
         route: "/chat/:id/messages/:message_id",   
         action: chatController.deleteMessage,
-        validation: []
+        validation: [],
+        protected: true
     }
 ]

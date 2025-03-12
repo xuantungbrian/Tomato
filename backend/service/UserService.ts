@@ -6,9 +6,9 @@ const client = new OAuth2Client(process.env.WEB_CLIENT_ID);
 
 export class UserService {
 
-    async createUser(id: string, name: string) {
+    async createUser(id: string, name: string, firebaseToken: String) {
         try {
-            const newUser = new UserModel({ _id: id, name })
+            const newUser = new UserModel({ _id: id, username: name, firebaseToken })
             return newUser.save()
         } catch(error) {
             console.error("Error creating user:", error);
@@ -18,6 +18,8 @@ export class UserService {
 
     async getUser(id: string) {
         try {
+            let user = await UserModel.findById(id)
+            console.log("USER: ", user) 
             return UserModel.findById(id)
         } catch(error) {
             console.error("Error getting user:", error);
@@ -25,7 +27,7 @@ export class UserService {
         }
     }
 
-    async signInWithGoogle(googleToken: String){
+    async signInWithGoogle(googleToken: String, firebaseToken: string){
         // Verify Google token
         const ticket = await client.verifyIdToken({
             idToken: googleToken.replace('Bearer ', ''),
@@ -40,10 +42,15 @@ export class UserService {
 
         // Check if user exists, otherwise create a new one
         let user = await this.getUser(payload.sub);
-        console.log("USER: ", user)
+    
         if (!user) {
-            user = await this.createUser(payload.sub, payload.name);
+            user = await this.createUser(payload.sub, payload.name, firebaseToken);
             console.log("CREATED NEW USER")
+        } else {
+            if (!user.firebaseToken.includes(firebaseToken)) {
+                user.firebaseToken.push(firebaseToken);
+                user.save(); //TODO: Need to invalidate the token when user sign out
+            }            
         }
 
         // Generate JWT
@@ -51,8 +58,10 @@ export class UserService {
             expiresIn: "999d",
             algorithm: "HS256"
         });
+        let userID = user!._id
 
-        return { token: jwtToken, user };
+
+        return { token: jwtToken, userID };
     }
 
 }

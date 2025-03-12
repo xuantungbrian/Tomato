@@ -5,10 +5,11 @@ import connectDB  from "./db";
 import morgan from 'morgan'
 import verifyToken from './middleware/verifyToken'
 import UploadFile from './middleware/UploadFile';
-import { FileRoutes } from './routes/FileRoutes';
 import { UserRoutes } from './routes/UserRoutes';
 import { ChatRoutes } from './routes/ChatRoutes';
 import { config } from 'dotenv';
+import startWSS from './wss';
+import { RecommendationRoutes } from './routes/RecommendationRoutes';
 config();
 
 const app = express();
@@ -22,7 +23,7 @@ app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
 });
 
-const allRoutes = [...PostRoutes, ...FileRoutes, ...UserRoutes, ...ChatRoutes]
+const allRoutes = [...PostRoutes, ...UserRoutes, ...ChatRoutes, ...RecommendationRoutes]
 allRoutes.forEach((route) => {
     const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
 
@@ -50,6 +51,7 @@ const PORT = Number(process.env.PORT) || 3000
 
 connectDB().then(() => {
     app.listen(PORT, '0.0.0.0' as any, () => {
+        startWSS()
         console.log(`Server is running on port ${PORT}`);
       });
 

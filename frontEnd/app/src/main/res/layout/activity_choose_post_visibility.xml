@@ -15,23 +15,30 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/topBarHeight"
             android:background="@color/tomatoRed"
             android:orientation="horizontal">
 
+            <ImageView
+                android:id="@+id/choose_post_visibility_back"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.3"
+                app:srcCompat="@drawable/back"
+                app:tint="@color/white" />
 
             <TextView
-                android:id="@+id/textView3"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="Edit Post Visibility"
+                android:text="Choose Post Visibility"
                 android:textColor="@color/white"
                 android:textSize="@dimen/topBarFontSize"
-                android:textStyle="bold"
-                android:layout_marginStart="@dimen/topBarMarginStart"/>
+                android:textStyle="bold" />
 
         </LinearLayout>
 

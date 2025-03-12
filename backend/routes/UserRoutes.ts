@@ -11,4 +11,11 @@ export const UserRoutes = [
         action: userController.handleGoogleSignIn,
         validation: []
     },
+
+    {
+        method: "get",
+        route: "/user/:id",    
+        action: userController.getUser,
+        validation: []
+    }
 ]

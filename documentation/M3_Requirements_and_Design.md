@@ -1,10 +1,31 @@
 # M3 - Requirements and Design
 
 ## 1. Change History
-<!-- Leave blank for M3 -->
+- 3.4 Non Functional Requirement: 2/22/2025
+      - We previously mentioned that there must never be more than 10 pins on the map at any given time to avoid cluttering the map. However, removing pins from the map/limiting them will definitely make the app lose information and users would suffer from that loss of information. Therefore, we make it less restrictive where pins must not block other pins making them unclickable -- If they are too close together, cluster them into a single clickable pin. Using this clustering algorithm, we could obtain the original goal of avoiding cluttering the map while also preserving information for the users.
+|
+- 3.3 Functional Requirements (Recommendation): 3/1/2025
+      - The recommendation was originally thought to be part of a filter, where user can opt to show or don't show the recommended posts on the map. However, we then realize the control is too cluttered if recommendation is in the filter. It would have a better separation of concern if there is a dedicated recommendation section that shows all recommended posts for the user, and this will be located in the Profile Page.
+- 4.1 Main Components: 2/25/2025 
+      - Previously, to obtain posts, there were only single /posts routes and this includes obtaining private and public posts. However, this is unsecure because users may exploit this by changing query param and obtain private posts of others. Therefore, we separate posts into /posts and /posts-authenticated where /posts is used by non-authenticated user and can only obtain public posts. On the other hand, /posts-authenticated can be used to obtain private posts but only the posts from the requesting user.
+
+- 3.3 Functional Requirements (Chat): 3/2/2025 
+      - To trigger chat, previously we named the button as "Chat", but we think it would be more descriptive to rename it as "Send Message".
+
+- 4.1. Main Components: 3/1/2025 
+      - The interfaces in each of the main components were changed to accurately reflect the names and functionalities present in the code we are now using as these are more in depth than those that were present before.
+      - The purpose for the Recommendation component was changed to accurately reflect the methodology we are currently using to recommend locations.
+- 4.2. Databases: 3/1/2025 
+      - The MessageDB was added and the description for ChatDB to accurately reflect how we decided to store chatrooms and messages in seperate databases to make the databases more organized.
+- 4.8. Main Project Complexity Design: 3/1/2025 22:29
+      - The recommendation algorithm was changed in the documentation to reflect how it currently works in the code we are using, as this differs from the original algorithm we had in mind as we found that the current algorithm yields more relevant results. Previously our algorithm focused more on the distance between the locations of different posts and suggests location nearby to posts the requesting user has made in the past, however now we focus more on the similarity between users by way of post location similarity and prioritize suggesting locations that similar users have been to.
+- 3.1. Use-Case Diagram: 3/1/2025 
+      - We changed the diagram so that the Search Locations and Display Map no longer include Login User as we realized that users that have not yet been logged in should be able to access these functionalities.
+- 3.3 - Functional Requirements (Display Map): 3/2/2025
+      - Previously when user didn't grant the app location permission, the app would bring the view to Vancouver as default view. However, we changed this and set latitude longitude (0, 0) as the default view. This is because setting Vancouver as the default view seems like a very biased decision (especially if users are not based in Canada), hence we used (0, 0) which is the default location for a lot of location-based apps. 
 
 ## 2. Project Description
-Our app allows people to keep a history of all the places they have traveled to and thus acts as a travel advisory for others and a travel journal for themselves. Our target audience is young people who like to travel and take photos. Such users typically will have a large amount of photos compiled chronologically in a photo app i.e. Google Photos, but without much sense of where they were taken. As such, our solution involves viewing and navigating around a map with pins that show the user’s past images, as well as small optional notes that they can add. Furthermore, users can receive recommendations for future travel locations based on their travel history. When viewing other people's notes, they can optionally chat with the person taking a photo to ask about the logistics of traveling there (i.e. Do they accept cash? How much equipment did you bring?)
+Our app allows people to keep a history of all the places they have traveled to and thus acts as a travel advisory forf others and a travel journal for themselves. Our target audience is young people who like to travel and take photos. Such users typically will have a large amount of photos compiled chronologically in a photo app i.e. Google Photos, but without much sense of where they were taken. As such, our solution involves viewing and navigating around a map with pins that show the user’s past images, as well as small optional notes that they can add. Furthermore, users can receive recommendations for future travel locations based on their travel history. When viewing other people's notes, they can optionally chat with the person taking a photo to ask about the logistics of traveling there (i.e. Do they accept cash? How much equipment did you bring?)
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram**
@@ -31,12 +52,12 @@ Our app allows people to keep a history of all the places they have traveled to 
                 2. App successfully connects to Google Maps API
                 3. App opens the map to the user’s general location
             - **Failure scenario(s)**:
-                - a1. User has not allowed the app to see their location
-                    - a1a. Makes a request to the user to allow the app to access their location
-                    - a1b. If users agrees, the map will open showing the user’s general location
-                    - a1c. Otherwise opens the map to Vancouver as opposed to their current location
-                - b1. Google Maps API is not available
-                    - b1a. A toast will appear telling the user that Google Maps is unavailable and to try again later
+                - 1a. User has not allowed the app to see their location
+                    - 1a1. Makes a request to the user to allow the app to access their location
+                    - 1a2. If users agrees, the map will open showing the user’s general location
+                    - 1a3. Otherwise opens the map to latitude longitude (0, 0) as opposed to their current location
+                - 2a. Google Maps API is not available
+                    - 2a1. A toast will appear telling the user that Google Maps is unavailable and to try again later
 
         2. **Displays posted pictures as pins on the map**
             - **Description**: Displays pictures posted by the user and others users as pins on the map
@@ -45,9 +66,9 @@ Our app allows people to keep a history of all the places they have traveled to 
                 1. App displays all the posts as pins on the map
                 2. App allows the users to scroll to different areas and view more posts
             - **Failure scenario(s)**:
-                - a1. Unable to retrieve posts
-                    - a1a. If the user is yet to post anything, the map opens as is with no pins
-                    - a1b. Else if the user’s posts were not able to retrieved from the database, a toast will appear telling the user that the posts were unable to be retrieved and to try again later
+                - 1a. Unable to retrieve posts
+                    - 1a1. If the user is yet to post anything, the map opens as is with no pins
+                    - 1a2. Else if the user’s posts were not able to retrieved from the database, a toast will appear telling the user that the posts were unable to be retrieved and to try again later
 
 2. **Login User**
     - **Overview**:
@@ -63,9 +84,9 @@ Our app allows people to keep a history of all the places they have traveled to 
                 3. User enters their account information and signs in
                 4. App continues as normal
             - **Failure scenario(s)**:
-                - c1. User is unable to login
-                    - c1a. A toast appears telling the user they were unable to login, along with the reason why and to try again
-                    - c1b. User can try again later after fixing the problem
+                - 3a. User is unable to login
+                    - 3a1. A toast appears telling the user they were unable to login, along with the reason why and to try again
+                    - 3a2. User can try again later after fixing the problem
  
 3. **Manage Posts**
     - **Overview**:
@@ -86,12 +107,12 @@ Our app allows people to keep a history of all the places they have traveled to 
                 4. User confirms that they want to create the post
                 5. App shows the newly created post as a pin on the map
             - **Failure scenario(s)**:
-                - b1. Could not access the user’s gallery
-                    - b1a. Makes a request to the user to allow the app to access their photos
-                    - b1b. If users agrees, the other steps will carry on as normal
-                    - b1c. Otherwise a toast will appear telling the user that it cannot add a picture without gallery permissions
-                - e1. Post could not be created
-                    - e1a. A toast will appear telling the user that a post was unable to created at this time along with the reason why
+                - 2a. Could not access the user’s gallery
+                    - 2a1. Makes a request to the user to allow the app to access their photos
+                    - 2a2. If users agrees, the other steps will carry on as normal
+                    - 2a3. Otherwise a toast will appear telling the user that it cannot add a picture without gallery permissions
+                - 5a. Post could not be created
+                    - 5a1. A toast will appear telling the user that a post was unable to created at this time along with the reason why
 
         2. **Delete Posts**
             - **Description**: Allows user to delete posts from their map that they no longer want to see
@@ -102,10 +123,10 @@ Our app allows people to keep a history of all the places they have traveled to 
                 3. User confirms that they want to delete the post
                 4. App removes the delete post as a pin on the map 
             - **Failure scenario(s)**:
-                - a1. Post could not be fetched
-                    - a1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
-                - d1. Post could not be deleted
-                    - d1a. A toast will appear telling the user that the post was unable to delete at this time along with the reason why
+                - 1a. Post could not be fetched
+                    - 1a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
+                - 4a. Post could not be deleted
+                    - 4a1. A toast will appear telling the user that the post was unable to delete at this time along with the reason why
 
         3. **Update Posts**:
             - **Description**: User is able to update an existing post by changing the picture or description
@@ -118,14 +139,14 @@ Our app allows people to keep a history of all the places they have traveled to 
                 5. User confirms that they want to update the post
                 6. App shows the newly updated post on the map
             - **Failure scenario(s)**:
-                - a1. Post could not be fetched
-                    - a1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
-                - c1. Could not access the user’s gallery
-                    - c1a. Makes a request to the user to allow the app to access their photos
-                    - c1b. If users agrees, the other steps will carry on as normal
-                    - c1c. Otherwise a toast will appear telling the user that it cannot add a picture without gallery permissions
-                - f1. Post could not be updated
-                    - f1a. A toast will appear telling the user that the post was unable to updated at this time along with the reason why
+                - 1a. Post could not be fetched
+                    - 1a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
+                - 3a. Could not access the user’s gallery
+                    - 3a1. Makes a request to the user to allow the app to access their photos
+                    - 3a2. If users agrees, the other steps will carry on as normal
+                    - 3a3. Otherwise a toast will appear telling the user that it cannot add a picture without gallery permissions
+                - 6a. Post could not be updated
+                    - 6a1. A toast will appear telling the user that the post was unable to updated at this time along with the reason why
 
         4. **View Posts**:
             - **Description**: User is able to view an existing post
@@ -134,8 +155,8 @@ Our app allows people to keep a history of all the places they have traveled to 
                 1. User clicks on the pin of post they want to view
                 2. User is able to see the post and the description of the post
             - **Failure scenario(s)**:
-                - b1. Post could not be fetched
-                    - b1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
+                - 2a. Post could not be fetched
+                    - 2a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
 
 4. **Search Locations**
     - **Overview**:
@@ -151,8 +172,8 @@ Our app allows people to keep a history of all the places they have traveled to 
                 3. User clicks on the Search icon
                 4. App displays all the available posts in that area on the map
             - **Failure scenario(s)**:
-                - d1. Posts could not be fetched
-                    - d1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
+                - 4a. Posts could not be fetched
+                    - 4a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
 
 5. **Get Location Recommendations**
     - **Overview**:
@@ -163,14 +184,13 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Description**: Shows the user similar places to go to based on their previous travels and searches
             - **Primary actor(s)**: User, Google Maps API
             - **Main success scenario**:
-                1. User clicks on the Suggest a Location button
-                2. User specifies whether it should be nearby or anywhere
-                3. App returns a popup of a description of the suggested location
-                4. User clicks away from the popup
-                5. App navigates to the location on the map and shows posts from users who have been there
+              1. User opens Profile Page.
+              2. The loading bar will spin, waiting to fetch the recommendation for the user.
+              3. Recommendation posts will be displayed on the Recommendation section, located under "Your Post" section.
+              4. Each recommendation is clickable and will bring the user to the detail of the post.
             - **Failure scenario(s)**:
-                - e1. Posts could not be fetched
-                    - e1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
+                - 5a. Posts could not be fetched
+                    - 5a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
 
 6. **Chat**
     - **Overview**:
@@ -184,16 +204,16 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Primary actor(s)**: User, Google Maps API 
             - **Main success scenario**:
                 1. User clicks on the pin of another user’s post
-                2. User clicks on the Chat button
+                2. User clicks on the Send Message button
                 3. App creates a new chat room with both users in it
                 4. User sends a message to the other user
             - **Failure scenario(s)**:
-                - a1. Post could not be fetched
-                    - a1a. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
-                - c1. Unable to create a new chat room
-                    - c1a. A toast will appear telling the user that a new chat room was unable to created at this time along with the reason why
-                - d1. Unable to send message
-                    - d1a. A toast will appear telling the user that a message was unable to sent at this time along with the reason why
+                - 1a. Post could not be fetched
+                    - 1a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
+                - 3a. Unable to create a new chat room
+                    - 3a1. A toast will appear telling the user that a new chat room was unable to created at this time along with the reason why
+                - 4a. Unable to send message
+                    - 4a1. A toast will appear telling the user that a message was unable to sent at this time along with the reason why
 
         2. **Start new chat from Chat activity**
             - **Description**: Allows user to start a new chat with a user from the Chat activity page
@@ -206,12 +226,12 @@ Our app allows people to keep a history of all the places they have traveled to 
                 5. App creates a new chat room with both users in it
                 6. User sends a message to the other users
             - **Failure scenario(s)**:
-                - c1. Unable to fetch users
-                    - c1a. A toast will appear telling the user that a list of users was not able to retrieved at this time along with the reason why
-                - e1. Unable to create a new chat room
-                    - e1a. A toast will appear telling the user that a new chat room was unable to created at this time along with the reason why
-                - f1. Unable to send message
-                    - f1a. A toast will appear telling the user that a message was unable to sent at this time along with the reason why
+                - 3a. Unable to fetch users
+                    - 3a1. A toast will appear telling the user that a list of users was not able to retrieved at this time along with the reason why
+                - 5a. Unable to create a new chat room
+                    - 5a1. A toast will appear telling the user that a new chat room was unable to created at this time along with the reason why
+                - 6a. Unable to send message
+                    - 6a1. A toast will appear telling the user that a message was unable to sent at this time along with the reason why
 
 
         3. **View existing chat**:
@@ -223,17 +243,17 @@ Our app allows people to keep a history of all the places they have traveled to 
                 3. User clicks on the chat they want to view
                 4. App opens that chat with all its messages
             - **Failure scenario(s)**:
-                - b1. Unable to fetch chats
-                    - b1a. A toast will appear telling the user that a list of chats was not able to retrieved at this time along with the reason why
-                - d1. Unable to fetch messages
-                    - d1a. A toast will appear telling the user that the chat’s messages were not able to retrieved at this time along with the reason why
+                - 2a. Unable to fetch chats
+                    - 2a1. A toast will appear telling the user that a list of chats was not able to retrieved at this time along with the reason why
+                - 4a. Unable to fetch messages
+                    - 4a1. A toast will appear telling the user that the chat’s messages were not able to retrieved at this time along with the reason why
 
 ### **3.4. Non-Functional Requirements**
 <a name="nfr1"></a>
 
-1. **No more than 10 pins on the screen at any time**
-    - **Description**: No more than 10 pins will be shown on a user’s map at any given time.
-    - **Justification**: This allows for there to be less clutter on the screen if the user posts many images.
+1. **Pins of other posts must not prevent other pins' clickablity**
+    - **Description**:, If posts are close together and hard to click, they must be grouped into a single clickable pin.
+    - **Justification**:  When multiple posts are close, it is natural that the pins will cover each other and would block other pins making them hard to click or worse not clickable at all. This must be resolved with clustering algorithm 
 2. **At most 4 clicks to access any of the use cases**
     - **Description**: No more than 4 clicks are necessary to access any of the main use cases
     - **Justification**: This allows for the user to navigate the app easily and makes every use case within a comfortable reach from the user.
@@ -243,51 +263,62 @@ Our app allows people to keep a history of all the places they have traveled to 
 1. **User**
     - **Purpose**: Manages user authentication and user data.
     - **Rationale**: Our backend may involve repetitive operations on querying User's database. This module provides a wrapper to the query and aligns with Dont Repeat Yourself principle.
-
-
     - **Interfaces**: 
-        1. `public static bool authenticateUser (String token)`
+        1. `public static bool signInWithGoogle(String token)`
             - **Purpose**: Verifies user's Google ID token. Returns true If user is successfully authenticated, otherwise returns false.
         2. `public static User getUser(String userID)`
             - **Purpose**: Wrapper for database query to get User information, given userID.
+        3. `public static User createUser(User new_user)`
+            - **Purpose**: Adds a new user the application and saves the user in the database.
 
 
 2. **Post**
     - **Purpose**: Manages posts data and allows posts retrieval based on location range or user's map view.
     - **Rationale**: Post is the main contents of our app, defining a "Post" component that interacts specificly with Post promotes Single Responsibility Principle.
     - **Interfaces**: 
-        1. `public static String uploadPost (String userID, String description, Location location, List<Image> images, bool isPrivate)`
-            - **Purpose**: upload post where user explicitly provides the locations associated to the images. If isPrivate is True, the post is only visible to the user, otherwise it's visible to the public
-
-        2. `public static String uploadImages (String userID, List<Image> images, bool private)`
-            - **Purpose**: upload image-only posts where the location data is automatically parsed from the image. 
-
-        3. `public static bool editPost (String postID, List<Image> newImages, String newDescription)`
+        1. `public static String createPost(Post post)`
+            - **Purpose**: creates and uploads a post where user explicitly provides the locations associated to the images. If isPrivate is True, the post is only visible to the user, otherwise it's visible to the public
+        2. `public static bool updatePost(String postID, Post new_post)`
             - **Purpose**: edit a post.
-
-        4. `public static List<Post> getPostNearLocation (Location location, double radius)`
-            - **Purpose**: retrieve all public posts that are centered at "location" and are within "radius" meter from it.
-
-        5. `public static List<Post> getPostFromMapView (MapBoundary mapBoundary)`
-            - **Purpose**: retrieve all public posts based on the given map boundary, which includes min & max latitude and longtitude of the given map's view.
+        3. `public static bool deletePost(String postID)`
+            - **Purpose**: deletes a post.     
+        4. `public static List<Post> getPostsAtLocation(int latitude, int longitude)`
+            - **Purpose**: retrieve all posts that are at the specific location, shown by the latitude and longitude.
+        5. `public static List<Post> getPublicPost(int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
+            - **Purpose**: retrieve all public posts based on the given map boundary.
+        6. `public static List<Post> getPostById(String post_id)`
+            - **Purpose**: retrieve the post with the given id.
+        7. `public static List<Post> getPosts(int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
+            - **Purpose**: retrieve all posts based on the given map boundary.
+        8. `public static List<Post> getUserPost(String userId, bool userPostOnly, int start_latitude, int end_latitude, int start_longitude, int end_longitude)`
+            - **Purpose**:  If userPostOnly is true, retrieves all posts belonging to the user within the given region. If it's false, retrieves all posts that are viewable to the user in that region.
+        9. `public static List<Post> getEveryPost()`
+            - **Purpose**: retrieve all posts.
 
 3. **Chat**
     - **Purpose**: Manages chat data and sends user a notification on new message.
     - **Rationale**: Chat is defined as its own component, as chat is a specific feature of our app. Separating this from User or Post component aligns with Single Responsibility Principle
-    
-
     - **Interfaces**: 
-        1. `public static void sendMessage (String senderUserID, String receiverUserID String message)`
-            - **Purpose**: Send message.
-        2. `public static List<ChatMessage> getMessageHistory(String chatID)`
+        1. `public static ChatMessage addMessage(String chatroom_id, String sender, String message)`
+            - **Purpose**: Send message and add it to the database.
+        2. `public static List<ChatMessage> getChatMessages(String chatID)`
             - **Purpose**: Retrieve chat history for a particular chat.
+        3. `public static Chat createChat(String member_1, String member_2)`
+            - **Purpose**: Creates a new chat between two users, returns the existing chat if one already exists between two users.
+        4. `public static Chat getChat(String userId)`
+            - **Purpose**: Retrieves all chats that a user is apart of.
+        5. `public static Chat deleteChat(String chatId)`
+            - **Purpose**: Deletes a chat with the given id.
+        6. `public static ChatMessage deleteChat(String chatId)`
+            - **Purpose**: Deletes a message with the given id.
+
 
 4. **Recommendation System**
-    - **Purpose**: Recommend posts based on user's history or current trend.
+    - **Purpose**: Recommend posts based on user's similarity compared to other users and current trends.
     - **Rationale**: Recommendation system is made as its own component for better separation of concern in developing recommendation system algorithm.
     - **Interfaces**: 
-        1. `public static List<Post> getPostRecommendation(String userID, Location userLocation)`
-            - **Purpose**: Recommend posts based on user's travel history and user's current location. 
+        1. `public static List<Post> getRecommendation(String userID, int max)`
+            - **Purpose**: Recommend posts based on user's travel history. 
 
 
 
@@ -297,6 +328,8 @@ Our app allows people to keep a history of all the places they have traveled to 
 2. **PostDB**
     - **Purpose**: Stores database of posts, where a post represents a list of images associated to a location with an optional description.
 3. **ChatDB**
+    - **Purpose**: Stores user chatrooms.
+4. **MessageDB**
     - **Purpose**: Stores chat messages.
 
 ### **4.3. External Modules**
@@ -312,6 +345,7 @@ Our app allows people to keep a history of all the places they have traveled to 
 
 3. **Google Map API** 
     - **Purpose**: Render map with posts pinpointed on it.
+
 4. **FireBase Cloud Messaging** 
     - **Purpose**: Notify users of new chat messages.
 
@@ -357,74 +391,62 @@ Our app allows people to keep a history of all the places they have traveled to 
 ### **4.8. Main Project Complexity Design**
 **Suggestion Algorithm**
 - **Description**: The suggestion algorithm will suggest new locations with corresponding pins with pictures of those locations appearing on the map, if the suggestion feature is enabled.
-- **Why complex?**: The suggestion algorithm will work on centroids, determined using K-means clustering, showing general areas where the user has been, and subsequently suggest other centroids that the user has not been to, based on "popularity" of the centroid and proximity to the user.
+- **Why complex?**: The algorithm contains nested loops and specialized calls to the database that had to be designed specifically for this suggestion algorithm.
 - **Design**:
-    - **Input**: User's past visited locations, popularity of non-visited locations, proximity to user's past locations
+    - **Input**: Requesting user's id, number of locations to suggest
     - **Output**: A list of pins corresponding to recommended locations
-    - **Main computational logic**: Firstly to cluster the user's existing memories and store the location of those centroids. Subsequently, the total information of other users will be used to generate more centroids, whose proximity to the user will be calculated and ranked before suggesting.
+    - **Main computational logic**: The suggestion algorithm pick locations to suggest based off of the post of other users and how similar those users posts were to the requesting user's posts. The most popular locations amongst the most similar users will be then suggested to the user.
     - **Pseudo-code**: 
         ```
-        FUNCTION suggest_locations(past_memories, current_location, radius_of_interest, num_clusters, novelty_weight, proximity_weight):
-            // Step 1: Cluster past memories
-            clusters = CLUSTER(past_memories, num_clusters)  // e.g., using K-Means
-            centroids = CALCULATE_CENTROIDS(clusters)
+        FUNCTION get_recommendations(user_id, num_locations):
+            // Step 1: Get User Post Locations
+            user_post_locations = GET_USER_POST_LOCATIONS_FROM_ID(user_id)
 
-            // Step 2: Generate candidate locations
-            candidate_locations = GENERATE_CANDIDATES(current_location, radius_of_interest)
+            // Step 2: Get similar users
+            similar_users = []
+            FOR location IN user_post_locations:
+                similar_user_list = GET_USER_IDS_WITH_POSTS_AT_LOCATION(location)
+                APPEND similar_user_list TO similar_users
 
-            // Step 3: Filter unexplored locations
-            unexplored_locations = []
-            FOR location IN candidate_locations:
-                IF IS_UNEXPLORED(location, centroids, min_distance=20):
-                    unexplored_locations.APPEND(location)
+            // Step 3: Get most similar users
+            most_similar_users = []
+            FOR 1 to 3:
+                most_similar = GET_MODE(similar_users)
+                REMOVE ALL most_similar FROM similar_user
+                APPEND most_similar TO most_similar_users
 
-            // Step 4: Rank locations by novelty and proximity
-            ranked_locations = []
-            FOR location IN unexplored_locations:
-                novelty_score = CALCULATE_NOVELTY_SCORE(location, past_memories)
-                proximity_score = CALCULATE_PROXIMITY_SCORE(location, current_location)
-                final_score = (novelty_weight * novelty_score) + (proximity_weight * proximity_score)
-                ranked_locations.APPEND((location, final_score))
+            // Step 4: Get most popular locations amongst the most similar users
+            similar_locations = []
+            FOR user IN most_similar_users:
+                APPEND GET_USER_POST_LOCATIONS_FROM_ID(user) TO similar_locations
+        
+            REMOVE ALL user_post_locations FROM similar_locations
 
             // Step 5: Sort and return top suggestions
-            ranked_locations.SORT_BY_SCORE(final_score, descending=True)
-            top_suggestions = ranked_locations.TAKE(3)  // Top 3 suggestions
+            ranked_locations = SORT_BY_MODE(similar_locations)
+            top_suggestions = ranked_locations.TAKE(num_locations)  // Take top suggestions
             RETURN top_suggestions
 
-        FUNCTION CLUSTER(past_memories, num_clusters):
-            // Use a clustering algorithm (e.g., K-Means) to group past memories
-            RETURN clusters
+        FUNCTION GET_USER_POST_LOCATIONS_FROM_ID(user_id):
+            // Gets all the locations of the posts with the given user_id from the database
+            RETURN user_post_locations
 
-        FUNCTION CALCULATE_CENTROIDS(clusters):
-            // Calculate the centroid (average latitude and longitude) of each cluster
-            RETURN centroids
+        FUNCTION GET_USER_IDS_WITH_POSTS_AT_LOCATION(location):
+            // Gets all the user ids with posts at the given location from the database
+            RETURN user_ids
 
-        FUNCTION GENERATE_CANDIDATES(current_location, radius_of_interest):
-            // Generate candidate locations within the radius of interest
-            RETURN candidate_locations
+        FUNCTION GET_MODE(array):
+            // Retrieves the value that appears the most in the array
+            RETURN most_popular
 
-        FUNCTION IS_UNEXPLORED(location, centroids, min_distance):
-            // Check if the location is far enough from all centroids
-            FOR centroid IN centroids:
-                IF DISTANCE(location, centroid) < min_distance:
-                    RETURN False
-            RETURN True
-
-        FUNCTION CALCULATE_NOVELTY_SCORE(location, past_memories):
-            // Calculate the average distance from the location to all past memories
-            total_distance = 0
-            FOR memory IN past_memories:
-                total_distance += DISTANCE(location, memory)
-            RETURN total_distance / LENGTH(past_memories)
-
-        FUNCTION CALCULATE_PROXIMITY_SCORE(location, current_location):
-            // Calculate the inverse of the distance from the location to the current location
-            distance = DISTANCE(location, current_location)
-            RETURN 1 / (distance + 1e-6)  // Avoid division by zero
-
-        FUNCTION DISTANCE(location1, location2):
-            // Calculate the geodesic distance between two (latitude, longitude) pairs
-            RETURN GEODESIC_DISTANCE(location1, location2)
+        FUNCTION SORT_BY_MODE(array):
+            // Sorts the array in descending order based on how many times they appear in the array
+            sorted_array = []
+            WHILE array IS NOT EMPTY:
+                most_popular = GET_MODE(array)
+                REMOVE ALL most_popular FROM array
+                APPEND most_popular TO sorted_array
+            RETURN sorted_array
         
         ```
 

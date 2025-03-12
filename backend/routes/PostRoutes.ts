@@ -6,9 +6,15 @@ export const PostRoutes = [
     {
         method: "get",
         route: "/posts",            
-        action: postController.getPosts,
+        action: postController.getPublicPost,
         validation: [],
-        // protected: true
+    },
+    {
+        method: "get",
+        route: "/posts-authenticated",            
+        action: postController.getAuthenticatedUserPost,
+        validation: [],
+        protected: true 
     },
     {
         method: "get",
@@ -27,12 +33,26 @@ export const PostRoutes = [
         method: "put",
         route: "/posts/:id",          
         action: postController.updatePost,
-        validation: []
+        validation: [],
+        protected: true
     },
     {
         method: "delete",
         route: "/posts/:id",          
         action: postController.deletePost,
-        validation: []
+        validation: [],
+        protected: true
     },
+    {
+        method: "get",
+        route: "/allposts",            
+        action: postController.getEveryPost,
+        validation: [],
+    },
+    {
+        method: "get",
+        route: "/posts-location",            
+        action: postController.getPostsAtLocation,
+        validation: [],
+    }
 ]
