@@ -17,10 +17,13 @@ const client: OAuth2Client = new OAuth2Client(webClientId);
 export class UserService {
 
     async createUser(id: string, name: string, firebaseToken: string): Promise<IUser|null> {
+        if(!id || !name || !firebaseToken){
+            console.warn("Invalid input")
+            return null
+        }
         try {
-            const newUser: IUser = new UserModel({ _id: id as string, username: name as string,
-                 firebaseToken: firebaseToken as string });
-            return await newUser?.save()
+            const newUser: IUser = new UserModel({ _id: id, username: name, firebaseToken })
+            return await newUser.save()
         } catch (error: unknown) {
             if (error instanceof Error) {
               console.error("Error creating user:", error.message);
@@ -38,8 +41,7 @@ export class UserService {
                 console.warn("USER NOT FOUND: ", id)
                 return null;
             }
-
-            console.log("USER: ", user)
+            console.log("USER: ", user.username)
             return user
         } catch(error) {
             console.error("Error getting user:", error);
