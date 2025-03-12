@@ -17,13 +17,10 @@ const client: OAuth2Client = new OAuth2Client(webClientId);
 export class UserService {
 
     async createUser(id: string, name: string, firebaseToken: string): Promise<IUser|null> {
-        if(typeof id !== 'string' || typeof name !== 'string' || typeof firebaseToken !== 'string'){
-            console.warn("Invalid input")
-            return null
-        }
         try {
-            const newUser: IUser = new UserModel({ _id: id, username: name, firebaseToken })
-            return await newUser.save()
+            const newUser: IUser = new UserModel({ _id: id as string, username: name as string,
+                 firebaseToken: firebaseToken as string });
+            return await newUser?.save()
         } catch (error: unknown) {
             if (error instanceof Error) {
               console.error("Error creating user:", error.message);
@@ -81,7 +78,7 @@ export class UserService {
             expiresIn: "999d",
             algorithm: "HS256"
         });
-        let userID = user?._id
+        const userID = user?._id
 
         return { token: jwtToken, userID };
     }
