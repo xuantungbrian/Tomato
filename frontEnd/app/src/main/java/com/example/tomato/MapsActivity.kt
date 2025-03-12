@@ -448,7 +448,7 @@ class MapClusterHelper(private val activity: MapsActivity,
         } else Color.YELLOW
     }
 
-    fun Int.dpToPx(context: Context): Int = (this * context.resources.displayMetrics.density).toInt()
+
 
 
     private fun createCircularBitmap(source: Bitmap, targetSize: Int): Bitmap {
@@ -501,6 +501,9 @@ class MapClusterHelper(private val activity: MapsActivity,
 
 
     fun createMarkerBitmap(image: PostImage, count: Int = 1): Bitmap {
+
+        fun Int.dpToPx(context: Context): Int = (this * context.resources.displayMetrics.density).toInt()
+
         val targetSize = postSize.dpToPx(activity)
         val imageByteArray = image.fileData.data.map { it.toByte() }.toByteArray()
         val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
