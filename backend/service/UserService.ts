@@ -2,14 +2,18 @@ import jwt from "jsonwebtoken";
 import { UserModel, IUser } from "../model/UserModel"
 import { OAuth2Client } from "google-auth-library";
 
+const webClientId: string = process.env.WEB_CLIENT_ID ?? "";
+const jwtSecret: string = process.env.JWT_SECRET ?? "";
 
-
-// Validate required environment variables
-if (!process.env.WEB_CLIENT_ID) {
+if (!webClientId) {
     throw new Error("WEB_CLIENT_ID is not defined in environment variables");
 }
 
-const client = new OAuth2Client(process.env.WEB_CLIENT_ID);
+if (!jwtSecret) {
+    throw new Error("JWT_SECRET is not defined in environment variables");
+}
+
+const client = new OAuth2Client(webClientId);
 
 
 export class UserService {
@@ -68,19 +72,14 @@ export class UserService {
                 user.firebaseToken.push(firebaseToken);
                 user.save(); //TODO: Need to invalidate the token when user sign out
             }            
-        }
-
-        if (!process.env.JWT_SECRET || !jwt) {
-            throw new Error("JWT/JWT_SECRET is not defined correctly");
-        }
+        } 
         
         // Generate JWT
-        const jwtToken = jwt.sign({ id: payload.sub, name: payload.name }, process.env.JWT_SECRET, {
+        const jwtToken = jwt.sign({ id: payload.sub, name: payload.name }, jwtSecret, {
             expiresIn: "999d",
             algorithm: "HS256"
         });
         let userID = user!._id
-
 
         return { token: jwtToken, userID };
     }
