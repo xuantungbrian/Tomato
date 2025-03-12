@@ -1,6 +1,6 @@
 import { AuthenticatedRequest } from "..";
 import { Post, PostService } from "../service/PostService";
-import { NextFunction, Response} from "express"; 
+import { Response} from "express"; 
 
 export class RecommendationController {
     private postService: PostService;
@@ -10,7 +10,7 @@ export class RecommendationController {
         this.postService = new PostService();
     }
 
-    getRecommendation = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    getRecommendation = async (req: AuthenticatedRequest, res: Response) => {
         const userId : string = req.user.id
         const max : number = !isNaN(Number(req.query.max)) ? parseInt(req.query.max as string, 10) : 10
         const posts : Post[] = (await this.postService.getUserPost(userId, true)) as Post[]
