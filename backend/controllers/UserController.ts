@@ -1,5 +1,5 @@
 import { UserService } from "../service/UserService";
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 
 const clientId = process.env.WEB_CLIENT_ID
@@ -14,7 +14,7 @@ export class UserController {
         this.getUser = this.getUser.bind(this)
     }
 
-    async getUser(req: Request, res: Response, next: NextFunction) { 
+    async getUser(req: Request, res: Response) { 
         const userId = req.params.id
         return res.status(200).json(await this.userService.getUser(userId));
     }

@@ -1,34 +1,36 @@
 import { PostService } from "../service/PostService";
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response} from "express";
 
+export interface RecRequest extends Request {
+    user: { id: string }; 
+}
 
 export class RecommendationController {
     private postService: PostService;
+
 
     constructor() {
         this.postService = new PostService();
     }
 
     getRecommendation = async (req: Request, res: Response, next: NextFunction) => {
-        const userId = (req as any).user.id
-        const max = !isNaN((req as any).query) ? parseInt((req as any).query as string) : 10
+        const userId : string = (req as RecRequest).user.id
+        const max : number = !isNaN(Number(req.query.max)) ? parseInt(req.query.max as string, 10) : 10
         const posts = await this.postService.getUserPost(userId, true)
         let similar_users : Array<String> = []
         let just_coords : String[] = []
-        
         for (const post of posts ?? []) {
             let lat : number = post.latitude as number ? post.latitude as number : 0
             let long : number = post.longitude as number ? post.longitude as number : 0
             const posts_at_location = await this.postService.getPostsAtLocation(lat, long)
             just_coords.push(lat.toString().concat(" ", long.toString()))
 
-            posts_at_location?.forEach(user_post => {
+            posts_at_location?.forEach((user_post) => {
                 if (user_post.userId != userId)
                     similar_users.push(user_post.userId as String)
             })
         }
-
-        let potential_places : any[] = []
+        let potential_places : string[] = []
         console.log("SIMILAR USERS: ", similar_users.length)
         if (similar_users.length > 0) {
             for (let i = 0; i < 3 && similar_users.length > 0; i++) {
@@ -79,7 +81,6 @@ export class RecommendationController {
                 best_posts.push(post)
             }
         }
-
         console.log("BEST POSTS: ", best_posts.length)
         return res.json({posts: best_posts})
     }
