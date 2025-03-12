@@ -107,9 +107,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 try {
                     val result = CredentialManager.create(this@MapsActivity).getCredential(request = request, context = this@MapsActivity)
                     val credential = result.credential
-                    if (credential !is CustomCredential || credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                        Log.e(TAG, "Unexpected type of credential")
-                    }
 
                     try {
                         val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
