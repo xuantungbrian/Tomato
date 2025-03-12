@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { UserModel, IUser } from "../model/UserModel"
-import { OAuth2Client } from "google-auth-library";
+import { OAuth2Client, TokenPayload } from "google-auth-library";
 
 if (!process.env.WEB_CLIENT_ID) {
     throw new Error("WEB_CLIENT_ID is not defined in environment variables");
@@ -57,8 +57,8 @@ export class UserService {
         });
 
 
-        const payload = ticket.getPayload();
-        if (!payload?.sub || !payload.name) {
+        const payload: TokenPayload | undefined = ticket.getPayload();
+        if (payload === undefined || !payload?.sub || !payload.name) {
             throw new Error("Invalid Google Token");
         }
 
@@ -76,7 +76,7 @@ export class UserService {
         } 
         
         // Generate JWT
-        const jwtToken = jwt.sign({ id: payload.sub, name: payload.name }, jwtSecret, {
+        const jwtToken = jwt?.sign({ id: payload.sub, name: payload.name }, jwtSecret, {
             expiresIn: "999d",
             algorithm: "HS256"
         });
