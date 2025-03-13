@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { PostModel } from "../model/PostModel";
+import { PostModel, Post } from "../model/PostModel";
 import MissingCoordinateException from "../errors/customError";
 
 export interface ImageData{
