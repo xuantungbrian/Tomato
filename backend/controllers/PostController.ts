@@ -1,12 +1,17 @@
 import { PostService } from "../service/PostService";
 import { Request, Response } from "express";
 import MissingCoordinateException from "../errors/customError";
-import { PostModel } from "../model/PostModel";
+import { PostModel, Post } from "../model/PostModel";
 import { AuthenticatedRequest } from "..";
 
 interface ImageData {
     fileData: Buffer;
     fileType: string;
+}
+
+/*Raw representation of post, where images are array of base64 strings */
+interface RawPost extends Omit<Post, 'images'> {
+    images: string[];
 }
 
 export class PostController {
@@ -17,12 +22,16 @@ export class PostController {
     }
 
     createPost = async (req: AuthenticatedRequest, res: Response) => {
-        const post = req.body;
-        post.userId = req.user.id;
-        post.images = (post.images as string[]).map((str: string): ImageData => ({
+        const rawPost: RawPost = req.body;
+        const images = (rawPost.images as string[]).map((str: string): ImageData => ({
             fileData: Buffer.from(str, 'base64'),
             fileType: 'image/jpeg'
         }));
+
+        const post: Post = {
+            ...rawPost,
+            images
+        }
 
         res.json(await this.postService.createPost(post))
     }
