@@ -1,21 +1,24 @@
 
 import { UserController } from "../controllers/UserController";
+import {Route} from "./RouteInterface";
 
 const userController = new UserController();
 
-export const UserRoutes = [
+export const UserRoutes: Route[] = [
 
     {
         method: "post",
         route: "/user/auth",    
         action: userController.handleGoogleSignIn,
-        validation: []
+        validation: [],
+        protected: false
     },
 
     {
         method: "get",
         route: "/user/:id",    
         action: userController.getUser,
-        validation: []
+        validation: [],
+        protected: false
     }
 ]

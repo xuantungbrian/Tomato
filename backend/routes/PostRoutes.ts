@@ -1,13 +1,15 @@
 import { PostController } from "../controllers/PostController";
+import {Route} from "./RouteInterface";
 
 const postController = new PostController();
 
-export const PostRoutes = [
+export const PostRoutes: Route[] = [
     {
         method: "get",
         route: "/posts",            
         action: postController.getPublicPost,
         validation: [],
+        protected: false
     },
     {
         method: "get",
@@ -20,7 +22,8 @@ export const PostRoutes = [
         method: "get",
         route: "/posts/:id",    
         action: postController.getPostById,
-        validation: []
+        validation: [],
+        protected: false
     },
     {
         method: "post",

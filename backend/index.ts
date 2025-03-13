@@ -15,8 +15,6 @@ const app = express();
 
 app.use(express.json({limit: '100mb'}));
 app.use(morgan('tiny'))
-// app.use(UploadFile) // TODO: Add this for one route only
-// TODO: Cleanup as any
 
 export interface AuthenticatedRequest extends Request {
     user: { id: string }; 
@@ -29,6 +27,8 @@ export interface AuthenticatedRequest extends Request {
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
 });
+
+
 
 const allRoutes = [...PostRoutes, ...UserRoutes, ...ChatRoutes, ...RecommendationRoutes]
 allRoutes.forEach((route) => {
