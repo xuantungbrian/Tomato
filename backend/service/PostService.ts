@@ -8,6 +8,7 @@ export interface ImageData{
 }
 
 export interface Post {
+    _id: string,
     latitude: number,
     longitude: number,
     images: ImageData[], 
@@ -17,10 +18,21 @@ export interface Post {
     isPrivate: boolean,
 }
 
+interface CoordinateQuery {
+    latitude?: {
+      $gte?: number;
+      $lte?: number;
+    };
+    longitude?: {
+      $gte?: number;
+      $lte?: number;
+    };
+  }
+
 export class PostService {
-    async getPostById(id: string) {
+    async getPostById(id: string): Promise<Post | null> {
         try {
-            return PostModel.findById(id)
+            return await PostModel.findById(id)
         } catch(error) {
             console.log("Error to get post from ID: ", error)
             return null
@@ -49,9 +61,9 @@ export class PostService {
         }
     }
 
-    async deletePost(id: string) {
+    async deletePost(id: string): Promise<Post | null> {
         try {  
-            return PostModel.findOneAndDelete({ _id: new mongoose.Types.ObjectId(id) })
+            return await PostModel.findOneAndDelete({ _id: new mongoose.Types.ObjectId(id) })
         } catch (error) {
             console.error("Error deleting post:", error);
             return null
@@ -68,7 +80,7 @@ export class PostService {
         end_lat?: number, 
         start_long?: number, 
         end_long?: number, 
-    ){
+    ): Promise<Post[] | null> {
         
         const coordinates = [start_lat, end_lat, start_long, end_long]
         if(isMissingCoordinate(coordinates)){
@@ -77,7 +89,7 @@ export class PostService {
             
 
         try {
-            const query: any = {};
+            const query: CoordinateQuery = {};
     
             // Check for start_lat and end_lat separately
             if (start_lat !== undefined) {
@@ -96,7 +108,7 @@ export class PostService {
             }
     
             // Return the posts based on the constructed 
-            return PostModel.find(query);
+            return await PostModel.find(query);
         } catch (error) {
             console.log("Error getting posts", error);
             return null;
@@ -134,7 +146,7 @@ export class PostService {
      */
     async getUserPost(
         userId: string,
-        userPostOnly: Boolean,
+        userPostOnly: boolean,
         start_lat?: number, 
         end_lat?: number, 
         start_long?: number, 
@@ -166,18 +178,18 @@ export class PostService {
         }
     }
 
-    async getEveryPost() {
+    async getEveryPost(): Promise<Post[] | null> {
         try {
-            return PostModel.find({})
+            return await PostModel.find({})
         } catch(error) {
             console.log("Error getting all posts", error)
             return null
         }
     }
 
-    async getPostsAtLocation(lat: number, long: number) {
+    async getPostsAtLocation(lat: number, long: number): Promise<Post[] | null> {
         try {
-            return PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
+            return await PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
         } catch(error) {
             console.log("Error getting all posts at the location", error)
             return null
