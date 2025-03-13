@@ -43,11 +43,6 @@ export class PostController {
                 console.log("User Provided Invalid coordinate: ", error)
                 return res.status(400).json({ message: "Incomplete coordinate" });
             }
-            else{
-                console.log("Error: ", error);
-                return res.status(500).json({ message: "Internal Server Error" });
-
-            }
         }
     };
 
@@ -71,8 +66,10 @@ export class PostController {
         }
 
         catch(err){
-            console.log("ERROR: ", err)
-            return res.status(500).json({message: "Internal Server Error"})
+            if(err instanceof MissingCoordinateException){
+                console.log("User Provided Invalid coordinate: ", err)
+                return res.status(400).json({ message: "Incomplete coordinate" });
+            }
         }
 
 
@@ -100,12 +97,15 @@ export class PostController {
         // Ensure that the post really belongs to the user
         const userId = (req as any).user.id
         const post = await PostModel.findById(postId)
-
-        if(post?.userId !== userId){
-            res.status(401).send({message: "Unauthorized"})
-        }
-        else{
-            res.json(await this.postService.deletePost(postId))
+        if (!post) {
+            res.status(404).send({message: "Post not found"})
+        } else {
+            if(post.userId !== userId){
+                res.status(401).send({message: "Unauthorized"})
+            }
+            else{
+                res.json(await this.postService.deletePost(postId))
+           }
         }
     }
 }

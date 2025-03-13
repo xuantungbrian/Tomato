@@ -4,7 +4,6 @@ import { PostRoutes } from './routes/PostRoutes';
 import connectDB  from "./db";
 import morgan from 'morgan'
 import verifyToken from './middleware/verifyToken'
-import UploadFile from './middleware/UploadFile';
 import { UserRoutes } from './routes/UserRoutes';
 import { ChatRoutes } from './routes/ChatRoutes';
 import { config } from 'dotenv';
@@ -25,11 +24,11 @@ app.get('/', (req: Request, res: Response) => {
 
 const allRoutes = [...PostRoutes, ...UserRoutes, ...ChatRoutes, ...RecommendationRoutes]
 allRoutes.forEach((route) => {
-    //const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
+    const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
 
     (app as any)[route.method](
         route.route,
-      //  ...middlewares,
+        ...middlewares,
         route.validation,
         async (req: express.Request, res: Response, next: NextFunction) => {
             const errors = validationResult(req);
@@ -58,3 +57,5 @@ connectDB().then(() => {
 }).catch((err) => {
     console.error(err);
 })
+
+module.exports = {app}

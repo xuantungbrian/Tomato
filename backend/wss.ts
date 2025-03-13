@@ -4,11 +4,11 @@ import { UserService } from './service/UserService';
 import admin from "firebase-admin";
 
 // Load Firebase credentials
-const serviceAccount = require("./serviceAccountKey.json");
+//const serviceAccount = require("./serviceAccountKey.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+//admin.initializeApp({
+  //credential: admin.credential.cert(serviceAccount)
+//});
 
 const startWSS = () => {
     const chatService = new ChatService();

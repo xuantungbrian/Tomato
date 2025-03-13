@@ -30,17 +30,6 @@ export class ChatService {
         }
     }
 
-    // Get chat with chatId
-    async getChat(id: string) {
-        try {
-            const chat = await ChatModel.findOne({ _id: id})
-            return chat
-        } catch(err) {
-            console.error("Error getting chat: " + err)
-            return null
-        }
-    }
-
     // Get chat with userId
     async getChats(id: string) {
         try {
@@ -56,7 +45,8 @@ export class ChatService {
         try {
             await MessageModel.deleteMany({ chatroom_id: id })
             const chat = await ChatModel.findById(id)
-            await chat?.deleteOne()
+            if (chat) 
+                await chat.deleteOne()
             return chat
         } catch(err) {
             console.error("Error deleting chat: " + err)
@@ -78,7 +68,8 @@ export class ChatService {
     async deleteMessage(id: string) {
         try {
             const message = await MessageModel.findById(id)
-            await message?.deleteOne()
+            if (message)
+                await message.deleteOne()
             return message
         } catch(err) {
             console.error("Error deleting message: " + err)
