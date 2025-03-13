@@ -34,7 +34,6 @@ export class UserService {
             audience: process.env.GOOGLE_CLIENT_ID,
         });
 
-
         const payload = ticket.getPayload();
         if (!payload || !payload.sub || !payload.name) {
             throw new Error("Invalid Google Token");
@@ -49,7 +48,7 @@ export class UserService {
         } else {
             if (!user.firebaseToken.includes(firebaseToken)) {
                 user.firebaseToken.push(firebaseToken);
-                user.save(); //TODO: Need to invalidate the token when user sign out
+                user.updateOne(); //TODO: Need to invalidate the token when user sign out
             }            
         }
 

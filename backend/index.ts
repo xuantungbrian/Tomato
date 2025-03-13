@@ -4,7 +4,6 @@ import { PostRoutes } from './routes/PostRoutes';
 import connectDB  from "./db";
 import morgan from 'morgan'
 import verifyToken from './middleware/verifyToken'
-import UploadFile from './middleware/UploadFile';
 import { UserRoutes } from './routes/UserRoutes';
 import { ChatRoutes } from './routes/ChatRoutes';
 import { config } from 'dotenv';
@@ -66,3 +65,5 @@ connectDB().then(() => {
 }).catch((err) => {
     console.error(err);
 })
+
+module.exports = {app}

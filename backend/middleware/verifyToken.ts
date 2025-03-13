@@ -9,27 +9,22 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     if (!token) {
         console.log("token doesn't exist")
 
-        res.status(401).json({ message: 'No token provided' });
-        return
+        return res.status(401).json({ message: 'No token provided' });
     }
 
     if (!JWT_SECRET){
-        res.status(500).json({message: "Internal Server Error"});
-        return
+        return res.status(500).json({message: "Internal Server Error"});
     }
 
-    else{
-        try {
-            const decoded = jwt.verify(token, JWT_SECRET, {algorithms: ["HS256"]});  // Verify the JWT
-            (req as any).user = decoded;  // Store the decoded user info in the request object
-            next();  // Proceed to the next middleware or route handler
-        } catch (err) {
-            console.log("INVALID TOKEN")
-            return res.status(400).json({ message: 'Invalid token.' });
-        }
-
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET, {algorithms: ["HS256"]});  // Verify the JWT
+        (req as any).user = decoded;  // Store the decoded user info in the request object
+        next();  // Proceed to the next middleware or route handler
+    } catch (err) {
+        console.log("INVALID TOKEN")
+        return res.status(400).json({ message: 'Invalid token.' });
     }
-
 };
 
 export default verifyToken;
+module.exports =  {verifyToken};

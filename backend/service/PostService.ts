@@ -74,33 +74,27 @@ export class PostService {
         if(isMissingCoordinate(coordinates)){
             throw new MissingCoordinateException("Incomplete Coordinate Information")
         }
-            
-
-        try {
-            const query: any = {};
     
-            // Check for start_lat and end_lat separately
-            if (start_lat !== undefined) {
-                query.latitude = { $gte: start_lat };  // Latitude greater than or equal to start_lat
-            }
-            if (end_lat !== undefined) {
-                query.latitude = { ...query.latitude, $lte: end_lat };  // Latitude less than or equal to end_lat
-            }
+        const query: any = {};
     
-            // Check for start_long and end_long separately
-            if (start_long !== undefined) {
-                query.longitude = { $gte: start_long };  // Longitude greater than or equal to start_long
-            }
-            if (end_long !== undefined) {
-                query.longitude = { ...query.longitude, $lte: end_long };  // Longitude less than or equal to end_long
-            }
-    
-            // Return the posts based on the constructed 
-            return PostModel.find(query);
-        } catch (error) {
-            console.log("Error getting posts", error);
-            return null;
+        // Check for start_lat and end_lat separately
+        if (start_lat !== undefined) {
+            query.latitude = { $gte: start_lat };  // Latitude greater than or equal to start_lat
         }
+        if (end_lat !== undefined) {
+            query.latitude = { ...query.latitude, $lte: end_lat };  // Latitude less than or equal to end_lat
+        }
+    
+        // Check for start_long and end_long separately
+        if (start_long !== undefined) {
+            query.longitude = { $gte: start_long };  // Longitude greater than or equal to start_long
+        }
+        if (end_long !== undefined) {
+            query.longitude = { ...query.longitude, $lte: end_long };  // Longitude less than or equal to end_long
+        }
+    
+        // Return the posts based on the constructed 
+        return PostModel.find(query);
     }    
 
     /**
@@ -116,11 +110,15 @@ export class PostService {
             const posts = await this.getPosts(start_lat, end_lat, start_long, end_long)
 
             //filter to remove all private posts
-            const publicPosts = posts?.filter(post => post.isPrivate === false)
+            const publicPosts = posts.filter(post => post.isPrivate === false)
             return publicPosts
         } catch(err){
-            console.log("Error getting posts", err);
-            return null;
+            if (err instanceof MissingCoordinateException) {
+                throw new MissingCoordinateException("Incomplete Coordinate Information");
+            } else {
+                console.log("Error getting posts", err);
+                return null;
+            }
         }
     }
 
@@ -140,16 +138,14 @@ export class PostService {
         start_long?: number, 
         end_long?: number, 
     ){
-        
         // const publicPosts = await this.getPosts(start_lat, end_lat, start_long, end_long)
-        const userPost = await PostModel.find({userId: userId})
-
         try{
+            const userPost = await PostModel.find({userId: userId})
             if(userPostOnly){
                 return userPost
             }
             else{
-                const publicPost = await this.getPublicPost(start_lat, end_lat, start_long, end_long) || [];
+                const publicPost = await this.getPublicPost(start_lat, end_lat, start_long, end_long) ?? [];
 
                 const combinedPosts = [...userPost, ...publicPost]
 
@@ -161,8 +157,12 @@ export class PostService {
             }
         }
         catch (error) {
-            console.log("Error getting posts", error);
-            return null;
+            if (error instanceof MissingCoordinateException) {
+                throw new MissingCoordinateException("Incomplete Coordinate Information");
+            } else {
+                console.log("Error getting posts", error);
+                return null;
+            }
         }
     }
 
