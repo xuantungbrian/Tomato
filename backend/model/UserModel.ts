@@ -6,13 +6,13 @@ import { Document, model, Model, Schema } from 'mongoose';
 export interface IUser extends Document {
   _id: string;
   username: string;
-  firebaseToken: string[]; // Array of strings (matches schema)
+  firebaseToken: [string]; // Array of strings (matches schema)
 }
 
 const UserModelSchema = new Schema<IUser>({
   _id: String,
   username: String,
-  firebaseToken: String,
+  firebaseToken: [String],
 });
  
  

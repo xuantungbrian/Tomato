@@ -2,6 +2,7 @@ import {sign} from "jsonwebtoken";
 import { UserModel, IUser } from "../model/UserModel"
 import { OAuth2Client, TokenPayload } from "google-auth-library";
 
+
 if (!process.env.WEB_CLIENT_ID) {
     throw new Error("WEB_CLIENT_ID is not defined in environment variables");
   }
@@ -22,11 +23,12 @@ export class UserService {
             return null
         }
         try {
-            const newUser = new UserModel({ 
+            const newUser: IUser = new UserModel({ 
                 _id: id, 
                 username: name, 
                 firebaseToken: [firebaseToken]
               });
+            console.log("Created new user")
             return await newUser.save()
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -67,11 +69,10 @@ export class UserService {
         }
 
         // Check if user exists, otherwise create a new one
-        let user: IUser|null = await this.getUser(payload.sub);
+        let user: IUser|null = await this.getUser(payload.sub as string);
     
         if (!user) {
             user = await this.createUser(payload.sub, payload.name, firebaseToken);
-            console.log("CREATED NEW USER")
         } else {
             if (!user.firebaseToken.includes(firebaseToken)) {
                 user.firebaseToken.push(firebaseToken);
