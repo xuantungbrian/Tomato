@@ -1,7 +1,7 @@
 export interface Route{
     route: string;
     method: string;
-    validation: any;
-    action: any;
+    validation: unknown[];
+    action: unknown;
     protected: boolean;
 }
