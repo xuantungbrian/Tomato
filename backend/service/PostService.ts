@@ -7,16 +7,7 @@ export interface ImageData{
     fileType: string,
 }
 
-export interface Post {
-    _id: string,
-    latitude: number,
-    longitude: number,
-    images: ImageData[], 
-    userId: string,
-    date: Date,
-    note: string,
-    isPrivate: boolean,
-}
+
 
 interface CoordinateQuery {
     latitude?: {

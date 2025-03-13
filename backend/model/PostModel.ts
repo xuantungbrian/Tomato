@@ -1,7 +1,15 @@
-import mongoose from "mongoose"
+import {Model, model, Schema} from "mongoose"
 
-const Schema = mongoose.Schema;
-
+export interface Post {
+  _id: string,
+  latitude: number,
+  longitude: number,
+  images: ImageData[], 
+  userId: string,
+  date: Date,
+  note: string,
+  isPrivate: boolean,
+}
 
 const PostModelSchema = new Schema({
   latitude: Number,
@@ -16,4 +24,4 @@ const PostModelSchema = new Schema({
   isPrivate: Boolean
 });
 
-export const PostModel = mongoose.model("Post", PostModelSchema);
+export const PostModel: Model<Post> = model<Post>("Post", PostModelSchema);
