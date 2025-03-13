@@ -91,8 +91,10 @@ class DisplayMap {
                 assertEquals(0.0, target.latitude, 0.01)
                 assertEquals(0.0, target.longitude, 0.01)
                 // TODO: Not sure if this code is run
+                println("fine 1")
             }
         }
+        println("fine 2")
     }
 
     @Test

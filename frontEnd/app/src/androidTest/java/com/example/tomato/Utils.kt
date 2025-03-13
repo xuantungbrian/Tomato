@@ -77,7 +77,7 @@ object Utils {
         }
     }
 
-    fun signInWithGoogle() {
+    fun loginWithGoogle() {
         onView(withId(R.id.sign_in_button)).perform(click())
         val myAccountButton = device.wait(Until.findObject(By.text(googleEmail)), 5000)
         if (myAccountButton != null) {

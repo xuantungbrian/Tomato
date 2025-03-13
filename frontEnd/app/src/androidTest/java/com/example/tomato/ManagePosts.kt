@@ -44,8 +44,8 @@ class ManagePosts {
         allowButton.click()
         Thread.sleep(shortTimeout)
 
-        // Sign in with Google account
-        Utils.signInWithGoogle()
+        // Login with Google account
+        Utils.loginWithGoogle()
         Thread.sleep(mediumTimeout)
     }
 

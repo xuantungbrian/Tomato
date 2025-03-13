@@ -38,41 +38,29 @@ class LoginUser {
 
     @After
     fun tearDown() {
-        // Sign out
+        // Logout
         try {
             onView(withId(R.id.sign_out_button)).perform(click())
         } catch (_: Exception) {}
     }
 
     @Test
-    fun authenticateUser() {
-        // Sign in with Google account
-        Utils.signInWithGoogle()
-
-        // Check login success by opening profile page and no sign in button available
-        onView(withId(R.id.mapFragment)).check(matches(isDisplayed()))
-        onView(withId(R.id.sign_in_button)).check(matches(not(isDisplayed())))
-        onView(withId(R.id.map_activity_profile_button)).perform(click())
-        onView(withId(R.id.coordinatorLayout2)).check(matches(isDisplayed()))
-    }
-
-    @Test
     fun userLoginFailed() {
-        // Click sign in button and click somewhere else to make sign in failed
+        // Click login button and click somewhere else to make login failed
         onView(withId(R.id.sign_in_button)).perform(click())
         device.click(100, 100)
 
-        // Check sign in failure with sign_in_button and cannot use profile feature
+        // Check login failure with login button still display and cannot use profile feature
         onView(withId(R.id.mapFragment)).check(matches(isDisplayed()))
         onView(withId(R.id.sign_in_button)).check(matches((isDisplayed())))
         onView(withId(R.id.profile_button_image)).perform(click())
         onView(withText("Login is required to view profile page")).check(matches(isDisplayed()))
         onView(withText("OKAY")).perform(click())
 
-        // Sign in with correct account
-        Utils.signInWithGoogle()
+        // Login with correct account
+        Utils.loginWithGoogle()
 
-        // Check login success by opening profile page and no sign in button available
+        // Check login success by opening profile page and no login button available
         onView(withId(R.id.mapFragment)).check(matches(isDisplayed()))
         onView(withId(R.id.sign_in_button)).check(matches(not(isDisplayed())))
         onView(withId(R.id.map_activity_profile_button)).perform(click())
