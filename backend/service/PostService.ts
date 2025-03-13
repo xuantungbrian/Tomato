@@ -32,7 +32,7 @@ export class PostService {
 
     async createPost(post: Post): Promise<Post | null> {
         try {
-            const newPost = new PostModel(post);
+            const newPost: mongoose.Document = new PostModel(post);
             await newPost.save();
             return newPost;
         } catch (error) {

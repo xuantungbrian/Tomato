@@ -14,6 +14,10 @@ const jwtSecret: string = process.env.JWT_SECRET
 
 const client: OAuth2Client = new OAuth2Client(webClientId);
 
+<<<<<<< HEAD
+=======
+const client: OAuth2Client = new OAuth2Client(process.env.WEB_CLIENT_ID);
+>>>>>>> upstream/codacy
 
 export class UserService {
 

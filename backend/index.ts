@@ -1,4 +1,4 @@
-import express, {NextFunction, Request, Response} from 'express';
+import express, {Request, Response} from 'express';
 import { validationResult } from 'express-validator';
 import { PostRoutes } from './routes/PostRoutes';
 import connectDB  from "./db";
@@ -38,14 +38,14 @@ allRoutes.forEach((route) => {
         route.route,
         ...middlewares,
         route.validation,
-        async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        async (req: AuthenticatedRequest, res: Response) => {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 /* If there are validation errors, send a response with the error messages */
                 return res.status(400).send({ errors: errors.array() });
             }
             try {
-                await route.action(req, res, next);
+                await route.action(req, res);
             } catch (err) {
                 console.log(err)
                 return res.sendStatus(500); // Don't expose internal server workings
