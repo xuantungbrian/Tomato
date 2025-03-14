@@ -30,7 +30,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
             next();  // Proceed to the next middleware or route handler
         } catch (err) {
             console.log("INVALID TOKEN")
-            return await res.status(400).json({ message: 'Invalid token.' });
+            return res.status(400).json({ message: 'Invalid token.' });
         }
 
     }

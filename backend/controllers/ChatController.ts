@@ -12,7 +12,7 @@ export class ChatController {
 
     createChat = async (req: Request, res: Response) => {
         const { member_1, member_2 } = req.body;
-        res.json(await this.chatService.createChat(member_1, member_2));
+        res.json(await this.chatService.createChat(member_1 as string, member_2 as string));
     }
 
     getChats = async (req: Request, res: Response): Promise<void> => {
@@ -37,7 +37,7 @@ export class ChatController {
     addMessage = async (req: Request, res: Response) => {
         let message = req.body
         let chatroom_id = req.params.id
-        res.json(await this.chatService.addMessage(chatroom_id, message.sender, message.message))
+        res.json(await this.chatService.addMessage(chatroom_id, message.sender as string, message.message as string))
     }
 
     deleteMessage = async (req: Request, res: Response) => {

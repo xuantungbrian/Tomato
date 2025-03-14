@@ -41,7 +41,7 @@ const startWSS = () => {
         console.log("New connection established");
 
         // Safely extract query parameters
-        const queryString = req.url?.split('?')[1] || '';
+        const queryString = req.url?.split('?')[1] ?? '';
         const urlParams = new URLSearchParams(queryString);
         const chatId = urlParams.get('chatId');
 
@@ -82,7 +82,7 @@ const startWSS = () => {
 
                 // Get recipient information
                 const receiverInfo = await userService.getUser(receiverId) as UserInfo | null;
-                const receiverTokens = receiverInfo?.firebaseToken || [];
+                const receiverTokens = receiverInfo?.firebaseToken ?? [];
 
                 // Broadcast message and handle notifications
                 let recipientFound = false;

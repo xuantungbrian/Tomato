@@ -62,7 +62,7 @@ allRoutes.forEach((route) => {
 const PORT = Number(process.env.PORT) || 3000
 
 connectDB().then(() => {
-    app.listen(PORT, '0.0.0.0' as any, () => {
+    app.listen(PORT, '0.0.0.0' as string, () => {
         startWSS()
         console.log(`Server is running on port ${PORT}`);
       });
