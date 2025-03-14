@@ -1,9 +1,6 @@
 import { UserService } from "../service/UserService";
 import { Request, Response } from "express";
-import { OAuth2Client } from "google-auth-library";
 
-const clientId = process.env.WEB_CLIENT_ID
-const client = new OAuth2Client(clientId);
 
 export class UserController {
     private userService: UserService;

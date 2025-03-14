@@ -25,18 +25,17 @@ export class PostService {
         try {
             return await PostModel.findById(id).exec();
         } catch(error) {
-            console.error("Error to get post from ID:", error);
+            console.error("Error getting post with ID ");
             return null;
         }
     }
 
-    async createPost(post: Post): Promise<Post | null> {
+    async createPost(post: Post) {
         try {
             const newPost: mongoose.Document = new PostModel(post);
-            await newPost.save();
-            return newPost.toObject() as Post;
+            return await newPost.save();
         } catch (error) {
-            console.error("Error creating post:", error);
+            console.error("Error creating post");
             return null;
         }
     }
@@ -183,9 +182,9 @@ export class PostService {
     async getPostsAtLocation(lat: number, long: number, private_post: boolean) {
         try {
             if (!private_post)
-                return PostModel.find({$and:[{latitude: lat}, {longitude: long}, {isPrivate: false}]})
+                return await PostModel.find({$and:[{latitude: lat}, {longitude: long}, {isPrivate: false}]})
             else
-                return PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
+                return await PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
         } catch(error) {
             console.log("Error getting all posts at the location", error)
             return null

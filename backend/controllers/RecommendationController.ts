@@ -1,7 +1,7 @@
 import { AuthenticatedRequest, isAuthenticatedRequest } from "..";
 import {Post } from "../model/PostModel";
 import { PostService } from "../service/PostService";
-import { NextFunction, Response, Request } from "express";
+import { Response, Request } from "express";
 
 export class RecommendationController {
     private postService: PostService;

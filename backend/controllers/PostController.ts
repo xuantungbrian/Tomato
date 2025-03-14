@@ -2,7 +2,7 @@ import { PostService } from "../service/PostService";
 import { Request, Response } from "express";
 import MissingCoordinateException from "../errors/customError";
 import { PostModel, Post } from "../model/PostModel";
-import { AuthenticatedRequest, isAuthenticatedRequest } from "..";
+import { isAuthenticatedRequest } from "..";
 
 interface ImageData {
     fileData: Buffer;
@@ -22,7 +22,12 @@ export class PostController {
     }
 
     createPost = async (req: Request, res: Response) => {
+        if (!isAuthenticatedRequest(req)) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
         const rawPost: RawPost = req.body;
+        rawPost.userId = req.user.id;
         const images = (rawPost.images as string[]).map((str: string): ImageData => ({
             fileData: Buffer.from(str, 'base64'),
             fileType: 'image/jpeg'

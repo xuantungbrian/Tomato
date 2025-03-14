@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { AuthenticatedRequest } from "..";
 
 export interface Route{
     route: string;
