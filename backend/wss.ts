@@ -96,7 +96,11 @@ const startWSS = () => {
                 // Send push notification if recipient offline
                 if (!recipientFound && receiverTokens.length > 0) {
                     receiverTokens.forEach(token => {
-                        if (token) sendPushNotification(token, message.message!, chatId);
+                        if(!message.message) return;
+
+                        else if (token) {
+                            sendPushNotification(token, message.message, chatId);
+                        }
                     });
                 }
             } catch (error) {
@@ -121,7 +125,7 @@ function sendPushNotification(token: string, messageBody: string, chatId: string
     };
 
     admin.messaging().send(payload)
-        .then(response => {console.log("Notification delivered:", response)})
+        .then(response => {console.log("Notification delivered:")})
         .catch(error => {console.error("Notification failed:", error)});
 }
 

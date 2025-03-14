@@ -1,6 +1,6 @@
 import { ChatService } from "../service/ChatService";
 import { Request, Response } from "express"
-import { AuthenticatedRequest, isAuthenticatedRequest } from "../index";
+import { isAuthenticatedRequest } from "../index";
 
 
 export class ChatController {

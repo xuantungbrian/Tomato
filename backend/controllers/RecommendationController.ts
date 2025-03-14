@@ -1,4 +1,4 @@
-import { AuthenticatedRequest, isAuthenticatedRequest } from "..";
+import { isAuthenticatedRequest } from "..";
 import {Post } from "../model/PostModel";
 import { PostService } from "../service/PostService";
 import { Response, Request } from "express";
@@ -19,14 +19,21 @@ export class RecommendationController {
 
         const userId : string = req.user.id
         const max : number = !isNaN(Number(req.query.max)) ? parseInt(req.query.max as string, 10) : 10
-        const posts : Post[] = (await this.postService.getUserPost(userId, true))!
+        const posts : Post[] | null = (await this.postService.getUserPost(userId, true))
+
+        if (!posts) {
+            //Recommend empty post
+            res.status(200).json({posts: []})
+            return
+        }
+
         // let similar_users : Array<String> = []
         let similar_users : string[] = []
         let just_coords : string[] = []
         for (const post of posts) {
             let lat : number = post.latitude ? post.latitude : 0
             let long : number = post.longitude ? post.longitude : 0
-            const posts_at_location : Post[] = await this.postService.getPostsAtLocation(lat, long, true) as Post[]
+            const posts_at_location = await this.postService.getPostsAtLocation(lat, long, true) as Post[]
             just_coords.push(lat.toString().concat(" ", long.toString()))
 
             posts_at_location?.forEach((user_post) => {
@@ -38,10 +45,10 @@ export class RecommendationController {
         if (similar_users.length > 0) {
             for (let i = 0; i < 3 && similar_users.length > 0; i++) {
                 const most_similar : string = this.mode(similar_users) // userId
-                const most_similar_posts : Post[] = (await this.postService.getUserPost(most_similar, true))!
+                const most_similar_posts : Post[] | null = (await this.postService.getUserPost(most_similar, true))
                 most_similar_posts?.forEach(sim_post => {
-                    if (!just_coords.includes((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))) {
-                        potential_places.push((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))
+                    if (!just_coords.includes((sim_post.latitude as number).toString().concat(" ", (sim_post.longitude as number).toString()))) {
+                        potential_places.push((sim_post.latitude as number).toString().concat(" ", (sim_post.longitude as number).toString()))
                     }
                 })
 
