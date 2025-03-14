@@ -138,6 +138,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     handleSignIn(result)
                 } catch (e: GetCredentialException) {
                     Log.d(TAG, "Get credential exception", e)
+                    AlertDialog.Builder(this@MapsActivity)
+                        .setTitle("Login failed: ${e.message}")
+                        .setNegativeButton("Okay", null)
+                        .show()
                 }
             }
         }

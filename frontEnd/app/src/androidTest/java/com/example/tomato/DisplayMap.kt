@@ -26,13 +26,6 @@ import org.junit.Assert.*
 @RunWith(AndroidJUnit4::class)
 class DisplayMap {
 
-//    @After
-//    fun tearDown() {
-//        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-//        device.executeShellCommand("pm revoke your.package.name android.permission.ACCESS_FINE_LOCATION")
-//        device.executeShellCommand("pm clear your.package.name")
-//    }
-
     @Test
     fun testShowMapOnOpen() {
         // Launch the activity
@@ -123,13 +116,5 @@ class DisplayMap {
         onView(withId(R.id.post_activity_postLocation)).check(matches(isDisplayed()))
 
         Log.d("testDisplayPostedPictureOnMap", (withId(R.id.postViewPager).toString()))
-    }
-
-    @Test
-    fun testRetrievePostFail() {
-        // TODO: Mock there is no return from the get post when open
-        // TODO: Check there is no pin on the map
-        // TODO: Mock the function to get post has exception/status code 404
-        // TODO: Check a toast appear
     }
 }

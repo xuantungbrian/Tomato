@@ -12,6 +12,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.not
 import org.junit.After
 import org.junit.Before
@@ -50,7 +51,12 @@ class LoginUser {
         onView(withId(R.id.sign_in_button)).perform(click())
         device.click(100, 100)
 
-        // Check login failure with login button still display and cannot use profile feature
+        // Check login failure:
+        // - An alert pops up
+        // - Login button still display
+        // - Cannot use profile feature
+        onView(withText(containsString("Login failed:"))).check(matches(isDisplayed()))
+        onView(withText("OKAY")).perform(click())
         onView(withId(R.id.mapFragment)).check(matches(isDisplayed()))
         onView(withId(R.id.sign_in_button)).check(matches((isDisplayed())))
         onView(withId(R.id.profile_button_image)).perform(click())
