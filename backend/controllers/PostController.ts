@@ -26,7 +26,7 @@ export class PostController {
             res.status(401).json({ message: "Unauthorized" });
             return;
         }
-        const rawPost: RawPost = req.body;
+        const rawPost = req.body as RawPost;
         rawPost.userId = req.user.id;
         const images = (rawPost.images as string[]).map((str: string): ImageData => ({
             fileData: Buffer.from(str, 'base64'),
@@ -115,7 +115,7 @@ export class PostController {
             return;
         }
         const postId = req.params.id
-        const updatedPost = req.body
+        const updatedPost = req.body as Post
         updatedPost.userId = req.user.id
         res.json(await this.postService.updatePost(postId, updatedPost))
     }

@@ -1,9 +1,7 @@
 import WebSocket from 'ws';
 import { ChatService } from './service/ChatService';
 import { UserService } from './service/UserService';
-import { IncomingMessage } from 'http';
-import admin from "firebase-admin";
-import {ServiceAccount} from "firebase-admin";
+import * as admin from "firebase-admin";
 import { Message } from 'firebase-admin/messaging';
 import serviceAccount from "./serviceAccountKey.json";
 
@@ -16,7 +14,7 @@ const firebaseCreds = {
 
 // Firebase Admin initialization with type-safe credentials
 admin.initializeApp({
-    credential: admin.credential.cert(firebaseCreds as ServiceAccount)
+    credential: admin.credential.cert(firebaseCreds as admin.ServiceAccount)
 });
 
 interface ChatInfo {

@@ -67,7 +67,7 @@ export class RecommendationController {
         while (potential_places.length > 0 && best_places.length <= max) {
             let best_place : string = this.mode(potential_places)
             best_places.push(best_place)
-            potential_places = this.deleteOccurences(potential_places, best_place) as any[]
+            potential_places = this.deleteOccurences(potential_places, best_place) as string[]
         }
 
         let best_posts : Post[] = []

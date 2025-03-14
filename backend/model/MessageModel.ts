@@ -6,7 +6,7 @@ export interface IMessage extends Document {
   message: string;
 }
 
-const MessageModelSchema: Schema = new Schema({
+const MessageModelSchema: Schema<IMessage> = new Schema({
   chatroom_id: { type: String, required: true },
   sender: { type: String, required: true },
   message: { type: String, required: true }
