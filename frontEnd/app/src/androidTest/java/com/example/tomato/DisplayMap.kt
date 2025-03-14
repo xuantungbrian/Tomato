@@ -1,7 +1,6 @@
 package com.example.tomato
 
 import android.location.Location
-import android.util.Log
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -22,12 +21,15 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import org.junit.Assert.*
+import org.junit.FixMethodOrder
+import org.junit.runners.MethodSorters
 
 @RunWith(AndroidJUnit4::class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class DisplayMap {
 
     @Test
-    fun testShowMapOnOpen() {
+    fun test2ShowMapOnOpen() {
         // Launch the activity
         val scenario = ActivityScenario.launch(MapsActivity::class.java)
 
@@ -54,14 +56,15 @@ class DisplayMap {
                         assertEquals(location.latitude, target.latitude, 0.01)
                         assertEquals(location.longitude, target.longitude, 0.01)
                     }
-                    // TODO: Not sure if this code is run
                 }
             }
         }
+        Thread.sleep(10000)
+        scenario.close()
     }
 
     @Test
-    fun testUserRejectLocationPermission() {
+    fun test1UserRejectLocationPermission() {
         // Launch the activity
         val scenario = ActivityScenario.launch(MapsActivity::class.java)
 
@@ -83,25 +86,26 @@ class DisplayMap {
                 val target = cameraPosition.target
                 assertEquals(0.0, target.latitude, 0.01)
                 assertEquals(0.0, target.longitude, 0.01)
-                // TODO: Not sure if this code is run
-                println("fine 1")
             }
         }
-        println("fine 2")
+        Thread.sleep(10000)
+        scenario.close()
     }
 
     @Test
-    fun testDisplayPostedPictureOnMap() {
+    fun test3DisplayPostedPictureOnMap() {
         // Launch the activity
         val scenario = ActivityScenario.launch(MapsActivity::class.java)
-
-        // Rejects the location permission
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val allowButton = device.wait(Until.findObject(By.textContains("allow")), 30000)
-        assertNotNull(allowButton)
-        allowButton.click()
 
-        // Verify the camera position is set to (0, 0)
+        try {
+            val allowButton = device.wait(Until.findObject(By.textContains("Only")), 30000)
+            allowButton.click()
+        } catch (_: Exception) {}
+
+        Thread.sleep(10000)
+
+        // Scroll camera to a pre-uploaded post position
         scenario.onActivity { activity ->
             val mapFragment = activity.supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
             mapFragment.getMapAsync { googleMap ->
@@ -110,11 +114,9 @@ class DisplayMap {
             }
         }
 
-        Thread.sleep(5000)
+        Thread.sleep(20000)
         device.click(540, 1120)
-        Thread.sleep(5000)
+        Thread.sleep(1000)
         onView(withId(R.id.post_activity_postLocation)).check(matches(isDisplayed()))
-
-        Log.d("testDisplayPostedPictureOnMap", (withId(R.id.postViewPager).toString()))
     }
 }

@@ -457,6 +457,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         "start_lat=$startLat&end_lat=$endLat&" +
                         "start_long=$startLong&end_long=$endLong"
             }
+            Log.d(TAG, "getPostsOnScreen: $url")
 
             val response = withContext(Dispatchers.IO) {
                 HTTPRequest.sendGetRequest(url, this@MapsActivity)

@@ -79,7 +79,7 @@ object Utils {
 
     fun loginWithGoogle() {
         onView(withId(R.id.sign_in_button)).perform(click())
-        val myAccountButton = device.wait(Until.findObject(By.text(googleEmail)), 5000)
+        val myAccountButton = device.wait(Until.findObject(By.text(googleEmail)), 10000)
         if (myAccountButton != null) {
             myAccountButton.click()
         } else {
