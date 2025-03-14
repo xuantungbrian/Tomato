@@ -15,17 +15,16 @@ import { validationResult } from 'express-validator';
 import { ChatService } from '../../service/ChatService';
 
 const {verifyToken} = require('../../middleware/verifyToken')
-// Setup MongoDB in-memory server
 let mongoServer = new MongoMemoryServer();
-// Create the Express app
+
 const app = express();
 config();
-app.use(express.json());  // Middleware to parse JSON bodies
-app.use(morgan('tiny')); // Logger
+app.use(express.json());  
+app.use(morgan('tiny')); 
 
 jest.mock('jsonwebtoken', () => ({
-  ...jest.requireActual('jsonwebtoken'), // import and retain the original functionalities
-  verify: jest.fn().mockReturnValue({id: "user123"}), // overwrite verify
+  ...jest.requireActual('jsonwebtoken'), 
+  verify: jest.fn().mockReturnValue({id: "user123"}), 
   sign: jest.fn().mockReturnValue("token")
   }));
 const chatController = new ChatController();
@@ -33,7 +32,7 @@ const chatService = new ChatService();
 
 //App routes
 ChatRoutes.forEach((route) => {
-    const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
+    const middlewares = (route as any).protected ? [verifyToken] : []; 
 
     (app as any)[route.method](
         route.route,
@@ -55,7 +54,7 @@ ChatRoutes.forEach((route) => {
     );
 });
 
-// Setup for in-memory MongoDB testing
+
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
@@ -68,7 +67,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clean up any existing posts in the database before each test
+  
   await ChatModel.deleteMany({});
   await MessageModel.deleteMany({});
 });
@@ -97,14 +96,14 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
     }
   
     const chat = await request(app)
-      .post('/chats') // Testing the protected /posts route
-      .send(newChat) // Send the post body directly
+      .post('/chats') 
+      .send(newChat) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
   
     const response = await request(app)
-      .post(`/chat/${chat.body._id}`) // Testing the protected /posts route
-      .send(newMessage) // Send the post body directly
+      .post(`/chat/${chat.body._id}`) 
+      .send(newMessage) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
 
@@ -122,8 +121,8 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
     };
   
     const response = await request(app)
-      .post('/chats') // Testing the protected /posts route
-      .send(newChat) // Send the post body directly
+      .post('/chats') 
+      .send(newChat) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
 
@@ -147,19 +146,19 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
   
     const main_user = "user123"
     await request(app)
-      .post('/chats') // Testing the protected /posts route
-      .send(newChat) // Send the post body directly
+      .post('/chats') 
+      .send(newChat) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
   
     await request(app)
-      .post('/chats') // Testing the protected /posts route
-      .send(newChat_2) // Send the post body directly
+      .post('/chats') 
+      .send(newChat_2) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
   
     const response = await request(app)
-      .get('/chats') // Testing the protected /posts route
+      .get('/chats') 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
 
@@ -177,8 +176,8 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
     };
   
     const chat = await request(app)
-      .post('/chats') // Testing the protected /posts route
-      .send(newChat) // Send the post body directly
+      .post('/chats') 
+      .send(newChat) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
   
@@ -201,13 +200,13 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
     };
   
     const chat = await request(app)
-      .post('/chats') // Testing the protected /posts route
-      .send(newChat) // Send the post body directly
+      .post('/chats') 
+      .send(newChat) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
   
     const response = await request(app)
-      .delete(`/chats/${chat.body._id}`) // Testing the protected /posts route
+      .delete(`/chats/${chat.body._id}`) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
       
@@ -231,14 +230,14 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
     }
   
     const chat = await request(app)
-      .post('/chats') // Testing the protected /posts route
-      .send(newChat) // Send the post body directly
+      .post('/chats') 
+      .send(newChat) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
   
     const message = await request(app)
-      .post(`/chat/${chat.body._id}`) // Testing the protected /posts route
-      .send(newMessage) // Send the post body directly
+      .post(`/chat/${chat.body._id}`) 
+      .send(newMessage) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
   
@@ -267,14 +266,14 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
     
     const main_user = "user123"
     await request(app)
-      .post('/chats') // Testing the protected /posts route
-      .send(newChat) // Send the post body directly
+      .post('/chats') 
+      .send(newChat) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
     
     let chat = await request(app)
-      .post('/chats') // Testing the protected /posts route
-      .send(newChat_2) // Send the post body directly
+      .post('/chats') 
+      .send(newChat_2) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
     

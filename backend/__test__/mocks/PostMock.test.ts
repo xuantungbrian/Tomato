@@ -14,7 +14,7 @@ import { validationResult } from 'express-validator';
 const {verifyToken} = require('../../middleware/verifyToken')
 config();
 jest.mock('jsonwebtoken', () => ({
-  ...jest.requireActual('jsonwebtoken'), // import and retain the original functionalities
+  ...jest.requireActual('jsonwebtoken'),
   verify: jest.fn().mockImplementation((token, secret, algorithm) =>
     {
       if (token == "90909090") {
@@ -23,18 +23,14 @@ jest.mock('jsonwebtoken', () => ({
       else {
         return {id: "other"}
       }
-    }), // overwrite verify
+    }),
   sign: jest.fn().mockReturnValue("token")
   }));
-// Setup MongoDB in-memory server
 let mongoServer = new MongoMemoryServer();
-// Create the Express app
 const app = express();
-app.use(express.json());  // Middleware to parse JSON bodies
-app.use(morgan('tiny')); // Logger
+app.use(express.json());  
+app.use(morgan('tiny')); 
 
-// Define your routes
-const postController = new PostController();
 const postService = new PostService();
 PostRoutes.forEach((route) => {
     const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
@@ -59,7 +55,6 @@ PostRoutes.forEach((route) => {
     );
 });
 
-// Setup for in-memory MongoDB testing
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
@@ -72,14 +67,9 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clean up any existing posts in the database before each test
   await PostModel.deleteMany({});
 });
 
-// Unit Tests using Supertest
-/**
- * @jest-environment jsdom
- */
 describe('Mocked Posts API: Erroneus Behaviour', () => {
   beforeEach(() => {
     jest.restoreAllMocks();
@@ -101,8 +91,8 @@ describe('Mocked Posts API: Erroneus Behaviour', () => {
     };
   
     const response = await request(app)
-      .post('/posts') // Testing the protected /posts route
-      .send(newPost) // Send the post body directly
+      .post('/posts') 
+      .send(newPost) 
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
   
@@ -131,7 +121,7 @@ describe('Mocked Posts API: Erroneus Behaviour', () => {
       .expect(200);
 
     const response = await request(app)
-      .get(`/posts/${createdPost.body._id}`) // Test fetching a post by ID
+      .get(`/posts/${createdPost.body._id}`) 
       .expect(200);
 
     expect(response.body.postData).toBeNull()
@@ -175,7 +165,7 @@ describe('Mocked Posts API: Erroneus Behaviour', () => {
       .expect(200);
 
     const response = await request(app)
-      .get(`/posts-authenticated`) // Test fetching a post by ID
+      .get(`/posts-authenticated`) 
       .set('Authorization', 'Bearer 90909090')
       .query({
         userPostOnly: true,
@@ -327,7 +317,7 @@ describe('Mocked Posts API: Erroneus Behaviour', () => {
       .expect(200);
       
     const response = await request(app)
-      .get(`/posts-authenticated`) // Test fetching a post by ID
+      .get(`/posts-authenticated`) 
       .set('Authorization', 'Bearer 90909090')
       .query({
         userPostOnly: false
@@ -378,7 +368,7 @@ describe('Mocked Posts API: Erroneus Behaviour', () => {
       .expect(200);
   
     const response = await request(app)
-      .get(`/posts`) // Test fetching a post by ID
+      .get(`/posts`) 
       .query({
         start_lat: 40.0,
         end_lat: 41.0,

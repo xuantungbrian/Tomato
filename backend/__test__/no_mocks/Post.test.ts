@@ -7,17 +7,15 @@ import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
 import { AuthenticatedRequest } from '../..';
 
-// Setup MongoDB in-memory server
 let mongoServer = new MongoMemoryServer();
-// Create the Express app
-const app = express();
-app.use(express.json());  // Middleware to parse JSON bodies
-app.use(morgan('tiny')); // Logger
 
-// Define your routes
+const app = express();
+app.use(express.json());  
+app.use(morgan('tiny')); 
+
 const postController = new PostController();
 app.get('/posts-authenticated', (req : Request, res : Response, next : NextFunction) => {
-  (req as any).user = { id: 'user123' }; // Mock the authenticated user
+  (req as any).user = { id: 'user123' }; 
   next();
 }, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -27,7 +25,6 @@ app.get('/posts-authenticated', (req : Request, res : Response, next : NextFunct
   }
 }); 
 
-// createPost routes for testing 
 app.post('/posts', (req, res, next) => {
   (req as any).user = { id: 'user123' };
   next();
@@ -47,36 +44,35 @@ app.post('/posts-from-other', (req, res, next) => {
     next(err);
   }}); 
 
-
-app.get('/posts/:id', postController.getPostById);  // Route for getting a post by ID
+app.get('/posts/:id', postController.getPostById);  
 app.put('/posts/:id', (req, res, next) => {
-  (req as any).user = { id: 'user123' }; // Mock the authenticated user
+  (req as any).user = { id: 'user123' }; 
   next();
 }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
   try{
     await postController.updatePost(req as AuthenticatedRequest, res);
   } catch(err) {
     next(err);
-  }});  // Route for updating a post
+  }});  
 app.delete('/posts/:id', (req, res, next) => {
-  (req as any).user = { id: 'user123' }; // Mock the authenticated user
+  (req as any).user = { id: 'user123' }; 
   next();
 }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
   try{
     await postController.deletePost(req as AuthenticatedRequest, res);
   } catch(err) {
     next(err);
-  }});  // Route for deleting a post
+  }});  
 app.get('/posts',  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
       await postController.getPublicPost(req, res);
   } catch (error) {
       next(error);
   }
-});  // Route for deleting a post
- // Route for deleting a post
+});  
+ 
 
-// Setup for in-memory MongoDB testing
+
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
@@ -89,14 +85,9 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clean up any existing posts in the database before each test
   await PostModel.deleteMany({});
 });
 
-// Unit Tests using Supertest
-/**
- * @jest-environment jsdom
- */
 describe('Unmocked Posts API: Expect Behaviour', () => {
   describe('Testing createPost', () => {
     it('should create a post', async () => {
@@ -111,13 +102,13 @@ describe('Unmocked Posts API: Expect Behaviour', () => {
       };
   
       const response = await request(app)
-        .post('/posts') // Testing the protected /posts route
-        .send(newPost) // Send the post body directly
+        .post('/posts') 
+        .send(newPost) 
         .expect(200);
   
-      expect(response.body).toHaveProperty('_id'); // Check that the response contains _id
-      expect(response.body.userId).toBe(newPost.userId); // Check userId matches
-      expect(response.body.note).toBe(newPost.note); // Check note matches
+      expect(response.body).toHaveProperty('_id');
+      expect(response.body.userId).toBe(newPost.userId); 
+      expect(response.body.note).toBe(newPost.note); 
     });
   })
 
@@ -138,7 +129,7 @@ describe('Unmocked Posts API: Expect Behaviour', () => {
       .expect(200);
 
     const response = await request(app)
-      .get(`/posts/${createdPost.body._id}`) // Test fetching a post by ID
+      .get(`/posts/${createdPost.body._id}`)
       .expect(200);
 
     expect(response.body.postData).toHaveProperty('_id');
@@ -208,7 +199,7 @@ describe('Unmocked Posts API: Expect Behaviour', () => {
         .expect(200);
   
       const response = await request(app)
-        .get(`/posts-authenticated`) // Test fetching a post by ID
+        .get(`/posts-authenticated`) 
         .query({
           userPostOnly: true
         })
@@ -282,7 +273,7 @@ describe('Unmocked Posts API: Expect Behaviour', () => {
         .expect(200);
   
       const response = await request(app)
-        .get(`/posts-authenticated`) // Test fetching a post by ID
+        .get(`/posts-authenticated`) 
         .query({
           userPostOnly: true,
           start_lat: 40.0,
@@ -360,7 +351,7 @@ describe('Unmocked Posts API: Expect Behaviour', () => {
         .expect(200);
   
       const response = await request(app)
-        .get(`/posts-authenticated`) // Test fetching a post by ID
+        .get(`/posts-authenticated`) 
         .query({
           userPostOnly: false,
           start_lat: 40.0,
@@ -411,7 +402,7 @@ describe('Unmocked Posts API: Expect Behaviour', () => {
         .expect(200);
   
       const response = await request(app)
-        .get(`/posts`) // Test fetching a post by ID
+        .get(`/posts`) 
         .query({
           start_lat: 40.0,
           end_lat: 41.0,
@@ -457,7 +448,7 @@ describe('Unmocked Posts API: Expect Behaviour', () => {
         .expect(200);
   
       const response = await request(app)
-        .get(`/posts`) // Test fetching a post by ID
+        .get(`/posts`) 
         .expect(200);
   
       expect(response.body[0]).toHaveProperty('_id');
@@ -559,7 +550,7 @@ describe('Managing Posts API: Erroneus Behaviour', () => {
         .expect(200);
   
       const response = await request(app)
-        .get(`/posts`) // Test fetching a post by ID
+        .get(`/posts`) 
         .query({
           start_lat: 8
         })
@@ -675,7 +666,7 @@ describe('Managing Posts API: Erroneus Behaviour', () => {
         .expect(200);
   
       const response = await request(app)
-        .get(`/posts-authenticated`) // Test fetching a post by ID
+        .get(`/posts-authenticated`) 
         .query({
           userPostOnly: false,
           start_lat: 9,

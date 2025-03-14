@@ -9,8 +9,8 @@ import jwt from 'jsonwebtoken';
 import verifyToken from '../../middleware/verifyToken';
 
 jest.mock('jsonwebtoken', () => ({
-...jest.requireActual('jsonwebtoken'), // import and retain the original functionalities
-verify: jest.fn().mockReturnValue({id: "user123"}), // overwrite verify
+...jest.requireActual('jsonwebtoken'), 
+verify: jest.fn().mockReturnValue({id: "user123"}), 
 sign: jest.fn().mockReturnValue("token")
 }));
 jest.mock("google-auth-library", () => {
@@ -25,23 +25,20 @@ jest.mock("google-auth-library", () => {
   };
 });
 
-// Setup MongoDB in-memory server
 let mongoServer = new MongoMemoryServer();
-// Create the Express app
-const app = express();
-app.use(express.json());  // Middleware to parse JSON bodies
-app.use(morgan('tiny')); // Logger
 
-// Define your routes
+const app = express();
+app.use(express.json());  
+app.use(morgan('tiny')); 
+
 const userController = new UserController();
 app.post('/user-faulty/auth', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         await userController.handleGoogleSignIn(req, res);
     } catch (error) {
         next(error);
-    }});  // Route for creating a post
+    }});  
 
-// Setup for in-memory MongoDB testing
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
@@ -54,7 +51,6 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clean up any existing posts in the database before each test
   await UserModel.deleteMany({});
 });
 

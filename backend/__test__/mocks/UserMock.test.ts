@@ -12,8 +12,8 @@ import verifyToken from '../../middleware/verifyToken';
 import { validationResult } from 'express-validator';
 
 jest.mock('jsonwebtoken', () => ({
-...jest.requireActual('jsonwebtoken'), // import and retain the original functionalities
-verify: jest.fn().mockReturnValue({id: "user123"}), // overwrite verify
+...jest.requireActual('jsonwebtoken'),
+verify: jest.fn().mockReturnValue({id: "user123"}), 
 sign: jest.fn().mockReturnValue("token")
 }));
 jest.mock("google-auth-library", () => {
@@ -29,18 +29,16 @@ jest.mock("google-auth-library", () => {
   };
 });
 
-// Setup MongoDB in-memory server
 let mongoServer = new MongoMemoryServer();
-// Create the Express app
-const app = express();
-app.use(express.json());  // Middleware to parse JSON bodies
-app.use(morgan('tiny')); // Logger
 
-// Define your routes
+const app = express();
+app.use(express.json());  
+app.use(morgan('tiny')); 
+
 const userController = new UserController();
 const userService = new UserService();
 UserRoutes.forEach((route) => {
-  const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
+  const middlewares = (route as any).protected ? [verifyToken] : [];
 
   (app as any)[route.method](
       route.route,
@@ -63,7 +61,7 @@ UserRoutes.forEach((route) => {
 });
 
 
-// Setup for in-memory MongoDB testing
+
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
@@ -77,7 +75,6 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clean up any existing posts in the database before each test
   await UserModel.deleteMany({});
 });
 
@@ -98,8 +95,8 @@ describe('Mocked User APIs: Expected Behaviour', () => {
         })
         .expect(200)
 
-    expect(response.body.token).toBe("token"); // Check userId matches
-    expect(response.body.userID).toBe("1234"); // Check userId matches
+    expect(response.body.token).toBe("token"); 
+    expect(response.body.userID).toBe("1234"); 
   });
 
   it('should sign in to google with a non-existant user', async () => {
@@ -117,17 +114,17 @@ describe('Mocked User APIs: Expected Behaviour', () => {
         })
         .expect(200)
 
-    expect(response.body.token).toBe("token"); // Check userId matches
-    expect(response.body.userID).toBe("1234"); // Check userId matches
+    expect(response.body.token).toBe("token"); 
+    expect(response.body.userID).toBe("1234"); 
 
     const response1 = await request(app)
         .get(`/user/${newUser._id}`)
         .expect(200)
     
-    expect(response1.body).toHaveProperty('_id'); // Check that the response contains _id
-    expect(response1.body._id).toBe(newUser._id); // Check userId matches
-    expect(response1.body.username).toBe(newUser.username); // Check userId matches
-    expect(response1.body.firebaseToken).toStrictEqual([newUser.firebaseToken]); // Check userId matches
+    expect(response1.body).toHaveProperty('_id');
+    expect(response1.body._id).toBe(newUser._id); 
+    expect(response1.body.username).toBe(newUser.username); 
+    expect(response1.body.firebaseToken).toStrictEqual([newUser.firebaseToken]); 
   });
 })
 

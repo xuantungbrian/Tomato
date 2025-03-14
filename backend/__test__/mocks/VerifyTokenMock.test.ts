@@ -12,7 +12,7 @@ import { AuthenticatedRequest } from '../..';
 const {verifyToken} = require('../../middleware/verifyToken')
 config();
 jest.mock('jsonwebtoken', () => ({
-  ...jest.requireActual('jsonwebtoken'), // import and retain the original functionalities
+  ...jest.requireActual('jsonwebtoken'),
   verify: jest.fn().mockImplementation((token, secret, algorithm) =>
     {
       if (token == "90909090") {
@@ -21,20 +21,18 @@ jest.mock('jsonwebtoken', () => ({
       else {
         throw new Error("Verify token error")
       }
-    }), // overwrite verify
+    }), 
   sign: jest.fn().mockReturnValue("token")
   }));
-// Setup MongoDB in-memory server
-let mongoServer = new MongoMemoryServer();
-// Create the Express app
-const app = express();
-app.use(express.json());  // Middleware to parse JSON bodies
-app.use(morgan('tiny')); // Logger
 
-// Define your routes
+let mongoServer = new MongoMemoryServer();
+
+const app = express();
+app.use(express.json());  
+app.use(morgan('tiny')); 
+
 const postController = new PostController();
 
-// createPost routes for testing 
 app.post('/posts', verifyToken, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
   try{
     await postController.createPost(req as AuthenticatedRequest, res);
@@ -42,7 +40,6 @@ app.post('/posts', verifyToken, async(req: Request, res: Response, next: NextFun
     next(err);
   }}); 
 
-// Setup for in-memory MongoDB testing
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
@@ -55,14 +52,9 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clean up any existing posts in the database before each test
   await PostModel.deleteMany({});
 });
 
-// Unit Tests using Supertest
-/**
- * @jest-environment jsdom
- */
 describe('Mocked Posts API: Erroneus Behaviour', () => {
   beforeEach(() => {
     jest.restoreAllMocks();
@@ -81,8 +73,8 @@ describe('Mocked Posts API: Erroneus Behaviour', () => {
     };
   
     const response = await request(app)
-      .post('/posts') // Testing the protected /posts route
-      .send(newPost) // Send the post body directly
+      .post('/posts') 
+      .send(newPost)
       .expect(401);
 
     expect(response.body.message).toBe('No token provided')
@@ -102,8 +94,8 @@ describe('Mocked Posts API: Erroneus Behaviour', () => {
     const old_process_env = process.env
     process.env = {}
     const response = await request(app)
-      .post('/posts') // Testing the protected /posts route
-      .send(newPost) // Send the post body directly
+      .post('/posts') 
+      .send(newPost)
       .set('Authorization', 'Bearer 90909090')
       .expect(500);
   
@@ -123,8 +115,8 @@ describe('Mocked Posts API: Erroneus Behaviour', () => {
     };
 
     const response = await request(app)
-      .post('/posts') // Testing the protected /posts route
-      .send(newPost) // Send the post body directly
+      .post('/posts') 
+      .send(newPost)
       .set('Authorization', 'Bearer 90909790')
       .expect(400);
   

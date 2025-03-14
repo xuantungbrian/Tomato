@@ -10,18 +10,16 @@ import { AuthenticatedRequest } from '../..';
 import { RecommendationRoutes } from '../../routes/RecommendationRoutes';
 import { validationResult } from 'express-validator';
 
-// Setup MongoDB in-memory server
 let mongoServer = new MongoMemoryServer();
-// Create the Express app
 const app = express();
-app.use(express.json());  // Middleware to parse JSON bodies
-app.use(morgan('tiny')); // Logger
+app.use(express.json());  
+app.use(morgan('tiny'));
 
-// Define your routes
+
 const recommendationController = new RecommendationController();
 const postController = new PostController();
 const middleware = (req: Request, res: Request, next: NextFunction) => {
-  (req as any).user = { id: 'user123' }; // Mock the authenticated user
+  (req as any).user = { id: 'user123' }; 
   next();
 }
 RecommendationRoutes.forEach((route) => {
@@ -52,9 +50,9 @@ app.get('/recommendations-no-middlewware', async (req, res, next) : Promise<void
     } catch(error) {
       next(error)
     }
-  });  // Route for getting a post by ID
+  });  
 app.post('/posts', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; // Mock the authenticated user
+    (req as any).user = { id: 'user123' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -64,7 +62,7 @@ app.post('/posts', (req, res, next) => {
     }});  
 
 app.post('/posts-from-other', (req, res, next) => {
-    (req as any).user = { id: 'other' }; // Mock the authenticated user
+    (req as any).user = { id: 'other' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -74,7 +72,7 @@ app.post('/posts-from-other', (req, res, next) => {
     }});  
 
 app.post('/posts-from-someone', (req, res, next) => {
-    (req as any).user = { id: 'someone' }; // Mock the authenticated user
+    (req as any).user = { id: 'someone' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -84,7 +82,7 @@ app.post('/posts-from-someone', (req, res, next) => {
     }}); 
 
 app.post('/posts-from-else', (req, res, next) => {
-    (req as any).user = { id: 'else' }; // Mock the authenticated user
+    (req as any).user = { id: 'else' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -94,7 +92,7 @@ app.post('/posts-from-else', (req, res, next) => {
     }}); 
 
 app.post('/posts-from-fourth', (req, res, next) => {
-    (req as any).user = { id: 'fourth' }; // Mock the authenticated user
+    (req as any).user = { id: 'fourth' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -103,7 +101,7 @@ app.post('/posts-from-fourth', (req, res, next) => {
       next(err);
     }}); 
 
-// Setup for in-memory MongoDB testing
+
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
@@ -116,7 +114,6 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clean up any existing posts in the database before each test
   await PostModel.deleteMany({});
 });
 
@@ -451,19 +448,19 @@ describe('Unmocked Recommendations API: Expected Behaviour', () => {
 
     for (let i = 0; i < 6; i++) {
       await request(app)
-        .post('/posts') // Testing the protected /posts route
-        .send(user123[i]) // Send the post body.posts directly
+        .post('/posts') 
+        .send(user123[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-other') // Testing the protected /posts route
-        .send(other[i]) // Send the post body.posts directly
+        .post('/posts-from-other') 
+        .send(other[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-someone') // Testing the protected /posts route
-        .send(someone[i]) // Send the post body.posts directly
+        .post('/posts-from-someone') 
+        .send(someone[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-else') // Testing the protected /posts route
+        .post('/posts-from-else') 
         .send(else_[i]) 
         .expect(200);
       await request(app)
@@ -878,19 +875,19 @@ describe('Unmocked Recommendations API: Expected Behaviour', () => {
 
     for (let i = 0; i < 6; i++) {
       await request(app)
-        .post('/posts') // Testing the protected /posts route
-        .send(user123[i]) // Send the post body.posts directly
+        .post('/posts') 
+        .send(user123[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-other') // Testing the protected /posts route
-        .send(other[i]) // Send the post body.posts directly
+        .post('/posts-from-other') 
+        .send(other[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-someone') // Testing the protected /posts route
-        .send(someone[i]) // Send the post body.posts directly
+        .post('/posts-from-someone') 
+        .send(someone[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-else') // Testing the protected /posts route
+        .post('/posts-from-else') 
         .send(else_[i]) 
         .expect(200);
       await request(app)
@@ -1253,19 +1250,19 @@ describe('Unmocked Recommendations API: Expected Behaviour', () => {
 
     for (let i = 0; i < 6; i++) {
       await request(app)
-        .post('/posts') // Testing the protected /posts route
-        .send(user123[i]) // Send the post body.posts directly
+        .post('/posts') 
+        .send(user123[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-other') // Testing the protected /posts route
-        .send(other[i]) // Send the post body.posts directly
+        .post('/posts-from-other') 
+        .send(other[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-someone') // Testing the protected /posts route
-        .send(someone[i]) // Send the post body.posts directly
+        .post('/posts-from-someone') 
+        .send(someone[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-else') // Testing the protected /posts route
+        .post('/posts-from-else') 
         .send(else_[i]) 
         .expect(200);
       await request(app)
@@ -1632,19 +1629,19 @@ describe('Unmocked Recommendations API: Expected Behaviour', () => {
 
     for (let i = 0; i < 6; i++) {
       await request(app)
-        .post('/posts') // Testing the protected /posts route
-        .send(user123[i]) // Send the post body.posts directly
+        .post('/posts') 
+        .send(user123[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-other') // Testing the protected /posts route
-        .send(other[i]) // Send the post body.posts directly
+        .post('/posts-from-other') 
+        .send(other[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-someone') // Testing the protected /posts route
-        .send(someone[i]) // Send the post body.posts directly
+        .post('/posts-from-someone') 
+        .send(someone[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-else') // Testing the protected /posts route
+        .post('/posts-from-else') 
         .send(else_[i]) 
         .expect(200);
       await request(app)
@@ -1993,19 +1990,19 @@ describe('Unmocked Recommendations API: Expected Behaviour', () => {
 
     for (let i = 0; i < 6; i++) {
       await request(app)
-        .post('/posts') // Testing the protected /posts route
-        .send(user123[i]) // Send the post body.posts directly
+        .post('/posts') 
+        .send(user123[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-other') // Testing the protected /posts route
-        .send(other[i]) // Send the post body.posts directly
+        .post('/posts-from-other') 
+        .send(other[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-someone') // Testing the protected /posts route
-        .send(someone[i]) // Send the post body.posts directly
+        .post('/posts-from-someone') 
+        .send(someone[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-else') // Testing the protected /posts route
+        .post('/posts-from-else') 
         .send(else_[i]) 
         .expect(200);
       await request(app)
@@ -2360,15 +2357,15 @@ describe('Unmocked Recommendations API: Expected Behaviour', () => {
 
     for (let i = 0; i < 6; i++) {
       await request(app)
-        .post('/posts-from-other') // Testing the protected /posts route
-        .send(other[i]) // Send the post body.posts directly
+        .post('/posts-from-other') 
+        .send(other[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-someone') // Testing the protected /posts route
-        .send(someone[i]) // Send the post body.posts directly
+        .post('/posts-from-someone') 
+        .send(someone[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-else') // Testing the protected /posts route
+        .post('/posts-from-else') 
         .send(else_[i]) 
         .expect(200);
       await request(app)
@@ -2723,15 +2720,15 @@ describe('Unmocked Recommendations API: Expected Behaviour', () => {
 
     for (let i = 0; i < 6; i++) {
       await request(app)
-        .post('/posts-from-other') // Testing the protected /posts route
-        .send(other[i]) // Send the post body.posts directly
+        .post('/posts-from-other') 
+        .send(other[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-someone') // Testing the protected /posts route
-        .send(someone[i]) // Send the post body.posts directly
+        .post('/posts-from-someone') 
+        .send(someone[i]) 
         .expect(200);
       await request(app)
-        .post('/posts-from-else') // Testing the protected /posts route
+        .post('/posts-from-else') 
         .send(else_[i]) 
         .expect(200);
       await request(app)
@@ -2852,12 +2849,12 @@ describe('Unmocked Recommendations API: Erroneus Behaviour', () => {
     };
 
     await request(app)
-        .post('/posts-from-someone') // Testing the protected /posts route
-        .send(newPost1) // Send the post body.posts directly
+        .post('/posts-from-someone') 
+        .send(newPost1) 
         .expect(200);
     await request(app)
-        .post('/posts-from-someone') // Testing the protected /posts route
-        .send(newPost2) // Send the post body.posts directly
+        .post('/posts-from-someone') 
+        .send(newPost2) 
         .expect(200);
     const response = await request(app)
       .get("/recommendations-no-middlewware")

@@ -7,14 +7,12 @@ import { UserController } from '../../controllers/UserController';
 import { UserModel } from '../../model/UserModel';
 import { UserService } from '../../service/UserService';
 
-// Setup MongoDB in-memory server
 let mongoServer = new MongoMemoryServer();
-// Create the Express app
-const app = express();
-app.use(express.json());  // Middleware to parse JSON bodies
-app.use(morgan('tiny')); // Logger
 
-// Define your routes
+const app = express();
+app.use(express.json());  
+app.use(morgan('tiny')); 
+
 const userController = new UserController();
 const userService = new UserService();
 app.post('/user/auth', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -22,15 +20,14 @@ app.post('/user/auth', async (req: Request, res: Response, next: NextFunction): 
         await userController.handleGoogleSignIn(req, res);
     } catch (error) {
         next(error);
-    }});  // Route for creating a post
+    }}); 
 app.get('/user/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
       await userController.getUser(req, res);
   } catch (error) {
       next(error);
-  }}); // Route for getting a post by ID
+  }}); 
 
-// Setup for in-memory MongoDB testing
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
@@ -43,7 +40,6 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clean up any existing posts in the database before each test
   await UserModel.deleteMany({});
 });
 
@@ -60,10 +56,10 @@ describe('Unmocked User APIs: Expected Behaviour', () => {
         .get(`/user/${newUser._id}`)
         .expect(200)
 
-    expect(response.body).toHaveProperty('_id'); // Check that the response contains _id
-    expect(response.body._id).toBe(newUser._id); // Check userId matches
-    expect(response.body.username).toBe(newUser.username); // Check userId matches
-    expect(response.body.firebaseToken).toStrictEqual([newUser.firebaseToken]); // Check userId matches
+    expect(response.body).toHaveProperty('_id');
+    expect(response.body._id).toBe(newUser._id);
+    expect(response.body.username).toBe(newUser.username);
+    expect(response.body.firebaseToken).toStrictEqual([newUser.firebaseToken]);
   });
 })
 

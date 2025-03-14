@@ -9,19 +9,16 @@ import { MessageModel } from '../../model/MessageModel';
 import { AuthenticatedRequest } from '../..';
 import { ChatService } from '../../service/ChatService';
 
-// Setup MongoDB in-memory server
 let mongoServer = new MongoMemoryServer();
-// Create the Express app
-const app = express();
-app.use(express.json());  // Middleware to parse JSON bodies
-app.use(morgan('tiny')); // Logger
 
+const app = express();
+app.use(express.json());  
+app.use(morgan('tiny')); 
 
 const chatController = new ChatController();
 const chatService = new ChatService();
 
 //App routes
-
 // createChat routes for testing
 app.post('/chats', (req, res, next) => {
   (req as any).user = { id: 'user123' };
@@ -49,24 +46,24 @@ app.post('/chats-no-middleware', async(req: Request, res: Response, next: NextFu
   }});
 // getChatMessages routes for testing
 app.get('/chats/:id', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; // Mock the authenticated user
+    (req as any).user = { id: 'user123' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
       await chatController.getChatMessages(req as AuthenticatedRequest, res);
     } catch(err) {
       next(err);
-    }});  // Route for getting a post by ID
+    }});  
 app.get('/chats-no-middleware/:id', async(req: Request, res: Response, next: NextFunction): Promise<void> => {
   try{
     await chatController.getChatMessages(req as AuthenticatedRequest, res);
   } catch(err) {
     next(err);
-  }});  // Route for getting a post by ID
+  }});  
 
 // getChats routes for testing
 app.get('/chats', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; // Mock the authenticated user
+    (req as any).user = { id: 'user123' }; 
     next();
   },async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -83,7 +80,7 @@ app.get('/chats-unauthorized', async(req: Request, res: Response, next: NextFunc
 
 // addMessage routes for testing
 app.post('/chat/:id', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; // Mock the authenticated user
+    (req as any).user = { id: 'user123' }; 
     next();
   },async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -92,7 +89,7 @@ app.post('/chat/:id', (req, res, next) => {
       next(err);
     }});
 app.post('/chat-string/:id', (req, res, next) => {
-    (req as any).user = { id: 'string' }; // Mock the authenticated user
+    (req as any).user = { id: 'string' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -109,7 +106,7 @@ app.post('/chat-no-middleware/:id', async(req: Request, res: Response, next: Nex
 
 // deleteChat routes for testing
 app.delete('/chats/:id', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; // Mock the authenticated user
+    (req as any).user = { id: 'user123' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -126,7 +123,7 @@ app.delete('/chats-no-middleware/:id', async(req: Request, res: Response, next: 
 
 // deleteMessage routes for testing
 app.delete('/chat/:id/messages/:message_id', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; // Mock the authenticated user
+    (req as any).user = { id: 'user123' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -141,7 +138,7 @@ app.delete('/chat-no-middleware/:id/messages/:message_id', async(req: Request, r
     next(err);
   }});
 
-// Setup for in-memory MongoDB testing
+
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
@@ -154,7 +151,6 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Clean up any existing posts in the database before each test
   await ChatModel.deleteMany({});
   await MessageModel.deleteMany({});
 });
@@ -170,13 +166,13 @@ describe('Unmocked Chats API: Expected Behaviour', () => {
       const main_user = "user123"
       const other_user = "String"
       const response = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
-      expect(response.body).toHaveProperty('_id'); // Check that the response contains _id
-      expect([response.body.member_1, response.body.member_2]).toContain(main_user); // Check userId matches
-      expect([response.body.member_1, response.body.member_2]).toContain(other_user); // Check userId matches
+      expect(response.body).toHaveProperty('_id'); 
+      expect([response.body.member_1, response.body.member_2]).toContain(main_user); 
+      expect([response.body.member_1, response.body.member_2]).toContain(other_user); 
     });
   })
 
@@ -194,20 +190,20 @@ describe('Unmocked Chats API: Expected Behaviour', () => {
   
       const main_user = "user123"
       await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
       await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat_2) // Send the post body directly
+        .post('/chats') 
+        .send(newChat_2) 
         .expect(200);
   
       const response = await request(app)
-        .get('/chats') // Testing the protected /posts route
+        .get('/chats') 
         .expect(200);
-      expect(response.body[0]).toHaveProperty('_id'); // Check that the response contains _id
-      expect([response.body[0].member_1, response.body[0].member_2]).toContain(main_user); // Check userId matches
+      expect(response.body[0]).toHaveProperty('_id'); 
+      expect([response.body[0].member_1, response.body[0].member_2]).toContain(main_user); 
       expect([response.body[1].member_1, response.body[1].member_2]).toContain(main_user);
     });
 
@@ -224,18 +220,18 @@ describe('Unmocked Chats API: Expected Behaviour', () => {
   
       const main_user = "user123"
       await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
       let chat = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat_2) // Send the post body directly
+        .post('/chats') 
+        .send(newChat_2) 
         .expect(200);
   
       const response = await chatService.getChat(chat.body._id);
-      expect(response).toHaveProperty('_id'); // Check that the response contains _id
-      expect([response?.member_1, response?.member_2]).toContain(main_user); // Check userId matches
+      expect(response).toHaveProperty('_id'); 
+      expect([response?.member_1, response?.member_2]).toContain(main_user); 
       expect([response?.member_1, response?.member_2]).toContain(main_user);
     });
   })
@@ -254,19 +250,19 @@ describe('Unmocked Chats API: Expected Behaviour', () => {
   
       const main_user = "user123"
       const chat = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
       const response = await request(app)
-        .post(`/chat/${chat.body._id}`) // Testing the protected /posts route
-        .send(newMessage) // Send the post body directly
+        .post(`/chat/${chat.body._id}`) 
+        .send(newMessage) 
         .expect(200);
   
-      expect(response.body).toHaveProperty('_id'); // Check that the response contains _id
-      expect(response.body.sender).toBe(main_user); // Check userId matches
-      expect(response.body.message).toBe("hi"); // Check userId matches
-      expect(response.body.chatroom_id).toBe(chat.body._id); // Check userId matches
+      expect(response.body).toHaveProperty('_id'); 
+      expect(response.body.sender).toBe(main_user); 
+      expect(response.body.message).toBe("hi"); 
+      expect(response.body.chatroom_id).toBe(chat.body._id); 
     });
   })
   
@@ -284,13 +280,13 @@ describe('Unmocked Chats API: Expected Behaviour', () => {
   
       const main_user = "user123"
       const chat = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
       const message = await request(app)
-        .post(`/chat/${chat.body._id}`) // Testing the protected /posts route
-        .send(newMessage) // Send the post body directly
+        .post(`/chat/${chat.body._id}`) 
+        .send(newMessage) 
         .expect(200);
   
       const response = await request(app)
@@ -299,10 +295,10 @@ describe('Unmocked Chats API: Expected Behaviour', () => {
   
       const deleted = await MessageModel.findById(message.body._id)
   
-      expect(response.body).toHaveProperty('_id'); // Check that the response contains _id
-      expect(response.body.sender).toBe(main_user); // Check userId matches
-      expect(response.body.message).toBe("hi"); // Check userId matches
-      expect(response.body.chatroom_id).toBe(chat.body._id); // Check userId matches
+      expect(response.body).toHaveProperty('_id'); 
+      expect(response.body.sender).toBe(main_user); 
+      expect(response.body.message).toBe("hi"); 
+      expect(response.body.chatroom_id).toBe(chat.body._id); 
       expect(deleted).toBeNull()
     });
   })
@@ -326,31 +322,31 @@ describe('Unmocked Chats API: Expected Behaviour', () => {
   
       const main_user = "user123"
       const chat = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
       const message1 = await request(app)
-        .post(`/chat/${chat.body._id}`) // Testing the protected /posts route
-        .send(newMessage) // Send the post body directly
+        .post(`/chat/${chat.body._id}`) 
+        .send(newMessage) 
         .expect(200);
   
       const message2 = await request(app)
-        .post(`/chat/${chat.body._id}`) // Testing the protected /posts route
-        .send(newMessage_2) // Send the post body directly
+        .post(`/chat/${chat.body._id}`) 
+        .send(newMessage_2) 
         .expect(200);
   
       const response = await request(app)
         .get(`/chats/${chat.body._id}`)
         .expect(200)
   
-      expect(response.body[0]).toHaveProperty('_id'); // Check that the response contains _id
-      expect(response.body[0].sender).toBe(main_user); // Check userId matches
-      expect(response.body[0].message).toBe("hi"); // Check userId matches
-      expect(response.body[0].chatroom_id).toBe(chat.body._id); // Check userId matches
-      expect(response.body[1].sender).toBe(main_user); // Check userId matches
-      expect(response.body[1].message).toBe("whats up"); // Check userId matches
-      expect(response.body[1].chatroom_id).toBe(chat.body._id); // Check userId matches
+      expect(response.body[0]).toHaveProperty('_id'); 
+      expect(response.body[0].sender).toBe(main_user); 
+      expect(response.body[0].message).toBe("hi"); 
+      expect(response.body[0].chatroom_id).toBe(chat.body._id); 
+      expect(response.body[1].sender).toBe(main_user); 
+      expect(response.body[1].message).toBe("whats up"); 
+      expect(response.body[1].chatroom_id).toBe(chat.body._id); 
     });
   })
 
@@ -363,17 +359,17 @@ describe('Unmocked Chats API: Expected Behaviour', () => {
   
       const main_user = "user123"
       const chat = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
       const response = await request(app)
-        .delete(`/chats/${chat.body._id}`) // Testing the protected /posts route
+        .delete(`/chats/${chat.body._id}`) 
         .expect(200);
   
       const deleted = await ChatModel.findById(response.body._id)
-      expect(response.body).toHaveProperty('_id'); // Check that the response contains _id
-      expect([response.body.member_1, response.body.member_2]).toContain(main_user); // Check userId matches
+      expect(response.body).toHaveProperty('_id'); 
+      expect([response.body.member_1, response.body.member_2]).toContain(main_user); 
       expect(deleted).toBeNull();
     });
   })
@@ -394,13 +390,13 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
   
       const main_user = "user123"
       const chat = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
       const response = await request(app)
-        .post(`/chat/${chat.body._id}`) // Testing the protected /posts route
-        .send(newMessage) // Send the post body directly
+        .post(`/chat/${chat.body._id}`) 
+        .send(newMessage) 
         .expect(401);
       
     });
@@ -418,13 +414,13 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
   
       const main_user = "user123"
       const chat = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
       const response = await request(app)
-        .post(`/chat-no-middleware/${chat.body._id}`) // Testing the protected /posts route
-        .send(newMessage) // Send the post body directly
+        .post(`/chat-no-middleware/${chat.body._id}`) 
+        .send(newMessage) 
         .expect(401);
     });
 
@@ -438,13 +434,13 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
   
       const main_user = "user123"
       const chat = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
       const response = await request(app)
-        .post(`/chat/${chat.body._id}`) // Testing the protected /posts route
-        .send(newMessage) // Send the post body directly
+        .post(`/chat/${chat.body._id}`) 
+        .send(newMessage) 
         .expect(400);
     });
   })
@@ -457,8 +453,8 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
       };
   
       const response = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(401);
     })
 
@@ -469,8 +465,8 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
       };
   
       const response = await request(app)
-        .post('/chats-no-middleware') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats-no-middleware') 
+        .send(newChat) 
         .expect(401);
     })
 
@@ -483,18 +479,18 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
       const main_user = "user123"
       const other_user = "String"
       const first = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
 
       const response = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
-      expect(response.body).toHaveProperty('_id'); // Check that the response contains _id
-      expect([response.body.member_1, response.body.member_2]).toContain(main_user); // Check userId matches
-      expect([response.body.member_1, response.body.member_2]).toContain(other_user); // Check userId matches
+      expect(response.body).toHaveProperty('_id'); 
+      expect([response.body.member_1, response.body.member_2]).toContain(main_user); 
+      expect([response.body.member_1, response.body.member_2]).toContain(other_user); 
     })
 
     it("should fail to create a chat without all the members", async () => {
@@ -503,8 +499,8 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
       };
   
       const response = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(400);
     })
   })
@@ -523,17 +519,17 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
   
       const main_user = "user123"
       await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
       await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat_2) // Send the post body directly
+        .post('/chats') 
+        .send(newChat_2) 
         .expect(200);
   
       const response = await request(app)
-        .get('/chats-unauthorized') // Testing the protected /posts route
+        .get('/chats-unauthorized') 
         .expect(401);
     });
   })
@@ -546,8 +542,8 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
       };
   
       const chat = await request(app)
-        .post('/chats-string') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats-string') 
+        .send(newChat) 
         .expect(200);
   
       const response = await request(app)
@@ -562,8 +558,8 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
       };
   
       const chat = await request(app)
-        .post('/chats-string') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats-string') 
+        .send(newChat) 
         .expect(200);
   
       const response = await request(app)
@@ -578,8 +574,8 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
       };
   
       const chat = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
 
       const newId = new mongoose.Types.ObjectId(0)
@@ -594,7 +590,7 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
     it('should fail to delete non-existant chat', async () => {
       const newId = new mongoose.Types.ObjectId(0)
       const response = await request(app)
-        .delete(`/chats/${newId}`) // Testing the protected /posts route
+        .delete(`/chats/${newId}`) 
         .expect(404);
     });
 
@@ -605,12 +601,12 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
       };
   
       const chat = await request(app)
-        .post('/chats-string') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats-string') 
+        .send(newChat) 
         .expect(200);
   
       const response = await request(app)
-        .delete(`/chats-no-middleware/${chat.body._id}`) // Testing the protected /posts route
+        .delete(`/chats-no-middleware/${chat.body._id}`) 
         .expect(401);
     });
 
@@ -621,12 +617,12 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
       };
   
       const chat = await request(app)
-        .post('/chats-string') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats-string') 
+        .send(newChat) 
         .expect(200);
   
       const response = await request(app)
-        .delete(`/chats/${chat.body._id}`) // Testing the protected /posts route
+        .delete(`/chats/${chat.body._id}`) 
         .expect(401);
     });
   })
@@ -635,7 +631,7 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
     it('should fail to delete non-existant message', async () => {
       const newId = new mongoose.Types.ObjectId(0)
       const response = await request(app)
-        .delete(`/chat/${newId}/messages/${newId}`) // Testing the protected /posts route
+        .delete(`/chat/${newId}/messages/${newId}`) 
         .expect(404);
     });
 
@@ -651,13 +647,13 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
       }
   
       const chat = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
       const message = await request(app)
-        .post(`/chat-string/${chat.body._id}`) // Testing the protected /posts route
-        .send(newMessage) // Send the post body directly
+        .post(`/chat-string/${chat.body._id}`) 
+        .send(newMessage) 
         .expect(200);
   
       const response = await request(app)
@@ -677,13 +673,13 @@ describe('Unmocked Chats API: Erroneus Behaviour', () => {
       }
   
       const chat = await request(app)
-        .post('/chats') // Testing the protected /posts route
-        .send(newChat) // Send the post body directly
+        .post('/chats') 
+        .send(newChat) 
         .expect(200);
   
       const message = await request(app)
-        .post(`/chat/${chat.body._id}`) // Testing the protected /posts route
-        .send(newMessage) // Send the post body directly
+        .post(`/chat/${chat.body._id}`) 
+        .send(newMessage) 
         .expect(200);
   
       const response = await request(app)
