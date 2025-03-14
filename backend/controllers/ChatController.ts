@@ -11,7 +11,7 @@ export class ChatController {
     }
 
     createChat = async (req: Request, res: Response) => {
-        const { member_1, member_2 } = req.body;
+        const { member_1, member_2 } = req.body as { member_1: string, member_2: string };
         res.json(await this.chatService.createChat(member_1 as string, member_2 as string));
     }
 

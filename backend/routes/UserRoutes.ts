@@ -9,7 +9,7 @@ export const UserRoutes: Route[] = [
     {
         method: "post",
         route: "/user/auth",    
-        action: userController.handleGoogleSignIn,
+        action: (req, res) => userController.handleGoogleSignIn(req, res),
         validation: [],
         protected: false
     },
@@ -17,7 +17,7 @@ export const UserRoutes: Route[] = [
     {
         method: "get",
         route: "/user/:id",    
-        action: userController.getUser,
+        action: (req, res) => userController.getUser(req, res),
         validation: [],
         protected: false
     }
