@@ -19,7 +19,7 @@ export class RecommendationController {
 
         const userId : string = req.user.id
         const max : number = !isNaN(Number(req.query.max)) ? parseInt(req.query.max as string, 10) : 10
-        const posts : Post[] = (await this.postService.getUserPost(userId, true)) as Post[]
+        const posts : Post[] = (await this.postService.getUserPost(userId, true))!
         // let similar_users : Array<String> = []
         let similar_users : string[] = []
         let just_coords : string[] = []
@@ -38,7 +38,7 @@ export class RecommendationController {
         if (similar_users.length > 0) {
             for (let i = 0; i < 3 && similar_users.length > 0; i++) {
                 const most_similar : string = this.mode(similar_users) // userId
-                const most_similar_posts : Post[] = await this.postService.getUserPost(most_similar, true) as Post[]
+                const most_similar_posts : Post[] = (await this.postService.getUserPost(most_similar, true))!
                 most_similar_posts?.forEach(sim_post => {
                     if (!just_coords.includes((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))) {
                         potential_places.push((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))

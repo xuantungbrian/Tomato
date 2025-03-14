@@ -121,8 +121,8 @@ function sendPushNotification(token: string, messageBody: string, chatId: string
     };
 
     admin.messaging().send(payload)
-        .then(response => console.log("Notification delivered:", response))
-        .catch(error => console.error("Notification failed:", error));
+        .then(response => {console.log("Notification delivered:", response)})
+        .catch(error => {console.error("Notification failed:", error)});
 }
 
 export default startWSS;
