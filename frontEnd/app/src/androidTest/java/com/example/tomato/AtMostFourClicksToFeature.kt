@@ -6,6 +6,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -227,10 +228,11 @@ class AtMostFourClicksToFeature {
 
         // Click on chat
         onView(withId(R.id.map_activity_chat_button)).perform(click())
+        Thread.sleep(5000)
         stepCount++
 
         // Reach chat feature
-        onView(withId(R.id.chatList)).check(matches(isDisplayed()))
+        onView(withText("Chat List")).check(matches(isDisplayed()))
         assert(stepCount <= 4)
     }
 }
