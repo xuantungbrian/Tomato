@@ -305,7 +305,7 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Purpose**: Retrieve chat history for a particular chat.
         3. `public static Chat createChat(String member_1, String member_2)`
             - **Purpose**: Creates a new chat between two users, returns the existing chat if one already exists between two users.
-        4. `public static Chat getChat(String userId)`
+        4. `public static Chat getChats(String userId)`
             - **Purpose**: Retrieves all chats that a user is apart of.
         5. `public static Chat deleteChat(String chatId)`
             - **Purpose**: Deletes a chat with the given id.
