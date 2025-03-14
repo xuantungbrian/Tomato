@@ -3,7 +3,6 @@ import { validationResult } from 'express-validator';
 import { PostRoutes } from './routes/PostRoutes';
 import connectDB  from "./db";
 import morgan from 'morgan'
-import verifyToken from './middleware/verifyToken'
 import { UserRoutes } from './routes/UserRoutes';
 import { ChatRoutes } from './routes/ChatRoutes';
 import { config } from 'dotenv';
@@ -11,6 +10,7 @@ import startWSS from './wss';
 import { RecommendationRoutes } from './routes/RecommendationRoutes';
 config();
 
+const {verifyToken} = require('./middleware/verifyToken')
 const app = express();
 
 app.use(express.json({limit: '100mb'}));
