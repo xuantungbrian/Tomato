@@ -60,8 +60,8 @@ export class RecommendationController {
             const every_post = await this.postService.getEveryPost()
 
             every_post?.forEach(all_post => {
-                let lati : number = all_post.latitude? all_post.latitude as number : 0
-                let longi : number = all_post.longitude? all_post.longitude as number : 0
+                let lati : number = all_post.latitude? all_post.latitude : 0
+                let longi : number = all_post.longitude? all_post.longitude : 0
                 const curr_coord : string = lati.toString().concat(" ", longi.toString())
                 if (!just_coords.includes(curr_coord)) {
                     potential_places.push(curr_coord)
@@ -83,8 +83,8 @@ export class RecommendationController {
             if (!place) {
                 break;
             }
-            let lat : number = parseFloat(place.split(" ", 2)[0] as string) 
-            let long : number = parseFloat(place.split(" ", 2)[1] as string)
+            let lat : number = parseFloat(place.split(" ", 2)[0]) 
+            let long : number = parseFloat(place.split(" ", 2)[1])
             let posts : Post[] = await this.postService.getPostsAtLocation(lat, long, false) as Post[]
             for(let post of posts){
                 best_posts.push(post)

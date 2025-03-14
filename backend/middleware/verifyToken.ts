@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import { AuthenticatedRequest } from '..';
 
 
-const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
+const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     const token = req.header("Authorization")?.replace("Bearer ", "");
     const JWT_SECRET = process.env.JWT_SECRET
 
@@ -31,7 +31,8 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
             next();  // Proceed to the next middleware or route handler
         } catch (err) {
             console.log("INVALID TOKEN")
-            return res.status(400).json({ message: 'Invalid token.' });
+            res.status(400).json({ message: 'Invalid token.' });
+            return
         }
 
     }
