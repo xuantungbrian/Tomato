@@ -2,7 +2,7 @@ import { PostService } from "../service/PostService";
 import { Request, Response } from "express";
 import MissingCoordinateException from "../errors/customError";
 import { PostModel, Post } from "../model/PostModel";
-import { AuthenticatedRequest } from "..";
+import { AuthenticatedRequest, isAuthenticatedRequest } from "..";
 
 interface ImageData {
     fileData: Buffer;
@@ -21,7 +21,7 @@ export class PostController {
         this.postService = new PostService();
     }
 
-    createPost = async (req: AuthenticatedRequest, res: Response) => {
+    createPost = async (req: Request, res: Response) => {
         const rawPost: RawPost = req.body;
         const images = (rawPost.images as string[]).map((str: string): ImageData => ({
             fileData: Buffer.from(str, 'base64'),
@@ -36,7 +36,7 @@ export class PostController {
         res.json(await this.postService.createPost(post))
     }
 
-    getPublicPost = async (req: Request, res: Response) => {
+    getPublicPost = async (req: Request, res: Response): Promise<void> => {
         try {
             const { parsedStartLat, parsedEndLat, parsedStartLong, parsedEndLong } = parseLocationParam(req)
 
@@ -51,18 +51,23 @@ export class PostController {
         catch (error) {
             if (error instanceof MissingCoordinateException) {
                 console.log("User Provided Invalid coordinate: ", error)
-                return res.status(400).json({ message: "Incomplete coordinate" });
+                res.status(400).json({ message: "Incomplete coordinate" });
             }
             else {
                 console.log("Error: ", error);
-                return res.status(500).json({ message: "Internal Server Error" });
+                res.status(500).json({ message: "Internal Server Error" });
 
             }
         }
     };
 
 
-    getAuthenticatedUserPost = async (req: AuthenticatedRequest, res: Response) => {
+    getAuthenticatedUserPost = async (req: Request, res: Response) => {
+        if (!isAuthenticatedRequest(req)) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+
         try {
             const { userPostOnly, start_lat, end_lat, start_long, end_long } = req.query;
 
@@ -78,11 +83,13 @@ export class PostController {
             res.json(await this.postService.getUserPost(userId, parsedUserPostOnly, parsedStartLat,
                 parsedEndLat, parsedStartLong,
                 parsedEndLong))
+            return
         }
 
         catch (err) {
             console.log("ERROR: ", err)
-            return res.status(500).json({ message: "Internal Server Error" })
+            res.status(500).json({ message: "Internal Server Error" })
+            return
         }
 
 
@@ -97,14 +104,22 @@ export class PostController {
         res.json({ postData });
     }
 
-    updatePost = async (req: AuthenticatedRequest, res: Response) => {
+    updatePost = async (req: Request, res: Response): Promise<void> => {
+        if (!isAuthenticatedRequest(req)) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
         const postId = req.params.id
         const updatedPost = req.body
         updatedPost.userId = req.user.id
         res.json(await this.postService.updatePost(postId, updatedPost))
     }
 
-    deletePost = async (req: AuthenticatedRequest, res: Response) => {
+    deletePost = async (req: Request, res: Response): Promise<void> => {
+        if (!isAuthenticatedRequest(req)) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
         const postId = req.params.id
 
         // Ensure that the post really belongs to the user

@@ -24,6 +24,10 @@ export interface AuthenticatedRequest extends Request {
     }; 
 }
 
+export function isAuthenticatedRequest(req: Request): req is AuthenticatedRequest {
+    return (req as AuthenticatedRequest).user !== undefined;
+}
+
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
 });

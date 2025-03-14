@@ -34,7 +34,7 @@ export class PostService {
         try {
             const newPost: mongoose.Document = new PostModel(post);
             await newPost.save();
-            return newPost;
+            return newPost.toObject() as Post;
         } catch (error) {
             console.error("Error creating post:", error);
             return null;
@@ -180,12 +180,15 @@ export class PostService {
         }
     }
 
-    async getPostsAtLocation(lat: number, long: number): Promise<Post[] | null> {
+    async getPostsAtLocation(lat: number, long: number, private_post: boolean) {
         try {
-            return await PostModel.find({$and:[{latitude: lat}, {longitude: long}]}).exec();
+            if (!private_post)
+                return PostModel.find({$and:[{latitude: lat}, {longitude: long}, {isPrivate: false}]})
+            else
+                return PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
         } catch(error) {
-            console.error("Error getting all posts at the location", error);
-            return null;
+            console.log("Error getting all posts at the location", error)
+            return null
         }
     }
 }

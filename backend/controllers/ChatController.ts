@@ -1,6 +1,6 @@
 import { ChatService } from "../service/ChatService";
 import { Request, Response } from "express"
-import { AuthenticatedRequest } from "../index";
+import { AuthenticatedRequest, isAuthenticatedRequest } from "../index";
 
 
 export class ChatController {
@@ -10,33 +10,42 @@ export class ChatController {
         this.chatService = new ChatService();
     }
 
-    createChat = async (req: Request<{ id: string }, {}, { member_1: string; member_2: string }>, res: Response) => {
+    createChat = async (req: Request, res: Response) => {
         const { member_1, member_2 } = req.body;
         res.json(await this.chatService.createChat(member_1, member_2));
     }
 
-    getChats = async (req: AuthenticatedRequest, res: Response) => {
+    getChats = async (req: Request, res: Response): Promise<void> => {
+        if (!isAuthenticatedRequest(req)) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+
         const userId = req.user.id; 
         res.json(await this.chatService.getChats(userId));
     }
 
-    getChatMessages = async (req: Request<{ id: string }>, res: Response) => {
+    getChatMessages = async (req: Request, res: Response): Promise<void> => {
+        if (!isAuthenticatedRequest(req)) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
         const chatId = req.params.id
         res.json(await this.chatService.getChatMessages(chatId));
     }
 
-    addMessage = async (req: Request<{ id: string }, {}, { sender: string; message: string }>, res: Response) => {
+    addMessage = async (req: Request, res: Response) => {
         let message = req.body
         let chatroom_id = req.params.id
         res.json(await this.chatService.addMessage(chatroom_id, message.sender, message.message))
     }
 
-    deleteMessage = async (req: Request<{ message_id: string }>, res: Response) => {
+    deleteMessage = async (req: Request, res: Response) => {
         const messageId = req.params.message_id;
         res.json(await this.chatService.deleteMessage(messageId));
     }
 
-    deleteChat = async (req: Request<{ id: string }>, res: Response) => {
+    deleteChat = async (req: Request, res: Response) => {
         const chatId = req.params.id;
         res.json(await this.chatService.deleteChat(chatId));
     }
