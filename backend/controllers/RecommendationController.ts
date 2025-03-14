@@ -35,12 +35,10 @@ export class RecommendationController {
             })
         }
         let potential_places : string[] = []
-        console.log("SIMILAR USERS: ", similar_users.length)
         if (similar_users.length > 0) {
             for (let i = 0; i < 3 && similar_users.length > 0; i++) {
                 const most_similar : string = this.mode(similar_users) // userId
                 const most_similar_posts : Post[] = await this.postService.getUserPost(most_similar, true) as Post[]
-                console.log("most similar posts: ", most_similar_posts?.length)
                 most_similar_posts?.forEach(sim_post => {
                     if (!just_coords.includes((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))) {
                         potential_places.push((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))
@@ -65,7 +63,6 @@ export class RecommendationController {
         }
 
         let best_places = []
-        console.log("POTENTIAL PLACES: ", potential_places.length)
 
         while (potential_places.length > 0 && best_places.length <= max) {
             let best_place : string = this.mode(potential_places)
@@ -86,7 +83,6 @@ export class RecommendationController {
                 best_posts.push(post)
             }
         }
-        console.log("BEST POSTS: ", best_posts.length)
         res.json({posts: best_posts})
     }
 

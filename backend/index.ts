@@ -52,7 +52,7 @@ allRoutes.forEach((route) => {
             try {
                 await route.action(req, res);
             } catch (err) {
-                console.log(err)
+                console.error(err)
                 return res.sendStatus(500); // Don't expose internal server workings
             }
         },

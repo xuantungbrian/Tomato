@@ -47,7 +47,6 @@ export class UserService {
                 console.warn("USER NOT FOUND: ", id)
                 return null;
             }
-            console.log("USER: ", user.username)
             return user
         } catch(error) {
             console.error("Error getting user:", error);

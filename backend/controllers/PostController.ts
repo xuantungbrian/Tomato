@@ -55,11 +55,11 @@ export class PostController {
         }
         catch (error) {
             if (error instanceof MissingCoordinateException) {
-                console.log("User Provided Invalid coordinate: ", error)
+                console.error("User Provided Invalid coordinate: ", error)
                 res.status(400).json({ message: "Incomplete coordinate" });
             }
             else {
-                console.log("Error: ", error);
+                console.error("Error: ", error);
                 res.status(500).json({ message: "Internal Server Error" });
 
             }
@@ -92,7 +92,7 @@ export class PostController {
         }
 
         catch (err) {
-            console.log("ERROR: ", err)
+            console.error("ERROR: ", err)
             res.status(500).json({ message: "Internal Server Error" })
             return
         }

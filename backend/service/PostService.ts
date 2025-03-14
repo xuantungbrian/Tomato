@@ -186,7 +186,7 @@ export class PostService {
             else
                 return await PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
         } catch(error) {
-            console.log("Error getting all posts at the location", error)
+            console.log("Error getting all posts at the location")
             return null
         }
     }
@@ -197,7 +197,7 @@ export class PostService {
  * Check if coordinate information is missing
  */
 function isMissingCoordinate(coordinates: (number|undefined)[]){
-    const nonNullCoordCount = coordinates.filter(c => c !== null && c !== undefined).length;
+    const nonNullCoordCount = coordinates.filter(c => c !== undefined).length;
     if(nonNullCoordCount > 0 && nonNullCoordCount < 4){
         return true;
     }

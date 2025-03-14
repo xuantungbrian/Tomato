@@ -31,7 +31,7 @@ export class UserController {
 
         }
         catch(err){
-            console.log("ERROR: ", err)
+            console.error("ERROR: ", err)
             res.status(400).json({message: err})
             return
         }
