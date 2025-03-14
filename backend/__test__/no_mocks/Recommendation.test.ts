@@ -6,6 +6,9 @@ import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
 import { RecommendationController } from '../../controllers/RecommendationController';
 import { PostController } from '../../controllers/PostController';
+import { AuthenticatedRequest } from '../..';
+import { RecommendationRoutes } from '../../routes/RecommendationRoutes';
+import { validationResult } from 'express-validator';
 
 // Setup MongoDB in-memory server
 let mongoServer = new MongoMemoryServer();
@@ -17,19 +20,35 @@ app.use(morgan('tiny')); // Logger
 // Define your routes
 const recommendationController = new RecommendationController();
 const postController = new PostController();
-app.get('/recommendations', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; // Mock the authenticated user
-    next();
-  }, async (req, res, next) : Promise<void> => {
-    try {
-      await recommendationController.getRecommendation(req, res, next)
-    } catch(error) {
-      next(error)
-    }
-  });  // Route for getting a post by ID
+const middleware = (req: Request, res: Request, next: NextFunction) => {
+  (req as any).user = { id: 'user123' }; // Mock the authenticated user
+  next();
+}
+RecommendationRoutes.forEach((route) => {
+  const middlewares = (route as any).protected ? [middleware] : []; // Add verifyToken only if protected
+
+  (app as any)[route.method](
+      route.route,
+      ...middlewares,
+      route.validation,
+      async (req: AuthenticatedRequest, res: Response) => {
+          const errors = validationResult(req);
+          if (!errors.isEmpty()) {
+              /* If there are validation errors, send a response with the error messages */
+              return res.status(400).send({ errors: errors.array() });
+          }
+          try {
+              await route.action(req, res);
+          } catch (err) {
+              console.log(err)
+              return res.sendStatus(500); // Don't expose internal server workings
+          }
+      },
+  );
+});
 app.get('/recommendations-no-middlewware', async (req, res, next) : Promise<void> => {
     try {
-      await recommendationController.getRecommendation(req, res, next)
+      await recommendationController.getRecommendation(req as AuthenticatedRequest, res)
     } catch(error) {
       next(error)
     }
@@ -37,27 +56,52 @@ app.get('/recommendations-no-middlewware', async (req, res, next) : Promise<void
 app.post('/posts', (req, res, next) => {
     (req as any).user = { id: 'user123' }; // Mock the authenticated user
     next();
-  }, postController.createPost);  
+  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try{
+      await postController.createPost(req as AuthenticatedRequest, res);
+    } catch(err) {
+      next(err);
+    }});  
 
 app.post('/posts-from-other', (req, res, next) => {
     (req as any).user = { id: 'other' }; // Mock the authenticated user
     next();
-  }, postController.createPost);  
+  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try{
+      await postController.createPost(req as AuthenticatedRequest, res);
+    } catch(err) {
+      next(err);
+    }});  
 
 app.post('/posts-from-someone', (req, res, next) => {
     (req as any).user = { id: 'someone' }; // Mock the authenticated user
     next();
-  }, postController.createPost); 
+  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try{
+      await postController.createPost(req as AuthenticatedRequest, res);
+    } catch(err) {
+      next(err);
+    }}); 
 
 app.post('/posts-from-else', (req, res, next) => {
     (req as any).user = { id: 'else' }; // Mock the authenticated user
     next();
-  }, postController.createPost); 
+  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try{
+      await postController.createPost(req as AuthenticatedRequest, res);
+    } catch(err) {
+      next(err);
+    }}); 
 
 app.post('/posts-from-fourth', (req, res, next) => {
     (req as any).user = { id: 'fourth' }; // Mock the authenticated user
     next();
-  }, postController.createPost); 
+  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try{
+      await postController.createPost(req as AuthenticatedRequest, res);
+    } catch(err) {
+      next(err);
+    }}); 
 
 // Setup for in-memory MongoDB testing
 beforeAll(async () => {

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, {Request, Response, NextFunction} from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import morgan from 'morgan';
@@ -6,6 +6,8 @@ import request from 'supertest';
 import { ChatController } from '../../controllers/ChatController';
 import { ChatModel } from '../../model/ChatModel';
 import { MessageModel } from '../../model/MessageModel';
+import { AuthenticatedRequest } from '../..';
+import { ChatService } from '../../service/ChatService';
 
 // Setup MongoDB in-memory server
 let mongoServer = new MongoMemoryServer();
@@ -16,6 +18,7 @@ app.use(morgan('tiny')); // Logger
 
 
 const chatController = new ChatController();
+const chatService = new ChatService();
 
 //App routes
 
@@ -23,51 +26,120 @@ const chatController = new ChatController();
 app.post('/chats', (req, res, next) => {
   (req as any).user = { id: 'user123' };
   next();
-}, chatController.createChat); 
+}, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await chatController.createChat(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }}); 
 app.post('/chats-string', (req, res, next) => {
   (req as any).user = { id: 'string' }; 
   next();
-}, chatController.createChat); 
-app.post('/chats-no-middleware', chatController.createChat); 
-
+}, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await chatController.createChat(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }}); 
+app.post('/chats-no-middleware', async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await chatController.createChat(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});
 // getChatMessages routes for testing
 app.get('/chats/:id', (req, res, next) => {
     (req as any).user = { id: 'user123' }; // Mock the authenticated user
     next();
-  }, chatController.getChatMessages);  // Route for getting a post by ID
-app.get('/chats-no-middleware/:id', chatController.getChatMessages);  // Route for getting a post by ID
+  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try{
+      await chatController.getChatMessages(req as AuthenticatedRequest, res);
+    } catch(err) {
+      next(err);
+    }});  // Route for getting a post by ID
+app.get('/chats-no-middleware/:id', async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await chatController.getChatMessages(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});  // Route for getting a post by ID
 
 // getChats routes for testing
 app.get('/chats', (req, res, next) => {
     (req as any).user = { id: 'user123' }; // Mock the authenticated user
     next();
-  }, chatController.getChats);  
-app.get('/chats-unauthorized', chatController.getChats);  
+  },async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try{
+      await chatController.getChats(req as AuthenticatedRequest, res);
+    } catch(err) {
+      next(err);
+    }});  
+app.get('/chats-unauthorized', async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await chatController.getChats(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});  
 
 // addMessage routes for testing
 app.post('/chat/:id', (req, res, next) => {
     (req as any).user = { id: 'user123' }; // Mock the authenticated user
     next();
-  }, chatController.addMessage);
+  },async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try{
+      await chatController.addMessage(req as AuthenticatedRequest, res);
+    } catch(err) {
+      next(err);
+    }});
 app.post('/chat-string/:id', (req, res, next) => {
     (req as any).user = { id: 'string' }; // Mock the authenticated user
     next();
-  }, chatController.addMessage);
-app.post('/chat-no-middleware/:id', chatController.addMessage);
+  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try{
+      await chatController.addMessage(req as AuthenticatedRequest, res);
+    } catch(err) {
+      next(err);
+    }});
+app.post('/chat-no-middleware/:id', async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await chatController.addMessage(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});
 
 // deleteChat routes for testing
 app.delete('/chats/:id', (req, res, next) => {
     (req as any).user = { id: 'user123' }; // Mock the authenticated user
     next();
-  }, chatController.deleteChat);
-app.delete('/chats-no-middleware/:id', chatController.deleteChat);
+  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try{
+      await chatController.deleteChat(req as AuthenticatedRequest, res);
+    } catch(err) {
+      next(err);
+    }});
+app.delete('/chats-no-middleware/:id', async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await chatController.deleteChat(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});
 
 // deleteMessage routes for testing
 app.delete('/chat/:id/messages/:message_id', (req, res, next) => {
     (req as any).user = { id: 'user123' }; // Mock the authenticated user
     next();
-  }, chatController.deleteMessage);
-app.delete('/chat-no-middleware/:id/messages/:message_id', chatController.deleteMessage);
+  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try{
+      await chatController.deleteMessage(req as AuthenticatedRequest, res);
+    } catch(err) {
+      next(err);
+    }});
+app.delete('/chat-no-middleware/:id/messages/:message_id', async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await chatController.deleteMessage(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});
 
 // Setup for in-memory MongoDB testing
 beforeAll(async () => {
@@ -108,7 +180,7 @@ describe('Unmocked Chats API: Expected Behaviour', () => {
     });
   })
 
-  describe("Testing getChats", () => {
+  describe("Testing getChats and getChat", () => {
     it('should get chats', async () => {
       const newChat = {
         member_1: "String",
@@ -137,6 +209,34 @@ describe('Unmocked Chats API: Expected Behaviour', () => {
       expect(response.body[0]).toHaveProperty('_id'); // Check that the response contains _id
       expect([response.body[0].member_1, response.body[0].member_2]).toContain(main_user); // Check userId matches
       expect([response.body[1].member_1, response.body[1].member_2]).toContain(main_user);
+    });
+
+    it('should get chat by id', async () => {
+      const newChat = {
+        member_1: "String",
+        member_2: "user123"
+      };
+  
+      const newChat_2 = {
+        member_1: "user123",
+        member_2: "other"
+      };
+  
+      const main_user = "user123"
+      await request(app)
+        .post('/chats') // Testing the protected /posts route
+        .send(newChat) // Send the post body directly
+        .expect(200);
+  
+      let chat = await request(app)
+        .post('/chats') // Testing the protected /posts route
+        .send(newChat_2) // Send the post body directly
+        .expect(200);
+  
+      const response = await chatService.getChat(chat.body._id);
+      expect(response).toHaveProperty('_id'); // Check that the response contains _id
+      expect([response?.member_1, response?.member_2]).toContain(main_user); // Check userId matches
+      expect([response?.member_1, response?.member_2]).toContain(main_user);
     });
   })
 

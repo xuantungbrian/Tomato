@@ -12,7 +12,7 @@ export class ChatController {
         this.chatService = new ChatService();
     }
 
-    createChat = async (req: Request, res: Response, next: NextFunction) => {
+    createChat = async (req: AuthenticatedRequest, res: Response) => {
         let chat = req.body
         let user = req.user?.id
         if (!user) {
@@ -30,8 +30,8 @@ export class ChatController {
         res.json(await this.chatService.createChat(chat.member_1, chat.member_2))
     }
 
-    getChats = async (req: Request, res: Response, next: NextFunction) => {
-        const userId = (req as any).user?.id
+    getChats = async (req: AuthenticatedRequest, res: Response) => {
+        const userId = req.user?.id
         if (!userId) {
             res.status(401).send({ message: "Unauthorized" });
             return;
@@ -39,9 +39,9 @@ export class ChatController {
         res.json(await this.chatService.getChats(userId))
     }
 
-    getChatMessages = async (req: Request, res: Response, next: NextFunction) => {
-        const chatId = (req as any).params.id
-        let user = (req as any).user?.id
+    getChatMessages = async (req: AuthenticatedRequest, res: Response) => {
+        const chatId = req.params.id
+        let user = req.user?.id
         if (!user) {
             res.status(401).send({ message: "Unauthorized" });
             return;
@@ -58,9 +58,9 @@ export class ChatController {
         res.json(await this.chatService.getChatMessages(chatId));
     }
 
-    addMessage = async (req: Request, res: Response, next: NextFunction) => {
-        let message = (req as any).body
-        let user = (req as any).user?.id
+    addMessage = async (req: AuthenticatedRequest, res: Response) => {
+        let message = req.body
+        let user = req.user?.id
         if (!user) {
             res.status(401).send({ message: "Unauthorized" });
             return;
@@ -69,7 +69,7 @@ export class ChatController {
             res.status(400).send({message: "Bad Request"})
             return;
         }
-        let chatroom_id = (req as ).params.id
+        let chatroom_id = req.params.id
         if (message.sender !== user) {
             res.status(401).send({message: "Unauthorized"})
         } else {
@@ -77,9 +77,9 @@ export class ChatController {
         }
     }
 
-    deleteMessage = async (req: Request, res: Response, next: NextFunction) => {
-        const messageId = (req as any).params.message_id
-        let user = (req as any).user?.id
+    deleteMessage = async (req: AuthenticatedRequest, res: Response) => {
+        const messageId = req.params.message_id
+        let user = req.user?.id
         if (!user) {
             res.status(401).send({ message: "Unauthorized" });
             return;
@@ -96,9 +96,9 @@ export class ChatController {
         res.json(await this.chatService.deleteMessage(messageId))
     }
 
-    deleteChat = async (req: Request, res: Response, next: NextFunction) => {
-        const chatId = (req as any).params.id
-        let user = (req as any).user?.id
+    deleteChat = async (req: AuthenticatedRequest, res: Response) => {
+        const chatId = req.params.id
+        let user = req.user?.id
         if (!user) {
             res.status(401).send({ message: "Unauthorized" });
             return;

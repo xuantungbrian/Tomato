@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import { PostController } from '../../controllers/PostController';
 import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
+import { AuthenticatedRequest } from '../..';
 
 // Setup MongoDB in-memory server
 let mongoServer = new MongoMemoryServer();
@@ -20,7 +21,7 @@ app.get('/posts-authenticated', (req : Request, res : Response, next : NextFunct
   next();
 }, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-      await postController.getAuthenticatedUserPost(req, res, next);
+      await postController.getAuthenticatedUserPost(req as AuthenticatedRequest, res);
   } catch (error) {
       next(error);
   }
@@ -30,25 +31,45 @@ app.get('/posts-authenticated', (req : Request, res : Response, next : NextFunct
 app.post('/posts', (req, res, next) => {
   (req as any).user = { id: 'user123' };
   next();
-}, postController.createPost);
+}, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await postController.createPost(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});
 app.post('/posts-from-other', (req, res, next) => {
   (req as any).user = { id: 'other' };
   next();
-}, postController.createPost); 
+}, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await postController.createPost(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }}); 
 
 
 app.get('/posts/:id', postController.getPostById);  // Route for getting a post by ID
 app.put('/posts/:id', (req, res, next) => {
   (req as any).user = { id: 'user123' }; // Mock the authenticated user
   next();
-}, postController.updatePost);  // Route for updating a post
+}, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await postController.updatePost(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});  // Route for updating a post
 app.delete('/posts/:id', (req, res, next) => {
   (req as any).user = { id: 'user123' }; // Mock the authenticated user
   next();
-}, postController.deletePost);  // Route for deleting a post
+}, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await postController.deletePost(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});  // Route for deleting a post
 app.get('/posts',  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-      await postController.getPublicPost(req, res, next);
+      await postController.getPublicPost(req, res);
   } catch (error) {
       next(error);
   }

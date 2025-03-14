@@ -205,11 +205,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">243x</span>
@@ -223,7 +224,7 @@
 <span class="cline-any cline-yes">243x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -272,7 +273,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -281,14 +282,14 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -326,16 +327,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { PostService } from "../service/PostService";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import MissingCoordinateException from "../errors/customError";
 import { PostModel } from "../model/PostModel";
+import { AuthenticatedRequest } from "..";
 &nbsp;
 interface ImageData {
     fileData: Buffer;
     fileType: string;
-  }
+}
 &nbsp;
 export class PostController {
     private postService: PostService;
@@ -344,41 +345,41 @@ export class PostController {
         this.postService = new PostService();
     }
 &nbsp;
-    createPost = async (req: Request, res: Response, next: NextFunction) =&gt; {
+    createPost = async (req: AuthenticatedRequest, res: Response) =&gt; {
         const post = req.body;
-        post.userId = (req as any).user.id;
+        post.userId = req.user.id;
         post.images = (post.images as string[]).map((str: string): ImageData =&gt; ({
             fileData: Buffer.from(str, 'base64'),
-            fileType: 'image/jpeg' 
-          }));
+            fileType: 'image/jpeg'
+        }));
 &nbsp;
         res.json(await this.postService.createPost(post))
     }
 &nbsp;
-    getPublicPost = async (req: Request, res: Response, next: NextFunction) =&gt; {
-        try{
-            const {parsedStartLat, parsedEndLat, parsedStartLong, parsedEndLong } =  parseLocationParam(req)
-        
+    getPublicPost = async (req: Request, res: Response) =&gt; {
+        try {
+            const { parsedStartLat, parsedEndLat, parsedStartLong, parsedEndLong } = parseLocationParam(req)
+&nbsp;
             // Call service with the query params
             res.json(await this.postService.getPublicPost(
-                parsedStartLat, 
-                parsedEndLat, 
-                parsedStartLong, 
+                parsedStartLat,
+                parsedEndLat,
+                parsedStartLong,
                 parsedEndLong,
             ));
         }
-        catch(error){
-            if(error instanceof MissingCoordinateException){
+        catch (error) {
+            if (error instanceof MissingCoordinateException) {
                 console.log("User Provided Invalid coordinate: ", error)
                 return res.status(400).json({ message: "Incomplete coordinate" });
             }
         }
     };
 &nbsp;
- 
-    getAuthenticatedUserPost = async(req: Request, res: Response, next: NextFunction) =&gt; {
-        try{
-            const {userPostOnly, start_lat, end_lat, start_long, end_long} = req.query;
+&nbsp;
+    getAuthenticatedUserPost = async (req: AuthenticatedRequest, res: Response) =&gt; {
+        try {
+            const { userPostOnly, start_lat, end_lat, start_long, end_long } = req.query;
 &nbsp;
             // Parse the coordinates if present
             const parsedStartLat = start_lat ? parseFloat(start_lat as string) : undefined;
@@ -388,10 +389,10 @@ export class PostController {
 &nbsp;
             const parsedUserPostOnly = userPostOnly == "true"
 &nbsp;
-            const userId = (req as any).user.id
+            const userId = req.user.id
             res.json(await this.postService.getUserPost(userId, parsedUserPostOnly, parsedStartLat,
-                                                        parsedEndLat, parsedStartLong,
-                                                        parsedEndLong))
+                parsedEndLat, parsedStartLong,
+                parsedEndLong))
         }
 &nbsp;
         catch(err){
@@ -404,27 +405,27 @@ export class PostController {
 &nbsp;
     }
 &nbsp;
-    getPostById = async (req: Request, res: Response, next: NextFunction) =&gt; {
+    getPostById = async (req: Request, res: Response) =&gt; {
         const postId = req.params.id
         const [postData] = await Promise.all([
             this.postService.getPostById(postId)
         ]);
-          
+&nbsp;
         res.json({ postData });
     }
 &nbsp;
-    updatePost = async (req: Request, res: Response, next: NextFunction) =&gt; {
+    updatePost = async (req: AuthenticatedRequest, res: Response) =&gt; {
         const postId = req.params.id
         const updatedPost = req.body
-        updatedPost.userId = (req as any).user.id
+        updatedPost.userId = req.user.id
         res.json(await this.postService.updatePost(postId, updatedPost))
     }
 &nbsp;
-    deletePost = async (req: Request, res: Response, next: NextFunction) =&gt; {
+    deletePost = async (req: AuthenticatedRequest, res: Response) =&gt; {
         const postId = req.params.id
 &nbsp;
         // Ensure that the post really belongs to the user
-        const userId = (req as any).user.id
+        const userId = req.user.id
         const post = await PostModel.findById(postId)
         if (!post) {
             res.status(404).send({message: "Post not found"})
@@ -442,8 +443,8 @@ export class PostController {
 /**
  * Parse the longitude and latitude information of a request param
  */
-function parseLocationParam(req: Request){
-    const { start_lat, end_lat, start_long, end_long} = req.query;
+function parseLocationParam(req: Request) {
+    const { start_lat, end_lat, start_long, end_long } = req.query;
 &nbsp;
     // Parse the coordinates if present
     const parsedStartLat = start_lat ? parseFloat(start_lat as string) : undefined;
@@ -458,15 +459,14 @@ function parseLocationParam(req: Request){
         parsedEndLong: parsedEndLong
     }
 &nbsp;
-}
-&nbsp;</pre></td></tr></table></pre>
+}</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-13T21:53:44.745Z
+                at 2025-03-14T06:07:06.845Z
             </div>
         <script src="../prettify.js"></script>
         <script>

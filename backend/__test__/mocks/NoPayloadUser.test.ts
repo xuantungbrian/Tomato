@@ -36,7 +36,7 @@ app.use(morgan('tiny')); // Logger
 const userController = new UserController();
 app.post('/user-faulty/auth', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        await userController.handleGoogleSignIn(req, res, next);
+        await userController.handleGoogleSignIn(req, res);
     } catch (error) {
         next(error);
     }});  // Route for creating a post

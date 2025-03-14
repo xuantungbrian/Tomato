@@ -40,6 +40,16 @@ export class ChatService {
         }
     }
 
+    async getChat(id: string) {
+        try {
+            const chats = await ChatModel.findById(id)
+            return chats
+        } catch(err) {
+            console.error("Error getting chats: " + err)
+            return null
+        }
+    }
+
     async deleteChat(id: string) {
         try {
             await MessageModel.deleteMany({ chatroom_id: id })

@@ -7,6 +7,7 @@ import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
 import { config } from 'dotenv';
 import { PostService } from '../../service/PostService';
+import { AuthenticatedRequest } from '../..';
 
 const {verifyToken} = require('../../middleware/verifyToken')
 config();
@@ -34,7 +35,12 @@ app.use(morgan('tiny')); // Logger
 const postController = new PostController();
 
 // createPost routes for testing 
-app.post('/posts', verifyToken, postController.createPost); 
+app.post('/posts', verifyToken, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await postController.createPost(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }}); 
 
 // Setup for in-memory MongoDB testing
 beforeAll(async () => {

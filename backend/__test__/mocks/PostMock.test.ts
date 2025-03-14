@@ -7,6 +7,9 @@ import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
 import { config } from 'dotenv';
 import { PostService } from '../../service/PostService';
+import { AuthenticatedRequest } from '../..';
+import { PostRoutes } from '../../routes/PostRoutes';
+import { validationResult } from 'express-validator';
 
 const {verifyToken} = require('../../middleware/verifyToken')
 config();
@@ -33,29 +36,28 @@ app.use(morgan('tiny')); // Logger
 // Define your routes
 const postController = new PostController();
 const postService = new PostService();
-app.get('/posts-authenticated', verifyToken, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-      await postController.getAuthenticatedUserPost(req, res, next);
-  } catch (error) {
-      next(error);
-  }
-}); 
+PostRoutes.forEach((route) => {
+    const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
 
-// createPost routes for testing 
-app.post('/posts', verifyToken, postController.createPost); 
-
-
-app.get('/posts/:id', postController.getPostById);  // Route for getting a post by ID
-app.put('/posts/:id', verifyToken, postController.updatePost);  // Route for updating a post
-app.delete('/posts/:id', verifyToken, postController.deletePost);  // Route for deleting a post
-app.get('/posts',  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-      await postController.getPublicPost(req, res, next);
-  } catch (error) {
-      next(error);
-  }
-});  // Route for deleting a post
- // Route for deleting a post
+    (app as any)[route.method](
+        route.route,
+        ...middlewares,
+        route.validation,
+        async (req: AuthenticatedRequest, res: Response) => {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                /* If there are validation errors, send a response with the error messages */
+                return res.status(400).send({ errors: errors.array() });
+            }
+            try {
+                await route.action(req, res);
+            } catch (err) {
+                console.log(err)
+                return res.sendStatus(500); // Don't expose internal server workings
+            }
+        },
+    );
+});
 
 // Setup for in-memory MongoDB testing
 beforeAll(async () => {

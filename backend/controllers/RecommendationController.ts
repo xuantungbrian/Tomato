@@ -11,14 +11,14 @@ export class RecommendationController {
     }
 
     getRecommendation = async (req: AuthenticatedRequest, res: Response) => {
-        const userId : string = req.user.id
+        const userId = req.user?.id
         if (!userId) {
             res.status(401).send({message: "Unauthorized"})
             return;
         }
         const max = !isNaN((req as any).query.max) ? parseInt((req as any).query.max as string) : 10
         const posts = await this.postService.getUserPost(userId, true)
-        let similar_users : Array<String> = []
+        let similar_users : Array<string> = []
         let just_coords : String[] = []
         
         if (posts) {
@@ -31,7 +31,7 @@ export class RecommendationController {
                 if (posts_at_location) {
                     posts_at_location.forEach(user_post => {
                         if (user_post.userId != userId)
-                            similar_users.push(user_post.userId as String)
+                            similar_users.push(user_post.userId as string)
                     })
                 }
             }
@@ -41,7 +41,7 @@ export class RecommendationController {
         if (similar_users.length > 0) {
             for (let i = 0; i < 3 && similar_users.length > 0; i++) {
                 const most_similar = this.mode(similar_users)
-                const most_similar_posts = await this.postService.getUserPost(most_similar, false)
+                const most_similar_posts = await this.postService.getUserPost(most_similar as string, false)
                 if (most_similar_posts) {
                     most_similar_posts.forEach(sim_post => {
                         if (!just_coords.includes((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))) {
@@ -73,14 +73,14 @@ export class RecommendationController {
         console.log("POTENTIAL PLACES: ", potential_places.length)
 
         while (potential_places.length > 0 && best_places.length <= max) {
-            let best_place : string = this.mode(potential_places)
+            let best_place : String = this.mode(potential_places)
             best_places.push(best_place)
             potential_places = this.deleteOccurences(potential_places, best_place) as any[]
         }
 
         let best_posts : Post[] = []
         for(let i = 0; i < max; i++) {
-            let place : string = best_places[i]
+            let place : String = best_places[i]
             if (!place) {
                 break;
             }
@@ -95,14 +95,14 @@ export class RecommendationController {
         return res.json({posts: best_posts})
     }
 
-    mode(arr : string[]) : string {
+    mode(arr : string[]) : any {
         return arr.sort((a,b) =>
               arr.filter(v => v===a).length
             - arr.filter(v => v===b).length
-        ).pop() || '';
+        ).pop();
     }
 
-    deleteOccurences(a : string[], e : string) : string[] | -1 {
+    deleteOccurences(a : String[], e : String) : String[] | -1 {
         if (!a.includes(e)) {
             return -1;
         }

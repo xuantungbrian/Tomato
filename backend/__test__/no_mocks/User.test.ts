@@ -19,13 +19,13 @@ const userController = new UserController();
 const userService = new UserService();
 app.post('/user/auth', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        await userController.handleGoogleSignIn(req, res, next);
+        await userController.handleGoogleSignIn(req, res);
     } catch (error) {
         next(error);
     }});  // Route for creating a post
 app.get('/user/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-      await userController.getUser(req, res, next);
+      await userController.getUser(req, res);
   } catch (error) {
       next(error);
   }}); // Route for getting a post by ID

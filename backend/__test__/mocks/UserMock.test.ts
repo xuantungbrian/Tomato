@@ -9,6 +9,7 @@ import { UserService } from '../../service/UserService';
 import { UserRoutes } from '../../routes/UserRoutes';
 import jwt from 'jsonwebtoken';
 import verifyToken from '../../middleware/verifyToken';
+import { validationResult } from 'express-validator';
 
 jest.mock('jsonwebtoken', () => ({
 ...jest.requireActual('jsonwebtoken'), // import and retain the original functionalities
@@ -38,19 +39,28 @@ app.use(morgan('tiny')); // Logger
 // Define your routes
 const userController = new UserController();
 const userService = new UserService();
-app.post('/user/auth', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-        await userController.handleGoogleSignIn(req, res);
-    } catch (error) {
-        next(error);
-    }});  // Route for creating a post
-app.get('/user/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-      await userController.getUser(req, res);
-  } catch (error) {
-      next(error);
-  }}); // Route for getting a post by ID
+UserRoutes.forEach((route) => {
+  const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
 
+  (app as any)[route.method](
+      route.route,
+      ...middlewares,
+      route.validation,
+      async (req: Request, res: Response) => {
+          const errors = validationResult(req);
+          if (!errors.isEmpty()) {
+              /* If there are validation errors, send a response with the error messages */
+              return res.status(400).send({ errors: errors.array() });
+          }
+          try {
+              await route.action(req, res);
+          } catch (err) {
+              console.log(err)
+              return res.sendStatus(500); // Don't expose internal server workings
+          }
+      },
+  );
+});
 
 
 // Setup for in-memory MongoDB testing

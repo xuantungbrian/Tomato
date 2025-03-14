@@ -175,15 +175,16 @@
 <a name='L110'></a><a href='#L110'>110</a>
 <a name='L111'></a><a href='#L111'>111</a>
 <a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L113'></a><a href='#L113'>113</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
@@ -212,7 +213,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
@@ -223,6 +223,7 @@
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">260x</span>
 <span class="cline-any cline-yes">129x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -267,7 +268,6 @@
 <span class="cline-any cline-yes">67x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -287,26 +287,27 @@
 <span class="cline-any cline-yes">49x</span>
 <span class="cline-any cline-yes">656x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { PostService } from "../service/PostService";
-import { Request, Response, NextFunction } from "express";
-&nbsp;
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { AuthenticatedRequest } from "..";
+import { Post, PostService } from "../service/PostService";
+import { Response} from "express"; 
 &nbsp;
 export class RecommendationController {
     private postService: PostService;
+&nbsp;
 &nbsp;
     constructor() {
         this.postService = new PostService();
     }
 &nbsp;
-    getRecommendation = async (req: Request, res: Response, next: NextFunction) =&gt; {
-        const userId = (req as any).user?.id
+    getRecommendation = async (req: AuthenticatedRequest, res: Response) =&gt; {
+        const userId = req.user?.id
         if (!userId) {
             res.status(401).send({message: "Unauthorized"})
             return;
         }
         const max = !isNaN((req as any).query.max) ? parseInt((req as any).query.max as string) : 10
         const posts = await this.postService.getUserPost(userId, true)
-        let similar_users : Array&lt;String&gt; = []
+        let similar_users : Array&lt;string&gt; = []
         let just_coords : String[] = []
         
         if (posts) {
@@ -319,18 +320,17 @@ export class RecommendationController {
                 if (posts_at_location) {
                     posts_at_location.forEach(user_post =&gt; {
                         if (user_post.userId != userId)
-                            similar_users.push(user_post.userId as String)
+                            similar_users.push(user_post.userId as string)
                     })
                 }
             }
         }
-&nbsp;
-        let potential_places : any[] = []
+        let potential_places : string[] = []
         console.log("SIMILAR USERS: ", similar_users.length)
         if (similar_users.length &gt; 0) {
             for (let i = 0; i &lt; 3 &amp;&amp; similar_users.length &gt; 0; i++) {
                 const most_similar = this.mode(similar_users)
-                const most_similar_posts = await this.postService.getUserPost(most_similar, false)
+                const most_similar_posts = await this.postService.getUserPost(most_similar as string, false)
                 if (most_similar_posts) {
                     most_similar_posts.forEach(sim_post =&gt; {
                         if (!just_coords.includes((sim_post.latitude as Number).toString().concat(" ", (sim_post.longitude as Number).toString()))) {
@@ -339,7 +339,8 @@ export class RecommendationController {
                     })
                 }
 &nbsp;
-                similar_users = this.deleteOccurences(similar_users, most_similar) as Array&lt;String&gt;
+                // similar_users = this.deleteOccurences(similar_users, most_similar) as Array&lt;String&gt;
+                similar_users = this.deleteOccurences(similar_users, most_similar) as string[]
             }
         }
         else {
@@ -361,37 +362,36 @@ export class RecommendationController {
         console.log("POTENTIAL PLACES: ", potential_places.length)
 &nbsp;
         while (potential_places.length &gt; 0 &amp;&amp; best_places.length &lt;= max) {
-            let best_place = this.mode(potential_places)
+            let best_place : String = this.mode(potential_places)
             best_places.push(best_place)
             potential_places = this.deleteOccurences(potential_places, best_place) as any[]
         }
 &nbsp;
-        let best_posts : any[] = []
+        let best_posts : Post[] = []
         for(let i = 0; i &lt; max; i++) {
-            let place = best_places[i]
+            let place : String = best_places[i]
             if (!place) {
                 break;
             }
-            let lat = parseFloat(place.split(" ", 2)[0] as string) as number
-            let long = parseFloat(place.split(" ", 2)[1] as string) as number
-            let posts = await this.postService.getPostsAtLocation(lat, long, false) as Array&lt;any&gt;
+            let lat : number = parseFloat(place.split(" ", 2)[0] as string) as number
+            let long : number = parseFloat(place.split(" ", 2)[1] as string) as number
+            let posts : Post[] = await this.postService.getPostsAtLocation(lat, long, false) as Post[]
             for(let post of posts){
                 best_posts.push(post)
             }
         }
-&nbsp;
         console.log("BEST POSTS: ", best_posts.length)
         return res.json({posts: best_posts})
     }
 &nbsp;
-    mode(arr : Array&lt;any&gt;) : any {
+    mode(arr : string[]) : any {
         return arr.sort((a,b) =&gt;
               arr.filter(v =&gt; v===a).length
             - arr.filter(v =&gt; v===b).length
         ).pop();
     }
 &nbsp;
-    deleteOccurences(a : Array&lt;any&gt;, e : any) {
+    deleteOccurences(a : String[], e : String) : String[] | -1 {
         if (!a.includes(e)) {
             return -1;
         }
@@ -406,7 +406,7 @@ export class RecommendationController {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-13T21:53:44.745Z
+                at 2025-03-14T06:07:06.845Z
             </div>
         <script src="../prettify.js"></script>
         <script>

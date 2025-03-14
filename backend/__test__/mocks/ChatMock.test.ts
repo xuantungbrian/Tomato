@@ -1,4 +1,4 @@
-import express, { RequestHandler } from 'express';
+import express, { Request, Response, NextFunction, RequestHandler } from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import morgan from 'morgan';
@@ -8,6 +8,11 @@ import { ChatModel } from '../../model/ChatModel';
 import { MessageModel } from '../../model/MessageModel';
 import { verify } from 'jsonwebtoken';
 import { config } from 'dotenv';
+import { AuthenticatedRequest } from '../..';
+import { SmsRegionConfig } from 'firebase-admin/lib/auth/auth-config';
+import { ChatRoutes } from '../../routes/ChatRoutes';
+import { validationResult } from 'express-validator';
+import { ChatService } from '../../service/ChatService';
 
 const {verifyToken} = require('../../middleware/verifyToken')
 // Setup MongoDB in-memory server
@@ -24,25 +29,31 @@ jest.mock('jsonwebtoken', () => ({
   sign: jest.fn().mockReturnValue("token")
   }));
 const chatController = new ChatController();
+const chatService = new ChatService();
 
 //App routes
-// createChat routes for testing
-app.post('/chats', verifyToken, chatController.createChat); 
+ChatRoutes.forEach((route) => {
+    const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
 
-// getChatMessages routes for testing
-app.get('/chats/:id', verifyToken, chatController.getChatMessages);  // Route for getting a post by ID
-
-// getChats routes for testing
-app.get('/chats', verifyToken, chatController.getChats);  
-
-// addMessage routes for testing
-app.post('/chat/:id', verifyToken, chatController.addMessage);
-
-// deleteChat routes for testing
-app.delete('/chats/:id', verifyToken, chatController.deleteChat);
-
-// deleteMessage routes for testing
-app.delete('/chat/:id/messages/:message_id',verifyToken, chatController.deleteMessage);
+    (app as any)[route.method](
+        route.route,
+        ...middlewares,
+        route.validation,
+        async (req: AuthenticatedRequest, res: Response) => {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                /* If there are validation errors, send a response with the error messages */
+                return res.status(400).send({ errors: errors.array() });
+            }
+            try {
+                await route.action(req, res);
+            } catch (err) {
+                console.log(err)
+                return res.sendStatus(500); // Don't expose internal server workings
+            }
+        },
+    );
+});
 
 // Setup for in-memory MongoDB testing
 beforeAll(async () => {
@@ -237,6 +248,38 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
       .expect(200)
 
     expect(response.body).toBeNull()
+    await spy.mockClear()
+  });
+
+  it('should fail to get chat by id if error occurs', async () => {
+    let spy = await jest.spyOn(ChatModel, "findById").mockImplementation(() => {
+      throw new Error("Database error 6")
+    })
+    const newChat = {
+      member_1: "String",
+      member_2: "user123"
+    };
+    
+    const newChat_2 = {
+      member_1: "user123",
+      member_2: "other"
+    };
+    
+    const main_user = "user123"
+    await request(app)
+      .post('/chats') // Testing the protected /posts route
+      .send(newChat) // Send the post body directly
+      .set('Authorization', 'Bearer 90909090')
+      .expect(200);
+    
+    let chat = await request(app)
+      .post('/chats') // Testing the protected /posts route
+      .send(newChat_2) // Send the post body directly
+      .set('Authorization', 'Bearer 90909090')
+      .expect(200);
+    
+    const response = await chatService.getChat(chat.body._id);
+    expect(response).toBeNull()
     await spy.mockClear()
   });
 })
