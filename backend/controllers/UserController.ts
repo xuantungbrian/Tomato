@@ -18,7 +18,7 @@ export class UserController {
 
     async handleGoogleSignIn(req: Request, res: Response): Promise<void> { 
         try{
-            const { googleToken, firebaseToken } = (req as any).body;
+            const { googleToken, firebaseToken } = req.body;
             
             if(!googleToken || !firebaseToken) {
                 res.status(400).json({message: "No Token provided"});

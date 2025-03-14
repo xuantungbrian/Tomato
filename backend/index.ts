@@ -37,7 +37,7 @@ app.get('/', (req: Request, res: Response) => {
 
 const allRoutes = [...PostRoutes, ...UserRoutes, ...ChatRoutes, ...RecommendationRoutes]
 allRoutes.forEach((route) => {
-    const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
+    const middlewares = route.protected ? [verifyToken] : []; // Add verifyToken only if protected
 
     (app as any)[route.method](
         route.route,

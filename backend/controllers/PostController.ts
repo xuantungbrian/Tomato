@@ -28,7 +28,7 @@ export class PostController {
         }
         const rawPost = req.body as RawPost;
         rawPost.userId = req.user.id;
-        const images = (rawPost.images as string[]).map((str: string): ImageData => ({
+        const images = (rawPost.images).map((str: string): ImageData => ({
             fileData: Buffer.from(str, 'base64'),
             fileType: 'image/jpeg'
         }));
