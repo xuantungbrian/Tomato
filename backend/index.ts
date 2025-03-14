@@ -67,6 +67,6 @@ connectDB().then(() => {
         console.log(`Server is running on port ${PORT}`);
       });
 
-}).catch((err) => {
+}).catch((err: unknown) => {
     console.error(err);
 })

@@ -153,10 +153,10 @@ function parseLocationParam(req: Request) {
     const parsedEndLong = end_long ? parseFloat(end_long as string) : undefined;
 
     return {
-        parsedStartLat: parsedStartLat,
-        parsedEndLat: parsedEndLat,
-        parsedStartLong: parsedStartLong,
-        parsedEndLong: parsedEndLong
+        parsedStartLat,
+        parsedEndLat,
+        parsedStartLong,
+        parsedEndLong,
     }
 
 }

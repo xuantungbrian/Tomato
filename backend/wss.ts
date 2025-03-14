@@ -56,7 +56,7 @@ const startWSS = () => {
         ws.on('message', async (data: WebSocket.Data) => {
             try {
                 // Validate and parse message
-                const rawData = data.toString();
+                const rawData = JSON.stringify(data);
                 const message = JSON.parse(rawData) as { sender?: string; message?: string };
                 
                 if (!message.sender || !message.message) {
@@ -125,7 +125,7 @@ function sendPushNotification(token: string, messageBody: string, chatId: string
     };
 
     admin.messaging().send(payload)
-        .then(response => {console.log("Notification delivered:")})
+        .then(() => {console.log("Notification delivered:")})
         .catch(error => {console.error("Notification failed:", error)});
 }
 
