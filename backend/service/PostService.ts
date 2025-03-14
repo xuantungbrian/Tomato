@@ -161,7 +161,7 @@ export class PostService {
                 const uniquePosts = Array.from(new Set(combinedPosts.map(post => post?._id.toString()))) // Use post._id to uniquely identify posts
                 .map(id => combinedPosts.find(post => post?._id.toString() === id )) as Post[];
 
-                return uniquePosts.filter(post => post != null);
+                return uniquePosts;
             }
         }
         catch (error) {

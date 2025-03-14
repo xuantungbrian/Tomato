@@ -36,7 +36,7 @@ export class RecommendationController {
             const posts_at_location = await this.postService.getPostsAtLocation(lat, long, true) as Post[]
             just_coords.push(lat.toString().concat(" ", long.toString()))
 
-            posts_at_location?.forEach((user_post) => {
+            posts_at_location.forEach((user_post) => {
                 if (user_post.userId != userId)
                     similar_users.push(user_post.userId as string)
             })
