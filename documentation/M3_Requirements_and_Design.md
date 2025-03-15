@@ -23,6 +23,10 @@
       - We changed the diagram so that the Search Locations and Display Map no longer include Login User as we realized that users that have not yet been logged in should be able to access these functionalities.
 - 3.3 - Functional Requirements (Display Map): 3/2/2025
       - Previously when user didn't grant the app location permission, the app would bring the view to Vancouver as default view. However, we changed this and set latitude longitude (0, 0) as the default view. This is because setting Vancouver as the default view seems like a very biased decision (especially if users are not based in Canada), hence we used (0, 0) which is the default location for a lot of location-based apps. 
+- 3.4 Non Functional Requirements: 3/14/2025
+      - Add security functional requirements - some features will be blocked without login
+- 3.3 Functional Requirements: 3/14/2025
+      - Delete failure scenario google map api is unavailable since this cannot be caught to handle failure. There is no exception, the google map returned from the function is not null, just blank when render.
 
 ## 2. Project Description
 Our app allows people to keep a history of all the places they have traveled to and thus acts as a travel advisory forf others and a travel journal for themselves. Our target audience is young people who like to travel and take photos. Such users typically will have a large amount of photos compiled chronologically in a photo app i.e. Google Photos, but without much sense of where they were taken. As such, our solution involves viewing and navigating around a map with pins that show the user’s past images, as well as small optional notes that they can add. Furthermore, users can receive recommendations for future travel locations based on their travel history. When viewing other people's notes, they can optionally chat with the person taking a photo to ask about the logistics of traveling there (i.e. Do they accept cash? How much equipment did you bring?)
