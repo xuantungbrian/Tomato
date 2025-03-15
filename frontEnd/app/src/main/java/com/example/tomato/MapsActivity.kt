@@ -138,6 +138,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     handleSignIn(result)
                 } catch (e: GetCredentialException) {
                     Log.d(TAG, "Get credential exception", e)
+                    AlertDialog.Builder(this@MapsActivity)
+                        .setTitle("Login failed: ${e.message}")
+                        .setNegativeButton("Okay", null)
+                        .show()
                 }
             }
         }
@@ -217,12 +221,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f))
                 }
             }
+        } else {
+            val userLatLng = LatLng(0.0, 0.0)
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f))
         }
     }
 
 
     private fun initChatList(){
-
         val chatButton = findViewById<ImageView>(R.id.map_activity_chat_button)
         chatButton.setOnClickListener {
             if (UserCredentialManager.isLoggedIn(this@MapsActivity)) {
@@ -236,6 +242,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
+
     private fun initSearchLocation(){
         // Initialize Places Client and Session Token
         placesClient = Places.createClient(this)
@@ -405,7 +412,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (checkLocationPermission()) {
             mMap.isMyLocationEnabled = true
             getUserLocation()
-
         }
 
         mMap.setOnMarkerClickListener { marker ->
@@ -451,6 +457,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         "start_lat=$startLat&end_lat=$endLat&" +
                         "start_long=$startLong&end_long=$endLong"
             }
+            Log.d(TAG, "getPostsOnScreen: $url")
 
             val response = withContext(Dispatchers.IO) {
                 HTTPRequest.sendGetRequest(url, this@MapsActivity)
