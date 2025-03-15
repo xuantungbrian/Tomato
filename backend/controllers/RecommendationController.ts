@@ -26,8 +26,8 @@ export class RecommendationController {
         
         if(posts){
             for (const post of posts) {
-                let lat : number = post.latitude ? post.latitude : 0
-                let long : number = post.longitude ? post.longitude : 0
+                let lat : number = post.latitude as number//? post.latitude : 0
+                let long : number = post.longitude as number//? post.longitude : 0
                 const posts_at_location = await this.postService.getPostsAtLocation(lat, long, true) as Post[]
                 just_coords.push(lat.toString().concat(" ", long.toString()))
 
@@ -43,11 +43,13 @@ export class RecommendationController {
             for (let i = 0; i < 3 && similar_users.length > 0; i++) {
                 const most_similar : string = this.mode(similar_users) // userId
                 const most_similar_posts : Post[] | null = (await this.postService.getUserPost(most_similar, true))
-                most_similar_posts?.forEach(sim_post => {
-                    if (!just_coords.includes(sim_post.latitude.toString().concat(" ", sim_post.longitude.toString()))) {
-                        potential_places.push(sim_post.latitude.toString().concat(" ", sim_post.longitude.toString()))
-                    }
-                })
+                if (most_similar_posts) {
+                    most_similar_posts.forEach(sim_post => {
+                        if (!just_coords.includes(sim_post.latitude.toString().concat(" ", sim_post.longitude.toString()))) {
+                            potential_places.push(sim_post.latitude.toString().concat(" ", sim_post.longitude.toString()))
+                        }
+                    })
+                }
 
                 // similar_users = this.deleteOccurences(similar_users, most_similar) as Array<String>
                 similar_users = this.deleteOccurences(similar_users, most_similar) as string[]
@@ -56,14 +58,16 @@ export class RecommendationController {
         else {
             const every_post = await this.postService.getEveryPost()
 
-            every_post?.forEach(all_post => {
-                let lati : number = all_post.latitude? all_post.latitude : 0
-                let longi : number = all_post.longitude? all_post.longitude : 0
-                const curr_coord : string = lati.toString().concat(" ", longi.toString())
-                if (!just_coords.includes(curr_coord)) {
-                    potential_places.push(curr_coord)
-                }
-            })
+            if (every_post) {
+                every_post.forEach(all_post => {
+                    let lati : number = all_post.latitude as number//? all_post.latitude : 0
+                    let longi : number = all_post.longitude as number//? all_post.longitude : 0
+                    const curr_coord : string = lati.toString().concat(" ", longi.toString())
+                    if (!just_coords.includes(curr_coord)) {
+                        potential_places.push(curr_coord)
+                    }
+                })
+            }
         }
 
         let best_places = []
@@ -94,7 +98,7 @@ export class RecommendationController {
         return arr.sort((a,b) =>
               arr.filter(v => v===a).length
             - arr.filter(v => v===b).length
-        ).pop() ?? '';
+        ).pop();
     }
 
     deleteOccurences(a : String[], e : String) : String[] | -1 {

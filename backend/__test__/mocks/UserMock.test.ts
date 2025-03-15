@@ -158,4 +158,25 @@ describe('Mocked User APIs: Erroneus Behaviour', () => {
     expect(response1.body).toBeNull();
     spy.mockClear()
   })
+
+  it('should fail to if process.env are not set', async () => {
+    const old_processes = process.env;
+    process.env = {}
+    const response1 = await request(app)
+      .post(`/user/auth`)
+      .send({
+        googleToken: "google",
+        firebaseToken: "firebase"
+      })
+      .expect(400)
+    process.env.WEB_CLIENT_ID = "string"
+    const response2 = await request(app)
+      .post(`/user/auth`)
+      .send({
+        googleToken: "google",
+        firebaseToken: "firebase"
+      })
+      .expect(400)
+    process.env = old_processes;
+  })
 })

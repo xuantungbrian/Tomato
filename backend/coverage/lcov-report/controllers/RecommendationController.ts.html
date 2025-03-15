@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">97.01% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>65/67</span>
+                <span class='fraction'>67/67</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">77.14% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>27/35</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.82% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>61/63</span>
+                <span class='fraction'>63/63</span>
             </div>
         
             
@@ -173,7 +173,8 @@
 <a name='L108'></a><a href='#L108'>108</a>
 <a name='L109'></a><a href='#L109'>109</a>
 <a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -197,13 +198,8 @@
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">30x</span>
@@ -216,9 +212,12 @@
 <span class="cline-any cline-yes">36x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">12x</span>
@@ -228,6 +227,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -235,11 +235,13 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">78x</span>
 <span class="cline-any cline-yes">78x</span>
 <span class="cline-any cline-yes">78x</span>
 <span class="cline-any cline-yes">78x</span>
 <span class="cline-any cline-yes">72x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -306,36 +308,35 @@ export class RecommendationController {
         const max : number = !isNaN(Number(req.query.max)) ? parseInt(req.query.max as string, 10) : 10
         const posts : Post[] | null = (await this.postService.getUserPost(userId, true))
 &nbsp;
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (!posts) {
-            //Recommend empty post
-<span class="cstat-no" title="statement not covered" >            res.status(200).json({posts: []})</span>
-<span class="cstat-no" title="statement not covered" >            return</span>
-        }
-&nbsp;
-        // let similar_users : Array&lt;String&gt; = []
         let similar_users : string[] = []
         let just_coords : string[] = []
-        for (const post of posts) {
-            let lat : number = post.latitude ? post.latitude : <span class="branch-1 cbranch-no" title="branch not covered" >0</span>
-            let long : number = post.longitude ? post.longitude : <span class="branch-1 cbranch-no" title="branch not covered" >0</span>
-            const posts_at_location = await this.postService.getPostsAtLocation(lat, long, true) as Post[]
-            just_coords.push(lat.toString().concat(" ", long.toString()))
+        
+        if(posts){
+            for (const post of posts) {
+                let lat : number = post.latitude as number//? post.latitude : 0
+                let long : number = post.longitude as number//? post.longitude : 0
+                const posts_at_location = await this.postService.getPostsAtLocation(lat, long, true) as Post[]
+                just_coords.push(lat.toString().concat(" ", long.toString()))
 &nbsp;
-            posts_at_location.forEach((user_post) =&gt; {
-                if (user_post.userId != userId)
-                    similar_users.push(user_post.userId)
-            })
+                posts_at_location.forEach((user_post) =&gt; {
+                    if (user_post.userId != userId)
+                        similar_users.push(user_post.userId)
+                })
+            }
         }
+&nbsp;
         let potential_places : string[] = []
         if (similar_users.length &gt; 0) {
             for (let i = 0; i &lt; 3 &amp;&amp; similar_users.length &gt; 0; i++) {
                 const most_similar : string = this.mode(similar_users) // userId
                 const most_similar_posts : Post[] | null = (await this.postService.getUserPost(most_similar, true))
-                most_similar_posts<span class="branch-0 cbranch-no" title="branch not covered" >?.f</span>orEach(sim_post =&gt; {
-                    if (!just_coords.includes(sim_post.latitude.toString().concat(" ", sim_post.longitude.toString()))) {
-                        potential_places.push(sim_post.latitude.toString().concat(" ", sim_post.longitude.toString()))
-                    }
-                })
+                if (most_similar_posts) {
+                    most_similar_posts.forEach(sim_post =&gt; {
+                        if (!just_coords.includes(sim_post.latitude.toString().concat(" ", sim_post.longitude.toString()))) {
+                            potential_places.push(sim_post.latitude.toString().concat(" ", sim_post.longitude.toString()))
+                        }
+                    })
+                }
 &nbsp;
                 // similar_users = this.deleteOccurences(similar_users, most_similar) as Array&lt;String&gt;
                 similar_users = this.deleteOccurences(similar_users, most_similar) as string[]
@@ -344,14 +345,16 @@ export class RecommendationController {
         else {
             const every_post = await this.postService.getEveryPost()
 &nbsp;
-            every_post<span class="branch-0 cbranch-no" title="branch not covered" >?.f</span>orEach(all_post =&gt; {
-                let lati : number = all_post.latitude? all_post.latitude : <span class="branch-1 cbranch-no" title="branch not covered" >0</span>
-                let longi : number = all_post.longitude? all_post.longitude : <span class="branch-1 cbranch-no" title="branch not covered" >0</span>
-                const curr_coord : string = lati.toString().concat(" ", longi.toString())
-                if (!just_coords.includes(curr_coord)) {
-                    potential_places.push(curr_coord)
-                }
-            })
+            if (every_post) {
+                every_post.forEach(all_post =&gt; {
+                    let lati : number = all_post.latitude as number//? all_post.latitude : 0
+                    let longi : number = all_post.longitude as number//? all_post.longitude : 0
+                    const curr_coord : string = lati.toString().concat(" ", longi.toString())
+                    if (!just_coords.includes(curr_coord)) {
+                        potential_places.push(curr_coord)
+                    }
+                })
+            }
         }
 &nbsp;
         let best_places = []
@@ -382,7 +385,7 @@ export class RecommendationController {
         return arr.sort((a,b) =&gt;
               arr.filter(v =&gt; v===a).length
             - arr.filter(v =&gt; v===b).length
-        ).pop() ?? <span class="branch-1 cbranch-no" title="branch not covered" >'';</span>
+        ).pop();
     }
 &nbsp;
     deleteOccurences(a : String[], e : String) : String[] | -1 {
@@ -400,7 +403,7 @@ export class RecommendationController {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-15T07:59:48.816Z
+                at 2025-03-15T20:59:57.404Z
             </div>
         <script src="../prettify.js"></script>
         <script>

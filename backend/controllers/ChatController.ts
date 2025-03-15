@@ -18,11 +18,7 @@ export class ChatController {
             return;
         } 
         let chat = req.body
-        let user = req.user?.id
-        if (!user) {
-            res.status(401).send({message: "Unauthorized"});
-            return;
-        }
+        let user = req.user.id
         if (!chat.member_1 || !chat.member_2) {
             res.status(400).send({message: "Bad request"});
             return;
@@ -50,11 +46,7 @@ export class ChatController {
             return;
         }
         const chatId = req.params.id
-        let user = req.user?.id
-        if (!user) {
-            res.status(401).send({ message: "Unauthorized" });
-            return;
-        }
+        let user = req.user.id
         const chat = await ChatModel.findById(chatId);
         if (!chat) {
             res.status(404).send({ message: "Chat not found" });
@@ -73,7 +65,7 @@ export class ChatController {
             return;
         }
         let message = req.body
-        let user = req.user?.id
+        let user = req.user.id
         if (!message.sender || !message.message) {
             res.status(400).send({message: "Bad Request"})
             return;
@@ -93,11 +85,7 @@ export class ChatController {
             return
         }
         const messageId = req.params.message_id
-        let user = req.user?.id
-        if (!user) {
-            res.status(401).send({ message: "Unauthorized" });
-            return;
-        }
+        let user = req.user.id
         const message = await MessageModel.findById(messageId)
         if (!message) {
             res.status(404).send({message: "Message not found"});
@@ -116,11 +104,7 @@ export class ChatController {
             return
         }
         const chatId = req.params.id
-        let user = req.user?.id
-        if (!user) {
-            res.status(401).send({ message: "Unauthorized" });
-            return;
-        }
+        let user = req.user.id
         const chat = await ChatModel.findById(chatId)
         if (!chat) {
             res.status(404).send({message: "Chat not found"});

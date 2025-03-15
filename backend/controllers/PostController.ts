@@ -58,11 +58,6 @@ export class PostController {
                 console.error("User Provided Invalid coordinate: ", error)
                 res.status(400).json({ message: "Incomplete coordinate" });
             }
-            else {
-                console.error("Error: ", error);
-                res.status(500).json({ message: "Internal Server Error" });
-
-            }
         }
     };
 

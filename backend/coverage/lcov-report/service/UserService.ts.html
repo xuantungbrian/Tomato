@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">90.47% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>38/42</span>
+                <span class='fraction'>41/41</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">78.26% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>18/23</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">90.47% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>38/42</span>
+                <span class='fraction'>41/41</span>
             </div>
         
             
@@ -149,32 +149,12 @@
 <a name='L84'></a><a href='#L84'>84</a>
 <a name='L85'></a><a href='#L85'>85</a>
 <a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L87'></a><a href='#L87'>87</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
@@ -208,12 +188,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -236,7 +226,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -245,26 +239,9 @@
 import { UserModel, IUser } from "../model/UserModel"
 import { OAuth2Client, TokenPayload } from "google-auth-library";
 &nbsp;
-&nbsp;
-<span class="missing-if-branch" title="if path not taken" >I</span>if (!process.env.WEB_CLIENT_ID) {
-<span class="cstat-no" title="statement not covered" >    throw new Error("WEB_CLIENT_ID is not defined in environment variables");</span>
-  }
-<span class="missing-if-branch" title="if path not taken" >I</span>if (!process.env.JWT_SECRET) {
-<span class="cstat-no" title="statement not covered" >    throw new Error("JWT_SECRET is not defined in environment variables");</span>
-}
-const webClientId: string = process.env.WEB_CLIENT_ID
-const jwtSecret: string = process.env.JWT_SECRET
-&nbsp;
-const client: OAuth2Client = new OAuth2Client(webClientId);
-&nbsp;
-&nbsp;
 export class UserService {
 &nbsp;
     async createUser(id: string, name: string, firebaseToken: string): Promise&lt;IUser|null&gt; {
-        <span class="missing-if-branch" title="if path not taken" >I</span>if(!id || !name || !firebaseToken){
-<span class="cstat-no" title="statement not covered" >            console.warn("Invalid input")</span>
-<span class="cstat-no" title="statement not covered" >            return null</span>
-        }
         try {
             const newUser: IUser = new UserModel({ 
                 _id: id, 
@@ -297,14 +274,24 @@ export class UserService {
 &nbsp;
     async signInWithGoogle(googleToken: string, firebaseToken: string){
         // Verify Google token
+        if (!process.env.WEB_CLIENT_ID) {
+            throw new Error("WEB_CLIENT_ID is not defined in environment variables");
+          }
+        if (!process.env.JWT_SECRET) {
+            throw new Error("JWT_SECRET is not defined in environment variables");
+        }
+        const webClientId: string = process.env.WEB_CLIENT_ID
+        const jwtSecret: string = process.env.JWT_SECRET
+        
+        const client: OAuth2Client = new OAuth2Client(webClientId);
+        
         const ticket = await client.verifyIdToken({
             idToken: googleToken.replace('Bearer ', ''),
             audience: process.env.GOOGLE_CLIENT_ID,
         });
 &nbsp;
-&nbsp;
         const payload = ticket.getPayload() as TokenPayload;
-        if (payload === undefined || !payload<span class="branch-0 cbranch-no" title="branch not covered" >?.s</span>ub || !payload.name) {
+        if (payload === undefined || !payload.sub || !payload.name) {
             throw new Error("Invalid Google Token");
         }
 &nbsp;
@@ -325,7 +312,11 @@ export class UserService {
             expiresIn: "999d",
             algorithm: "HS256"
         });
-        const userID = user<span class="branch-0 cbranch-no" title="branch not covered" >?._</span>id
+&nbsp;
+        let userID = null
+        if (user) {
+            userID = user._id
+        }
 &nbsp;
         return { token: jwtToken, userID };
     }
@@ -337,7 +328,7 @@ export class UserService {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-15T07:59:48.816Z
+                at 2025-03-15T20:59:57.404Z
             </div>
         <script src="../prettify.js"></script>
         <script>

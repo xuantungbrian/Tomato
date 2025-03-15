@@ -23,11 +23,24 @@ app.get('/posts-authenticated', (req : Request, res : Response, next : NextFunct
       next(error);
   }
 }); 
+app.get('/posts-authenticated-not', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+      await postController.getAuthenticatedUserPost(req as AuthenticatedRequest, res);
+  } catch (error) {
+      next(error);
+  }
+}); 
 
 app.post('/posts', (req, res, next) => {
   (req as any).user = { id: 'user123' };
   next();
 }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await postController.createPost(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});
+app.post('/posts-not-authenticated', async(req: Request, res: Response, next: NextFunction): Promise<void> => {
   try{
     await postController.createPost(req as AuthenticatedRequest, res);
   } catch(err) {
@@ -53,10 +66,31 @@ app.put('/posts/:id', (req, res, next) => {
   } catch(err) {
     next(err);
   }});  
+app.put('/posts/:id', (req, res, next) => {
+  (req as any).user = { id: 'user123' }; 
+  next();
+}, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await postController.updatePost(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});
+app.put('/posts-not-auth/:id', async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await postController.updatePost(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});    
 app.delete('/posts/:id', (req, res, next) => {
   (req as any).user = { id: 'user123' }; 
   next();
 }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    await postController.deletePost(req as AuthenticatedRequest, res);
+  } catch(err) {
+    next(err);
+  }});
+app.delete('/posts-not-auth/:id', async(req: Request, res: Response, next: NextFunction): Promise<void> => {
   try{
     await postController.deletePost(req as AuthenticatedRequest, res);
   } catch(err) {
@@ -513,7 +547,24 @@ describe('Unmocked Posts API: Expect Behaviour', () => {
 
 describe('Managing Posts API: Erroneus Behaviour', () => {
   describe('Testing createPost', () => {
-
+    it('should fail to create a post if unauthorized', async () => {
+      const newPost = {
+        userId: 'user123',
+        latitude: 40.7128,
+        longitude: -74.0060,
+        images: ["string", "image/jpeg"],
+        date: new Date(),
+        note: 'Test post',
+        isPrivate: false,
+      };
+  
+      const response = await request(app)
+        .post('/posts-not-authenticated') 
+        .send(newPost) 
+        .expect(401);
+  
+      expect(response.body.message).toBe("Unauthorized")
+    });
   })
 
   describe('Testing getPublicPosts', () => {
@@ -600,6 +651,29 @@ describe('Managing Posts API: Erroneus Behaviour', () => {
         .delete(`/posts/${createdPost.body._id}`)
         .expect(401);
     })
+
+    it('should fail to allow an unauthorized user to delete a post, no middleare', async () => {
+      const newPost = {
+        userId: 'userId',
+        latitude: 40.7128,
+        longitude: -74.0060,
+        images: ["string", "image/jpeg"],
+        date: new Date(),
+        note: 'Test post',
+        isPrivate: false,
+      };
+  
+      const createdPost = await request(app)
+        .post('/posts')
+        .send(newPost)
+        .expect(200);
+       
+      const response = await request(app)
+        .delete(`/posts-not-auth/${createdPost.body._id}`)
+        .expect(401);
+
+      expect(response.body.message).toBe("Unauthorized");
+    })
   })
 
   describe('Testing getUserPosts', () => {
@@ -672,5 +746,103 @@ describe('Managing Posts API: Erroneus Behaviour', () => {
         })
         .expect(400);
     });
+
+    it('should fail to get authenticated posts if unauthorized', async () => {
+      const newPost = {
+        userId: 'user123',
+        latitude: 40.7128,
+        longitude: -74.0060,
+        images: ["string", "image/jpeg"],
+        date: new Date(),
+        note: 'Test post',
+        isPrivate: true,
+      };
+  
+      const newPost2 = {
+        userId: 'user123',
+        latitude: 40.7180,
+        longitude: -74.0060,
+        images: ["string", "image/jpeg"],
+        date: new Date(),
+        note: 'Test post',
+        isPrivate: false,
+      };
+  
+      const newPost3 = {
+        userId: 'other',
+        latitude: 40.90,
+        longitude: -74.0060,
+        images: ["string", "image/jpeg"],
+        date: new Date(),
+        note: 'Test post',
+        isPrivate: false,
+      };
+  
+      const newPost4 = {
+        userId: 'other',
+        latitude: 40.7180,
+        longitude: -74.0060,
+        images: ["string", "image/jpeg"],
+        date: new Date(),
+        note: 'Test post',
+        isPrivate: true,
+      };
+  
+      const createdPost = await request(app)
+        .post('/posts')
+        .send(newPost)
+        .expect(200);
+      
+      const anotherPost = await request(app)
+        .post('/posts')
+        .send(newPost2)
+        .expect(200);
+  
+      const thirdpost = await request(app)
+        .post('/posts-from-other')
+        .send(newPost3)
+        .expect(200);
+  
+      const fourth = await request(app)
+        .post('/posts-from-other')
+        .send(newPost4)
+        .expect(200);
+  
+      const response = await request(app)
+        .get(`/posts-authenticated-not`) 
+        .query({
+          userPostOnly: false,
+          start_lat: 9,
+        })
+        .expect(401);
+
+        expect(response.body.message).toBe("Unauthorized")
+    });
   })
+
+  it('should fail to update a post if unauthorized', async () => {
+    const newPost = {
+      userId: 'user123',
+      latitude: 40.7128,
+      longitude: -74.0060,
+      images: ["string", "image/jpeg"],
+      date: new Date(),
+      note: 'Test post',
+      isPrivate: false,
+    };
+
+    const createdPost = await request(app)
+      .post('/posts')
+      .send(newPost)
+      .expect(200);
+
+    const updatedPost = { ...createdPost.body, note: 'Updated note' };
+
+    const response = await request(app)
+      .put(`/posts-not-auth/${createdPost.body._id}`)
+      .send(updatedPost)
+      .expect(401);
+
+    expect(response.body.message).toBe('Unauthorized');
+  });
 })
