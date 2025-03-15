@@ -37,7 +37,13 @@ object HTTPRequest {
                     // Return the response data as a String
                     response.body?.string()
                 }
-            } catch (e: Exception) {
+            } catch (e: IOException) {
+                e.printStackTrace()
+                null
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
+                null
+            } catch (e: SecurityException) {
                 e.printStackTrace()
                 null
             }
@@ -69,7 +75,13 @@ object HTTPRequest {
                     // Return the response data as a String
                     response.body?.string()
                 }
-            } catch (e: Exception) {
+            } catch (e: IOException) {
+                e.printStackTrace()
+                null
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
+                null
+            } catch (e: SecurityException) {
                 e.printStackTrace()
                 null
             }
@@ -112,8 +124,13 @@ object HTTPRequest {
                     // Return the response data as a String
                     response.body?.string()
                 }
-            } catch (e: Exception) {
-                Log.d(context.toString(), e.toString())
+            } catch (e: IOException) {
+                e.printStackTrace()
+                null
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
+                null
+            } catch (e: SecurityException) {
                 e.printStackTrace()
                 null
             }

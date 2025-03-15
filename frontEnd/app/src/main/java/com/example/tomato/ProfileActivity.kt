@@ -133,9 +133,7 @@ class ProfileActivity : AppCompatActivity() {
             }
     }
 
-    /**
-     * Update profile's username and image based on the current logged in user.
-     */
+
     private fun updateProfile(){
         val usernameView = findViewById<TextView>(R.id.profile_activity_username)
         val profileImageView = findViewById<ImageView>(R.id.profile_activity_profile_image)
