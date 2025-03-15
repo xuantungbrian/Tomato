@@ -18,6 +18,7 @@ module.exports = {
       'model/*.ts',
       'service/*.ts',
       'routes/*.ts'
-    ]
+    ],
+    setupFiles: ['<rootDir>/jest.setup.js']
   };
   
