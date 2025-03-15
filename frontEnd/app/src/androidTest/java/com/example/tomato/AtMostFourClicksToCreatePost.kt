@@ -27,12 +27,11 @@ class AtMostFourClicksToCreatePost {
 
         // Login with Google
         Utils.loginWithGoogle()
-        Thread.sleep(60000)
         stepCount++
 
         // Open upload view
         onView(withId(R.id.bottom_navbar_upload_button)).perform(click())
-        Thread.sleep(10000)
+        Thread.sleep(5000)
         stepCount++
 
         // Reach upload feature

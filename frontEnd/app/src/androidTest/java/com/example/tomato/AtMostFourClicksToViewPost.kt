@@ -29,7 +29,6 @@ class AtMostFourClicksToViewPost {
 
         // Login with Google
         Utils.loginWithGoogle()
-        Thread.sleep(30000)
         stepCount++
 
         // Scroll to the post marker

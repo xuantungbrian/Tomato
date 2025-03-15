@@ -28,7 +28,6 @@ class AtMostFourClicksToChat {
 
         // Login with Google
         Utils.loginWithGoogle()
-        Thread.sleep(30000)
         stepCount++
 
         // Click on chat

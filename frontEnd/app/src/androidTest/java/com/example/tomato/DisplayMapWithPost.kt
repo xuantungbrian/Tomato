@@ -14,42 +14,31 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import org.junit.Test
 
-class AtMostFourClicksToDeletePost {
+class DisplayMapWithPost {
 
     @Test
-    fun navigateToDeletePost() {
+    fun displayPostedPictureOnMap() {
+        // Launch the activity
         val scenario = ActivityScenario.launch(MapsActivity::class.java)
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        var stepCount = 0
 
-        // Allow location permission
-        val allowButton = device.wait(Until.findObject(By.text("Only this time")), 1000)
+        // Grant location permission
+        val allowButton = device.wait(Until.findObject(By.textContains("Only")), 30000)
         allowButton.click()
-        stepCount++
+        Thread.sleep(10000)
 
-        // Login with Google
-        Utils.loginWithGoogle()
-        stepCount++
-
-        // Scroll to the post marker
+        // Scroll camera to a pre-uploaded post position
         scenario.onActivity { activity ->
             val mapFragment = activity.supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
             mapFragment.getMapAsync { googleMap ->
-                val markerLatLng = LatLng(49.2276257, -123.0075756) // Metrotown
-//                val markerLatLng = LatLng(49.30425839999999, -123.1442523) // Stanley park
+                val markerLatLng = LatLng(49.30425839999999, -123.1442523)
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(markerLatLng, 15f))
             }
         }
-        stepCount++
 
-        // Click on the post
         Thread.sleep(20000)
         device.click(540, 1120)
-        Thread.sleep(30000)
-        stepCount++
-
-        // Reach delete feature
-        onView(withId(R.id.delete_post_button)).check(matches(isDisplayed()))
-        assert(stepCount <= 4)
+        Thread.sleep(1000)
+        onView(withId(R.id.post_activity_postLocation)).check(matches(isDisplayed()))
     }
 }

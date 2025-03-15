@@ -38,7 +38,6 @@ class Security {
         var okButton = device.wait(Until.findObject(By.text("OKAY")), 1000)
         assertNotNull(okButton)
         okButton.click()
-        Thread.sleep(5000)
 
         // Try click on profile button
         onView(withId(R.id.profile_button_image)).perform(click())

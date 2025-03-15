@@ -14,7 +14,7 @@ import org.junit.Test
 class AtMostFourClicksToSearchLocation {
 
     @Test
-    fun test5NavigateToSearchLocation() {
+    fun navigateToSearchLocation() {
         val scenario = ActivityScenario.launch(MapsActivity::class.java)
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         var stepCount = 0
@@ -26,7 +26,6 @@ class AtMostFourClicksToSearchLocation {
 
         // Login with Google
         Utils.loginWithGoogle()
-        Thread.sleep(30000)
         stepCount++
 
         // Reach it right away on screen
