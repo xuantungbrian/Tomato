@@ -15,8 +15,6 @@ const app = express();
 
 app.use(express.json({limit: '100mb'}));
 app.use(morgan('tiny'))
-// app.use(UploadFile) // TODO: Add this for one route only
-// TODO: Cleanup as any
 
 export interface AuthenticatedRequest extends Request {
     user: { id: string }; 
@@ -26,13 +24,20 @@ export interface AuthenticatedRequest extends Request {
     }; 
 }
 
+export function isAuthenticatedRequest(req: Request): req is AuthenticatedRequest {
+    return "user" in req;
+}
+
+
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
 });
 
+
+
 const allRoutes = [...PostRoutes, ...UserRoutes, ...ChatRoutes, ...RecommendationRoutes]
 allRoutes.forEach((route) => {
-    const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
+    const middlewares = route.protected ? [verifyToken] : []; // Add verifyToken only if protected
 
     (app as any)[route.method](
         route.route,
@@ -47,7 +52,7 @@ allRoutes.forEach((route) => {
             try {
                 await route.action(req, res);
             } catch (err) {
-                console.log(err)
+                console.error(err)
                 return res.sendStatus(500); // Don't expose internal server workings
             }
         },
@@ -57,12 +62,12 @@ allRoutes.forEach((route) => {
 const PORT = Number(process.env.PORT) || 3000
 
 connectDB().then(() => {
-    app.listen(PORT, '0.0.0.0' as any, () => {
+    app.listen(PORT, '0.0.0.0' as string, () => {
         startWSS()
         console.log(`Server is running on port ${PORT}`);
       });
 
-}).catch((err) => {
+}).catch((err: unknown) => {
     console.error(err);
 })
 

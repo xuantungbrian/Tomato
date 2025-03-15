@@ -1,12 +1,17 @@
 import { PostService } from "../service/PostService";
 import { Request, Response } from "express";
 import MissingCoordinateException from "../errors/customError";
-import { PostModel } from "../model/PostModel";
-import { AuthenticatedRequest } from "..";
+import { PostModel, Post } from "../model/PostModel";
+import { isAuthenticatedRequest } from "..";
 
 interface ImageData {
     fileData: Buffer;
     fileType: string;
+}
+
+/*Raw representation of post, where images are array of base64 strings */
+interface RawPost extends Omit<Post, 'images'> {
+    images: string[];
 }
 
 export class PostController {
@@ -16,18 +21,27 @@ export class PostController {
         this.postService = new PostService();
     }
 
-    createPost = async (req: AuthenticatedRequest, res: Response) => {
-        const post = req.body;
-        post.userId = req.user.id;
-        post.images = (post.images as string[]).map((str: string): ImageData => ({
+    createPost = async (req: Request, res: Response) => {
+        if (!isAuthenticatedRequest(req)) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+        const rawPost = req.body as RawPost;
+        rawPost.userId = req.user.id;
+        const images = (rawPost.images).map((str: string): ImageData => ({
             fileData: Buffer.from(str, 'base64'),
             fileType: 'image/jpeg'
         }));
 
+        const post: Post = {
+            ...rawPost,
+            images
+        }
+
         res.json(await this.postService.createPost(post))
     }
 
-    getPublicPost = async (req: Request, res: Response) => {
+    getPublicPost = async (req: Request, res: Response): Promise<void> => {
         try {
             const { parsedStartLat, parsedEndLat, parsedStartLong, parsedEndLong } = parseLocationParam(req)
 
@@ -41,14 +55,24 @@ export class PostController {
         }
         catch (error) {
             if (error instanceof MissingCoordinateException) {
-                console.log("User Provided Invalid coordinate: ", error)
-                return res.status(400).json({ message: "Incomplete coordinate" });
+                console.error("User Provided Invalid coordinate: ", error)
+                res.status(400).json({ message: "Incomplete coordinate" });
+            }
+            else {
+                console.error("Error: ", error);
+                res.status(500).json({ message: "Internal Server Error" });
+
             }
         }
     };
 
 
-    getAuthenticatedUserPost = async (req: AuthenticatedRequest, res: Response) => {
+    getAuthenticatedUserPost = async (req: Request, res: Response) => {
+        if (!isAuthenticatedRequest(req)) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+
         try {
             const { userPostOnly, start_lat, end_lat, start_long, end_long } = req.query;
 
@@ -64,6 +88,7 @@ export class PostController {
             res.json(await this.postService.getUserPost(userId, parsedUserPostOnly, parsedStartLat,
                 parsedEndLat, parsedStartLong,
                 parsedEndLong))
+            return
         }
 
         catch(err){
@@ -85,14 +110,22 @@ export class PostController {
         res.json({ postData });
     }
 
-    updatePost = async (req: AuthenticatedRequest, res: Response) => {
+    updatePost = async (req: Request, res: Response): Promise<void> => {
+        if (!isAuthenticatedRequest(req)) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
         const postId = req.params.id
-        const updatedPost = req.body
+        const updatedPost = req.body as Post
         updatedPost.userId = req.user.id
         res.json(await this.postService.updatePost(postId, updatedPost))
     }
 
-    deletePost = async (req: AuthenticatedRequest, res: Response) => {
+    deletePost = async (req: Request, res: Response): Promise<void> => {
+        if (!isAuthenticatedRequest(req)) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
         const postId = req.params.id
 
         // Ensure that the post really belongs to the user
@@ -124,10 +157,10 @@ function parseLocationParam(req: Request) {
     const parsedEndLong = end_long ? parseFloat(end_long as string) : undefined;
 
     return {
-        parsedStartLat: parsedStartLat,
-        parsedEndLat: parsedEndLat,
-        parsedStartLong: parsedStartLong,
-        parsedEndLong: parsedEndLong
+        parsedStartLat,
+        parsedEndLat,
+        parsedStartLong,
+        parsedEndLong,
     }
 
 }

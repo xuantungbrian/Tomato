@@ -51,9 +51,7 @@ class ChooseChatActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Fetch the list of chats.
-     */
+
     private suspend fun getChatList(): List<ChatItem> {
         val response = HTTPRequest.sendGetRequest(
             "${BuildConfig.SERVER_ADDRESS}/chats",
@@ -88,33 +86,27 @@ class ChatListAdapter(
             }
             // Launch a coroutine on the IO dispatcher for network operations.
             CoroutineScope(Dispatchers.IO).launch {
-                try {
+                val currentUserId = UserCredentialManager.getUserId(itemView.context)
+                var targetUserId = ""
+                if(chatRoom.member_1 == currentUserId){
+                    targetUserId = chatRoom.member_2
+                }
+                else{
+                    targetUserId = chatRoom.member_1
+                }
 
-                    val currentUserId = UserCredentialManager.getUserId(itemView.context)
-                    var targetUserId = ""
-                    if(chatRoom.member_1 == currentUserId){
-                        targetUserId = chatRoom.member_2
-                    }
-                    else{
-                        targetUserId = chatRoom.member_1
-                    }
+                // Second network call: get user details.
+                val response = HTTPRequest.sendGetRequest(
+                    "${BuildConfig.SERVER_ADDRESS}/user/$targetUserId",
+                    itemView.context
+                )
+                val jsonObj2 = JSONObject(response)
+                val username = jsonObj2.getString("username")
 
-                    // Second network call: get user details.
-                    val response = HTTPRequest.sendGetRequest(
-                        "${BuildConfig.SERVER_ADDRESS}/user/$targetUserId",
-                        itemView.context
-                    )
-                    val jsonObj2 = JSONObject(response)
-                    val username = jsonObj2.getString("username")
+                // Switch back to the main thread to update the UI.
+                withContext(Dispatchers.Main) {
 
-                    // Switch back to the main thread to update the UI.
-                    withContext(Dispatchers.Main) {
-
-                        targetUserTextView.text = username
-                    }
-                } catch (e: Exception) {
-                    // Handle errors appropriately (e.g., show a message or log the error)
-                    e.printStackTrace()
+                    targetUserTextView.text = username
                 }
             }
         }
