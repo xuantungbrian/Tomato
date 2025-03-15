@@ -47,6 +47,7 @@ class SearchLocations {
         assertNotNull(locationButton)
         locationButton.click()
         device.pressKeyCode(KeyEvent.KEYCODE_ENTER)
+        Thread.sleep(10000)
         activityScenarioRule.scenario.onActivity { activity ->
             val mapFragment =
                 activity.supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment

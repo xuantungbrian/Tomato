@@ -53,11 +53,7 @@ Our app allows people to keep a history of all the places they have traveled to 
                 3. App opens the map to the user’s general location
             - **Failure scenario(s)**:
                 - 1a. User has not allowed the app to see their location
-                    - 1a1. Makes a request to the user to allow the app to access their location
-                    - 1a2. If users agrees, the map will open showing the user’s general location
-                    - 1a3. Otherwise opens the map to latitude longitude (0, 0) as opposed to their current location
-                - 2a. Google Maps API is not available
-                    - 2a1. A toast will appear telling the user that Google Maps is unavailable and to try again later
+                    - 1a3. Opens the map to latitude longitude (0, 0) as opposed to their current location
 
         2. **Displays posted pictures as pins on the map**
             - **Description**: Displays pictures posted by the user and others users as pins on the map
@@ -84,15 +80,13 @@ Our app allows people to keep a history of all the places they have traveled to 
                 3. User enters their account information and signs in
                 4. App continues as normal
             - **Failure scenario(s)**:
-                - 3a. User is unable to login
-                    - 3a1. A toast appears telling the user they were unable to login, along with the reason why and to try again
-                    - 3a2. User can try again later after fixing the problem
+                - 3a. User cancle the login by clicking outside the login box/back button
+                    - 3a1. An alert appears telling the user they were unable to login, along with the reason why
  
 3. **Manage Posts**
     - **Overview**:
         1. Create Posts
         2. Delete Posts
-        3. Update Posts
         4. View Posts
          
     
@@ -128,27 +122,7 @@ Our app allows people to keep a history of all the places they have traveled to 
                 - 4a. Post could not be deleted
                     - 4a1. A toast will appear telling the user that the post was unable to delete at this time along with the reason why
 
-        3. **Update Posts**:
-            - **Description**: User is able to update an existing post by changing the picture or description
-            - **Primary actor(s)**: User, Google Maps API 
-            - **Main success scenario**:
-                1. User clicks on the pin of post they want to update
-                2. User clicks on the Update button
-                3. User changes what they want about the post
-                4. User clicks on the Update button after filling in the desired fields
-                5. User confirms that they want to update the post
-                6. App shows the newly updated post on the map
-            - **Failure scenario(s)**:
-                - 1a. Post could not be fetched
-                    - 1a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
-                - 3a. Could not access the user’s gallery
-                    - 3a1. Makes a request to the user to allow the app to access their photos
-                    - 3a2. If users agrees, the other steps will carry on as normal
-                    - 3a3. Otherwise a toast will appear telling the user that it cannot add a picture without gallery permissions
-                - 6a. Post could not be updated
-                    - 6a1. A toast will appear telling the user that the post was unable to updated at this time along with the reason why
-
-        4. **View Posts**:
+        3. **View Posts**:
             - **Description**: User is able to view an existing post
             - **Primary actor(s)**: User, Google Maps API 
             - **Main success scenario**:
@@ -171,10 +145,6 @@ Our app allows people to keep a history of all the places they have traveled to 
                 2. User inputs the location they want to see
                 3. User clicks on the Search icon
                 4. App displays all the available posts in that area on the map
-            - **Failure scenario(s)**:
-                - 4a. Posts could not be fetched
-                    - 4a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
-
 5. **Get Location Recommendations**
     - **Overview**:
         1. Suggests travel locations for the user
@@ -257,6 +227,9 @@ Our app allows people to keep a history of all the places they have traveled to 
 2. **At most 4 clicks to access any of the use cases**
     - **Description**: No more than 4 clicks are necessary to access any of the main use cases
     - **Justification**: This allows for the user to navigate the app easily and makes every use case within a comfortable reach from the user.
+3. **Login is required for upload, delete posts, view profile and chat**
+    - **Description**: Features such as upload, delete posts, view profile and chat require login before accessing these features. Trying to use these features without login will result in an alert saying that "Login is required to ...".
+    - **Justification**: For security, we decide that users use this features without login because these features alter the data or view personal information such as chats, preferences. Moreover, for post deletion, we also need to know if the current user is the owner of the post
 
 ## 4. Designs Specification
 ### **4.1. Main Components**
