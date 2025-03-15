@@ -18,10 +18,6 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
         return res.status(401).json({ message: 'No token provided' });
     }
 
-    if (!JWT_SECRET){
-        return res.status(500).json({message: "Internal Server Error"});
-    }
-
     else{
         try {
             const decoded = jwt.verify(token, JWT_SECRET, {algorithms: ["HS256"]}) as {id: string};  // Verify the JWT

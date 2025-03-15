@@ -33,8 +33,6 @@ export class UserService {
         } catch (error: unknown) {
             if (error instanceof Error) {
               console.error("Error creating user:", error.message);
-            } else {
-              console.error("Error creating user:", error);
             }
             return null;
           }
