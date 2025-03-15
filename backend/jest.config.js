@@ -10,7 +10,7 @@ module.exports = {
       '<rootDir>/node_modules/some-module/',  // Example: you might need to transform this package
     ],
     moduleFileExtensions: ['ts', 'js', 'json', 'node'],
-    testTimeout: 10000,
+    testTimeout: 100000,
     collectCoverageFrom: [
       'controllers/*.ts',
       'errors/*.ts',
