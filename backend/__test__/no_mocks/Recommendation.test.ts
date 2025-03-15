@@ -9,6 +9,7 @@ import { PostController } from '../../controllers/PostController';
 import { AuthenticatedRequest } from '../..';
 import { RecommendationRoutes } from '../../routes/RecommendationRoutes';
 import { validationResult } from 'express-validator';
+import 'dotenv/config';
 
 let mongoServer = new MongoMemoryServer();
 const app = express();

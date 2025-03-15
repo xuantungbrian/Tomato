@@ -8,6 +8,7 @@ import { ChatModel } from '../../model/ChatModel';
 import { MessageModel } from '../../model/MessageModel';
 import { AuthenticatedRequest } from '../..';
 import { ChatService } from '../../service/ChatService';
+import 'dotenv/config';
 
 let mongoServer = new MongoMemoryServer();
 
