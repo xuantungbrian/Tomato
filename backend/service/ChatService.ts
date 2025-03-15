@@ -38,7 +38,7 @@ export class ChatService {
 
   async getChat(id: string): Promise<IChat | null> {
     try {
-      return await ChatModel.findOne({ _id: id }).exec();
+      return await ChatModel.findById(id).exec();
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error("Error getting chat: " + err.message);

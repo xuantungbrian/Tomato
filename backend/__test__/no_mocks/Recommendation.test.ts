@@ -6,7 +6,7 @@ import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
 import { RecommendationController } from '../../controllers/RecommendationController';
 import { PostController } from '../../controllers/PostController';
-import { AuthenticatedRequest } from '../..';
+import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
 import { RecommendationRoutes } from '../../routes/RecommendationRoutes';
 import { validationResult } from 'express-validator';
 import 'dotenv/config';
@@ -2818,12 +2818,12 @@ describe('Unmocked Recommendations API: Expected Behaviour', () => {
     expect(response.body.posts[7].latitude).toEqual(response.body.posts[8].latitude);
   });
 
-  it('should return null if no posts', async () => {
+  it('should return empty list if no posts', async () => {
     const response = await request(app)
       .get("/recommendations")
       .expect(200)
 
-    expect(response.body).toBeNull()
+    expect(response.body.posts).toEqual([])
   });
 })
 

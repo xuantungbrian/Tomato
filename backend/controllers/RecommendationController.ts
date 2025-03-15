@@ -1,4 +1,4 @@
-import { isAuthenticatedRequest } from "..";
+import { isAuthenticatedRequest } from "../types/AuthenticatedRequest";
 import {Post } from "../model/PostModel";
 import { PostService } from "../service/PostService";
 import { Response, Request } from "express";

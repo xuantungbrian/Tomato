@@ -8,11 +8,11 @@ import { ChatModel } from '../../model/ChatModel';
 import { MessageModel } from '../../model/MessageModel';
 import { verify } from 'jsonwebtoken';
 import { config } from 'dotenv';
-import { AuthenticatedRequest } from '../..';
 import { SmsRegionConfig } from 'firebase-admin/lib/auth/auth-config';
 import { ChatRoutes } from '../../routes/ChatRoutes';
 import { validationResult } from 'express-validator';
 import { ChatService } from '../../service/ChatService';
+import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
 
 const {verifyToken} = require('../../middleware/verifyToken')
 let mongoServer = new MongoMemoryServer();

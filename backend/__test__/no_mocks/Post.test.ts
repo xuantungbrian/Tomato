@@ -5,8 +5,7 @@ import morgan from 'morgan';
 import { PostController } from '../../controllers/PostController';
 import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
-import { AuthenticatedRequest } from '../..';
-
+import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
 let mongoServer = new MongoMemoryServer();
 
 const app = express();
