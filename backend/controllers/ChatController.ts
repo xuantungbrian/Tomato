@@ -51,6 +51,10 @@ export class ChatController {
     }
 
     addMessage = async (req: Request, res: Response) => {
+        if (!isAuthenticatedRequest(req)) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
         let message = req.body
         let user = req.user?.id
         if (!user) {
