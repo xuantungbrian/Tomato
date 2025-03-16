@@ -4,7 +4,8 @@
 
 | **Change Date**   | **Modified Sections** | **Rationale** |
 | ----------------- | --------------------- | ------------- |
-| _Nothing to show_ |
+| 3/14/2025         | Non Functional Requirements: Added security requirement where some features (upload, view profile, chat) are blocked if they are not signed in.  |  Our app allows some features for non-signed in user, such as viewing public post, searching location. However, some features require user to be registered because it requires user's credential (such as posting and chats), hence these features should be blocked. 
+  
 
 ---
 
