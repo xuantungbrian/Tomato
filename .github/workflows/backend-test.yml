@@ -21,9 +21,12 @@ jobs:
       with:
         node-version: '20.x'
 
-    - run: cd backend
     - name: Install dependencies
-      run: npm install
+      run: |
+        cd backend
+        npm install
 
     - name: Run tests
-      run: npm test
+      run: |
+        cd backend
+        npm test
