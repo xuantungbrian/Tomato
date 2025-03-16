@@ -17,5 +17,5 @@ jobs:
         with:
           node-version: 14
       - run: cd backend
-      - run: npm jest
+      - run: npx jest
 
