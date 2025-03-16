@@ -22,26 +22,26 @@ const chatService = new ChatService();
 //App routes
 // createChat routes for testing
 app.post('/chats', (req, res, next) => {
-  (req as any).user = { id: 'user123' };
+  (req as AuthenticatedRequest).user = { id: 'user123' };
   next();
-}, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+}, (req: Request, res: Response, next: NextFunction): void => {
   try{
-    await chatController.createChat(req as AuthenticatedRequest, res);
+    void chatController.createChat(req as AuthenticatedRequest, res);
   } catch(err) {
     next(err);
   }}); 
 app.post('/chats-string', (req, res, next) => {
-  (req as any).user = { id: 'string' }; 
+  (req as AuthenticatedRequest).user = { id: 'string' }; 
   next();
 }, (req: Request, res: Response, next: NextFunction): void => {
   try{
-    chatController.createChat(req as AuthenticatedRequest, res);
+    void chatController.createChat(req as AuthenticatedRequest, res);
   } catch(err) {
     next(err);
   }}); 
 app.post('/chats-no-middleware', (req: Request, res: Response, next: NextFunction): void => {
   try{
-    chatController.createChat(req as AuthenticatedRequest, res);
+    void chatController.createChat(req as AuthenticatedRequest, res);
   } catch(err) {
     next(err);
   }});
@@ -51,13 +51,13 @@ app.get('/chats/:id', (req, res, next) => {
     next();
   }, (req: Request, res: Response, next: NextFunction): void => {
     try{
-      chatController.getChatMessages(req as AuthenticatedRequest, res);
+      void chatController.getChatMessages(req as AuthenticatedRequest, res);
     } catch(err) {
       next(err);
     }});  
 app.get('/chats-no-middleware/:id', (req: Request, res: Response, next: NextFunction): void => {
   try{
-    chatController.getChatMessages(req as AuthenticatedRequest, res);
+    void chatController.getChatMessages(req as AuthenticatedRequest, res);
   } catch(err) {
     next(err);
   }});  
@@ -68,13 +68,13 @@ app.get('/chats', (req, res, next) => {
     next();
   },(req: Request, res: Response, next: NextFunction): void => {
     try{
-      chatController.getChats(req as AuthenticatedRequest, res);
+      void chatController.getChats(req as AuthenticatedRequest, res);
     } catch(err) {
       next(err);
     }});  
 app.get('/chats-unauthorized', (req: Request, res: Response, next: NextFunction): void => {
   try{
-    chatController.getChats(req as AuthenticatedRequest, res);
+    void chatController.getChats(req as AuthenticatedRequest, res);
   } catch(err) {
     next(err);
   }});  
@@ -85,7 +85,7 @@ app.post('/chat/:id', (req, res, next) => {
     next();
   },(req: Request, res: Response, next: NextFunction): void => {
     try{
-      chatController.addMessage(req as AuthenticatedRequest, res);
+      void chatController.addMessage(req as AuthenticatedRequest, res);
     } catch(err) {
       next(err);
     }});
@@ -94,13 +94,13 @@ app.post('/chat-string/:id', (req, res, next) => {
     next();
   }, (req: Request, res: Response, next: NextFunction): void => {
     try{
-      chatController.addMessage(req as AuthenticatedRequest, res);
+      void chatController.addMessage(req as AuthenticatedRequest, res);
     } catch(err) {
       next(err);
     }});
 app.post('/chat-no-middleware/:id', (req: Request, res: Response, next: NextFunction): void => {
   try{
-    chatController.addMessage(req as AuthenticatedRequest, res);
+    void chatController.addMessage(req as AuthenticatedRequest, res);
   } catch(err) {
     next(err);
   }});
@@ -111,13 +111,13 @@ app.delete('/chats/:id', (req, res, next) => {
     next();
   }, (req: Request, res: Response, next: NextFunction): void => {
     try{
-      chatController.deleteChat(req as AuthenticatedRequest, res);
+      void chatController.deleteChat(req as AuthenticatedRequest, res);
     } catch(err) {
       next(err);
     }});
 app.delete('/chats-no-middleware/:id', (req: Request, res: Response, next: NextFunction): void => {
   try{
-    chatController.deleteChat(req as AuthenticatedRequest, res);
+    void chatController.deleteChat(req as AuthenticatedRequest, res);
   } catch(err) {
     next(err);
   }});
@@ -128,13 +128,13 @@ app.delete('/chat/:id/messages/:message_id', (req, res, next) => {
     next();
   }, (req: Request, res: Response, next: NextFunction): void => {
     try{
-      chatController.deleteMessage(req as AuthenticatedRequest, res);
+      void chatController.deleteMessage(req as AuthenticatedRequest, res);
     } catch(err) {
       next(err);
     }});
 app.delete('/chat-no-middleware/:id/messages/:message_id', (req: Request, res: Response, next: NextFunction): void => {
   try{
-    chatController.deleteMessage(req as AuthenticatedRequest, res);
+    void chatController.deleteMessage(req as AuthenticatedRequest, res);
   } catch(err) {
     next(err);
   }});
