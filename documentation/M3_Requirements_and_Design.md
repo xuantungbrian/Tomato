@@ -92,8 +92,7 @@ Our app allows people to keep a history of all the places they have traveled to 
     - **Overview**:
         1. Create Posts
         2. Delete Posts
-        3. Update Posts
-        4. View Posts
+        3. View Posts
          
     
     - **Detailed Flow for Each Independent Scenario**: 
@@ -128,27 +127,7 @@ Our app allows people to keep a history of all the places they have traveled to 
                 - 4a. Post could not be deleted
                     - 4a1. A toast will appear telling the user that the post was unable to delete at this time along with the reason why
 
-        3. **Update Posts**:
-            - **Description**: User is able to update an existing post by changing the picture or description
-            - **Primary actor(s)**: User, Google Maps API 
-            - **Main success scenario**:
-                1. User clicks on the pin of post they want to update
-                2. User clicks on the Update button
-                3. User changes what they want about the post
-                4. User clicks on the Update button after filling in the desired fields
-                5. User confirms that they want to update the post
-                6. App shows the newly updated post on the map
-            - **Failure scenario(s)**:
-                - 1a. Post could not be fetched
-                    - 1a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
-                - 3a. Could not access the user’s gallery
-                    - 3a1. Makes a request to the user to allow the app to access their photos
-                    - 3a2. If users agrees, the other steps will carry on as normal
-                    - 3a3. Otherwise a toast will appear telling the user that it cannot add a picture without gallery permissions
-                - 6a. Post could not be updated
-                    - 6a1. A toast will appear telling the user that the post was unable to updated at this time along with the reason why
-
-        4. **View Posts**:
+        3. **View Posts**:
             - **Description**: User is able to view an existing post
             - **Primary actor(s)**: User, Google Maps API 
             - **Main success scenario**:
