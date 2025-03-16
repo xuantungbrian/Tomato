@@ -42,7 +42,4 @@ serviceAccountKey.json
 
 yarn.lock
 
-./backend/coverage/clover.xml
-./backend/coverage/coverage-final.json
-./backend/coverage/lcov.info
-./backend/coverage/lcov-report/*
+backend/coverage/

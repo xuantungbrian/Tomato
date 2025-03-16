@@ -7,45 +7,27 @@ import { UserController } from '../../controllers/UserController';
 import { UserModel } from '../../model/UserModel';
 import { UserService } from '../../service/UserService';
 
-let mongoServer: MongoMemoryServer = new MongoMemoryServer();
+let mongoServer = new MongoMemoryServer();
 
-const app: express.Application = express();
+const app = express();
 app.use(express.json());  
 app.use(morgan('tiny')); 
 
 const userController = new UserController();
 const userService = new UserService();
-app.post('/user/auth', (req: Request, res: Response, next: NextFunction): void => {
-    (async () => {
-        try {
-            await userController.handleGoogleSignIn(req, res);
-        } catch (error) {
-            next(error);
-        }
-    })();
-}); 
-app.get('/user/:id', (req: Request, res: Response, next: NextFunction): void => {
-    (async () => {
-        try {
-            await userController.getUser(req, res);
-        } catch (error) {
-            next(error);
-        }
-    })();
-}); 
 
-// app.post('/user/auth', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-//     try {
-//         await userController.handleGoogleSignIn(req, res);
-//     } catch (error) {
-//         next(error);
-//     }}); 
-// app.get('/user/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-//   try {
-//       await userController.getUser(req, res);
-//   } catch (error) {
-//       next(error);
-//   }}); 
+app.post('/user/auth', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        await userController.handleGoogleSignIn(req, res);
+    } catch (error) {
+        next(error);
+    }}); 
+app.get('/user/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+      await userController.getUser(req, res);
+  } catch (error) {
+      next(error);
+  }}); 
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();

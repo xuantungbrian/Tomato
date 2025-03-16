@@ -12,15 +12,15 @@ import { validationResult } from 'express-validator';
 import 'dotenv/config';
 
 let mongoServer = new MongoMemoryServer();
-const app = express();
+const app: express.Application = express();
 app.use(express.json());  
 app.use(morgan('tiny'));
 
 
 const recommendationController = new RecommendationController();
 const postController = new PostController();
-const middleware = (req: Request, res: Request, next: NextFunction) => {
-  (req as any).user = { id: 'user123' }; 
+const middleware = (req: AuthenticatedRequest, res: Request, next: NextFunction) => {
+  req.user = { id: 'user123' }; 
   next();
 }
 RecommendationRoutes.forEach((route) => {
@@ -53,7 +53,7 @@ app.get('/recommendations-no-middlewware', async (req, res, next) : Promise<void
     }
   });  
 app.post('/posts', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; 
+    (req as AuthenticatedRequest).user = { id: 'user123' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -63,7 +63,7 @@ app.post('/posts', (req, res, next) => {
     }});  
 
 app.post('/posts-from-other', (req, res, next) => {
-    (req as any).user = { id: 'other' }; 
+    (req as AuthenticatedRequest).user = { id: 'other' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -73,7 +73,7 @@ app.post('/posts-from-other', (req, res, next) => {
     }});  
 
 app.post('/posts-from-someone', (req, res, next) => {
-    (req as any).user = { id: 'someone' }; 
+    (req as AuthenticatedRequest).user = { id: 'someone' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -83,7 +83,7 @@ app.post('/posts-from-someone', (req, res, next) => {
     }}); 
 
 app.post('/posts-from-else', (req, res, next) => {
-    (req as any).user = { id: 'else' }; 
+    (req as AuthenticatedRequest).user = { id: 'else' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -93,7 +93,7 @@ app.post('/posts-from-else', (req, res, next) => {
     }}); 
 
 app.post('/posts-from-fourth', (req, res, next) => {
-    (req as any).user = { id: 'fourth' }; 
+    (req as AuthenticatedRequest).user = { id: 'fourth' }; 
     next();
   }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
     try{
@@ -445,7 +445,7 @@ describe('Testing getRecommendations', () => {
     const else_ = [newPost19, newPost20, newPost21, newPost22, newPost23, newPost24]
     const fourth = [newPost25, newPost26, newPost27, newPost28, newPost29, newPost30]
 
-    const main_user = "user123"
+    // const main_user = "user123"
 
     for (let i = 0; i < 6; i++) {
       await request(app)
