@@ -19,7 +19,7 @@ jobs:
       - run: cd backend
       - run: npm install
       - run: npm install --save-dev ts-jest @types/jest
-      - run: npx tsc --noEmit --pretty
+      - run: npx tsc --noEmit --pretty --strict
       - run: |
           rm -rf node_modules package-lock.json
           npm install
