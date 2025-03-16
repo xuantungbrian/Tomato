@@ -26,4 +26,4 @@ jobs:
           npm -v
           npx jest --version
           npx ts-jest config:dump
-      - run: npx jest
+      - run: npm test
