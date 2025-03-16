@@ -118,7 +118,7 @@ beforeEach(async () => {
   await PostModel.deleteMany({});
 });
 
-describe('Unmocked Recommendations API: Expected Behaviour', () => {
+describe('Testing getRecommendations', () => {
   it('should get recommendations, public and private posts', async () => {
     const newPost1 = {
       userId: 'user123',
@@ -2825,9 +2825,7 @@ describe('Unmocked Recommendations API: Expected Behaviour', () => {
 
     expect(response.body.posts).toEqual([])
   });
-})
 
-describe('Unmocked Recommendations API: Erroneus Behaviour', () => {
   it('should return an error if the user is not provided', async () => {
     const newPost1 = {
       userId: 'someone',

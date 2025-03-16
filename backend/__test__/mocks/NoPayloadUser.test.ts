@@ -54,7 +54,7 @@ beforeEach(async () => {
   await UserModel.deleteMany({});
 });
 
-describe('Mocked User APIs: Erroneus Behaviour', () => {
+describe('Testing handleGoogleSignIn', () => {
   it('should fail to sign in to google with faulty payload', async () => {
     const response = await request(app)
         .post(`/user-faulty/auth`)

@@ -67,7 +67,8 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  
+  jest.restoreAllMocks();
+  jest.clearAllMocks();
   await ChatModel.deleteMany({});
   await MessageModel.deleteMany({});
 });
@@ -76,11 +77,7 @@ afterEach(async () => {
   jest.clearAllMocks();
 })
 
-describe('Mocked Chats API: Erroneus Behaviour', () => {
-  beforeEach(() => {
-    jest.restoreAllMocks();
-    jest.clearAllMocks();
-  });
+describe('Testing addMessage', () => {
   it('should fail to add a message if an error occurs', async () => {
     let spy = await jest.spyOn(MessageModel.prototype, "save").mockImplementation(() => {
       throw new Error("Database error 1")
@@ -110,7 +107,9 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
     expect(response.body).toBeNull();
     await spy.mockClear();
   });
+})
 
+describe('Testing createChat', () => {
   it("should fail to create a chat if error occurs", async () => {
     let spy = jest.spyOn(ChatModel, "findOne").mockImplementation(() => {
       throw new Error("Database error 2")
@@ -129,7 +128,9 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
     expect(response.body).toBeNull();
     spy.mockClear();
   })
+})
 
+describe('Testing getChats', () => {
   it('should fail to get chats if error occurs', async () => {
     let spy = await jest.spyOn(ChatModel, "find").mockImplementation(() => {
       throw new Error("Database error 3")
@@ -165,7 +166,9 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
     expect(response.body).toBeNull()
     await spy.mockClear()
   });
+})
 
+describe('Testing getChatMessages', () => {
   it('should fail to get messages if error occurs', async () => {
     let spy = await jest.spyOn(MessageModel, "find").mockImplementation(() => {
       throw new Error("Database error 4")
@@ -189,7 +192,9 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
     expect(response.body).toBeNull();
     await spy.mockClear()
   });
+})
 
+describe('Testing deleteChat', () => {
   it('should fail to delete chat if error occurs', async () => {
     let spy = await jest.spyOn(ChatModel, "deleteOne").mockImplementation(() => {
       throw new Error("Database error 5")
@@ -213,7 +218,9 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
     expect(response.body).toBeNull()
     await spy.mockClear()
   });
- 
+})
+
+describe('Testing deleteMessage', () => {
   it('should fail to delete message if error occurs', async () => {
     let spy = await jest.spyOn(MessageModel.prototype, "deleteOne").mockImplementation(() => {
       throw new Error("Database error 6")
@@ -249,7 +256,9 @@ describe('Mocked Chats API: Erroneus Behaviour', () => {
     expect(response.body).toBeNull()
     await spy.mockClear()
   });
+})
 
+describe('Testing getChat', () => {
   it('should fail to get chat by id if error occurs', async () => {
     let spy = await jest.spyOn(ChatModel, "findById").mockImplementation(() => {
       throw new Error("Database error 6")

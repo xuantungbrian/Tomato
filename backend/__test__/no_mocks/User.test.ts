@@ -43,7 +43,7 @@ beforeEach(async () => {
   await UserModel.deleteMany({});
 });
 
-describe('Unmocked User APIs: Expected Behaviour', () => {
+describe('Testing getUser', () => {
   it('should get a user from id', async () => {
     const newUser = {
       _id: "1234",
@@ -61,9 +61,7 @@ describe('Unmocked User APIs: Expected Behaviour', () => {
     expect(response.body.username).toBe(newUser.username);
     expect(response.body.firebaseToken).toStrictEqual([newUser.firebaseToken]);
   });
-})
 
-describe('Unmocked User APIs: Erroneus Behaviour', () => {
   it('tries to get a non-existant user', async () => {
     const newUser = {
       _id: "1234",
@@ -78,7 +76,9 @@ describe('Unmocked User APIs: Erroneus Behaviour', () => {
 
     expect(response.body).toBeNull()
   });
+})
 
+describe('Testing handleGoogleSignIn', () => {
   it('should fail to sign in a user with improper credentials', async () => {
     const response = await request(app)
         .post(`/user/auth`)

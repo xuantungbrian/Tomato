@@ -55,7 +55,7 @@ beforeEach(async () => {
   await PostModel.deleteMany({});
 });
 
-describe('Mocked Posts API: Erroneus Behaviour', () => {
+describe('Testing verifyToken', () => {
   beforeEach(() => {
     jest.restoreAllMocks();
     jest.clearAllMocks();
