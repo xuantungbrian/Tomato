@@ -1,4 +1,4 @@
-name: CI
+name: Test Tomato App
 
 on:
   push:
@@ -13,20 +13,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Test
       uses: actions/checkout@v2
-
-    - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '20.x'
-
-    - name: Install dependencies
-      run: |
+    - run: |
         cd backend
         npm install
-
-    - name: Run tests
-      run: |
+    - run: |
         cd backend
-        npm test -t PostMock
+        npm test -t User.test.ts
