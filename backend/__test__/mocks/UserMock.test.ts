@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import morgan from 'morgan';
@@ -7,7 +7,6 @@ import { UserController } from '../../controllers/UserController';
 import { UserModel } from '../../model/UserModel';
 import { UserService } from '../../service/UserService';
 import { UserRoutes } from '../../routes/UserRoutes';
-import jwt from 'jsonwebtoken';
 import verifyToken from '../../middleware/verifyToken';
 import { validationResult } from 'express-validator';
 
@@ -36,6 +35,9 @@ app.use(express.json());
 app.use(morgan('tiny')); 
 
 const userController = new UserController();
+if (userController == null) {
+  console.log("userController is null")
+}
 const userService = new UserService();
 UserRoutes.forEach((route) => {
   const middlewares = (route as any).protected ? [verifyToken] : [];
@@ -53,7 +55,7 @@ UserRoutes.forEach((route) => {
           try {
               await route.action(req, res);
           } catch (err) {
-              console.log(err)
+              console.error('Error occurred:', err);
               return res.sendStatus(500); // Don't expose internal server workings
           }
       },
