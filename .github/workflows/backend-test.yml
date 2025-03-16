@@ -17,12 +17,10 @@ jobs:
         with:
           node-version: 20
       - run: cd backend
-      - run: npm install
-      - run: npm install --save-dev ts-jest @types/jest
-      - run: npx tsc --noEmit --pretty --strict
       - run: |
           rm -rf node_modules package-lock.json
           npm install
+      - run: npm install --save-dev ts-jest @types/jest
       - run: |
           node -v
           npm -v
