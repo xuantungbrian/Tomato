@@ -39,7 +39,7 @@ RecommendationRoutes.forEach((route) => {
           try {
               await route.action(req, res);
           } catch (err) {
-              console.log(err)
+              console.error('Error:', err)
               return res.sendStatus(500); // Don't expose internal server workings
           }
       },
@@ -450,23 +450,23 @@ describe('Testing getRecommendations', () => {
     for (let i = 0; i < 6; i++) {
       await request(app)
         .post('/posts') 
-        .send(user123[i]) 
+        .send(user123[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-other') 
-        .send(other[i]) 
+        .send(other[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-someone') 
-        .send(someone[i]) 
+        .send(someone[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-else') 
-        .send(else_[i]) 
+        .send(else_[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-fourth') 
-        .send(fourth[i])
+        .send(fourth[Number(i)])
         .expect(200);
     }
 
@@ -877,23 +877,23 @@ describe('Testing getRecommendations', () => {
     for (let i = 0; i < 6; i++) {
       await request(app)
         .post('/posts') 
-        .send(user123[i]) 
+        .send(user123[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-other') 
-        .send(other[i]) 
+        .send(other[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-someone') 
-        .send(someone[i]) 
+        .send(someone[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-else') 
-        .send(else_[i]) 
+        .send(else_[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-fourth') 
-        .send(fourth[i])
+        .send(fourth[Number(i)])
         .expect(200);
     }
 
@@ -1252,23 +1252,23 @@ describe('Testing getRecommendations', () => {
     for (let i = 0; i < 6; i++) {
       await request(app)
         .post('/posts') 
-        .send(user123[i]) 
+        .send(user123[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-other') 
-        .send(other[i]) 
+        .send(other[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-someone') 
-        .send(someone[i]) 
+        .send(someone[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-else') 
-        .send(else_[i]) 
+        .send(else_[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-fourth') 
-        .send(fourth[i])
+        .send(fourth[Number(i)])
         .expect(200);
     }
 
@@ -1631,23 +1631,23 @@ describe('Testing getRecommendations', () => {
     for (let i = 0; i < 6; i++) {
       await request(app)
         .post('/posts') 
-        .send(user123[i]) 
+        .send(user123[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-other') 
-        .send(other[i]) 
+        .send(other[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-someone') 
-        .send(someone[i]) 
+        .send(someone[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-else') 
-        .send(else_[i]) 
+        .send(else_[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-fourth') 
-        .send(fourth[i])
+        .send(fourth[Number(i)])
         .expect(200);
     }
 
@@ -1992,23 +1992,23 @@ describe('Testing getRecommendations', () => {
     for (let i = 0; i < 6; i++) {
       await request(app)
         .post('/posts') 
-        .send(user123[i]) 
+        .send(user123[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-other') 
-        .send(other[i]) 
+        .send(other[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-someone') 
-        .send(someone[i]) 
+        .send(someone[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-else') 
-        .send(else_[i]) 
+        .send(else_[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-fourth') 
-        .send(fourth[i])
+        .send(fourth[Number(i)])
         .expect(200);
     }
 
@@ -2359,19 +2359,19 @@ describe('Testing getRecommendations', () => {
     for (let i = 0; i < 6; i++) {
       await request(app)
         .post('/posts-from-other') 
-        .send(other[i]) 
+        .send(other[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-someone') 
-        .send(someone[i]) 
+        .send(someone[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-else') 
-        .send(else_[i]) 
+        .send(else_[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-fourth') 
-        .send(fourth[i])
+        .send(fourth[Number(i)])
         .expect(200);
     }
 
@@ -2722,19 +2722,19 @@ describe('Testing getRecommendations', () => {
     for (let i = 0; i < 6; i++) {
       await request(app)
         .post('/posts-from-other') 
-        .send(other[i]) 
+        .send(other[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-someone') 
-        .send(someone[i]) 
+        .send(someone[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-else') 
-        .send(else_[i]) 
+        .send(else_[Number(i)]) 
         .expect(200);
       await request(app)
         .post('/posts-from-fourth') 
-        .send(fourth[i])
+        .send(fourth[Number(i)])
         .expect(200);
     }
 
