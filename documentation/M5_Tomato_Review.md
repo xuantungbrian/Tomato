@@ -35,7 +35,7 @@
 
 #### 2.1.2. Commit Hash Where Tests Run
 
-`[Insert Commit SHA here]`
+`b6e173c425ba3be316cecce6f53c99b23a3ae174`
 
 #### 2.1.3. Explanation on How to Run the Tests
 
@@ -43,10 +43,25 @@
 
    - Open your terminal and run:
      ```
-     git clone https://github.com/example/your-project.git
+     git clone https://github.com/xuantungbrian/Tomato.git
      ```
 
-2. **...**
+2. **Switch branches and navigate to backend folder**:
+   - Switch to the dev branch by running:
+     ```
+     git checkout dev
+     ```
+   - Go to the backend folder:
+     ```
+     cd backend
+     ```
+
+3. **Run the tests**
+   - Run the test as so:
+     ```
+     npx jest --coverage
+     ```
+     to show the full coverage
 
 ### 2.2. GitHub Actions Configuration Location
 
@@ -54,11 +69,11 @@
 
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 
-_(Placeholder for Jest coverage screenshot with mocks enabled)_
+![Jest Coverage with Mocks](./images/jest_all.png)
 
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
-_(Placeholder for Jest coverage screenshot without mocks)_
+![Jest Coverage without Mocks](./images/jest_no_mock.png)
 
 ---
 
