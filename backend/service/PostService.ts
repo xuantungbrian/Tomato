@@ -1,60 +1,62 @@
 import mongoose from "mongoose";
-import { PostModel } from "../model/PostModel";
+import { PostModel, Post } from "../model/PostModel";
 import MissingCoordinateException from "../errors/customError";
 
-interface ImageData{
+export interface ImageData{
     fileData: Buffer,
     fileType: string,
 }
 
-interface Post {
-    latitude: number,
-    longitude: number,
-    images: ImageData[], 
-    userId: string,
-    date: Date,
-    note: string,
-    isPrivate: boolean,
-}
+
+
+interface CoordinateQuery {
+    latitude?: {
+      $gte?: number;
+      $lte?: number;
+    };
+    longitude?: {
+      $gte?: number;
+      $lte?: number;
+    };
+  }
 
 export class PostService {
-    async getPostById(id: string) {
+    async getPostById(id: string): Promise<Post | null> {
         try {
-            return PostModel.findById(id)
+            return await PostModel.findById(id).exec();
         } catch(error) {
-            console.log("Error to get post from ID: ", error)
-            return null
+            console.error("Error getting post with ID ");
+            return null;
         }
     }
 
     async createPost(post: Post) {
         try {
-            const newPost = new PostModel(post);
-            await newPost.save();
-            return newPost;
+            const newPost: mongoose.Document = new PostModel(post);
+            return await newPost.save();
         } catch (error) {
-            console.error("Error creating post:", error);
-            return null
+            console.error("Error creating post");
+            return null;
         }
     }
     
 
-    async updatePost(id: string, post: Post)  {
+    async updatePost(id: string, post: Post): Promise<Post | null> {
         try {
-            await PostModel.findByIdAndUpdate(new mongoose.Types.ObjectId(id), post)
-            return PostModel.findById(id)
+            await PostModel.findByIdAndUpdate(new mongoose.Types.ObjectId(id), post).exec();
+            return PostModel.findById(id).exec();
         } catch (error) {
             console.error("Error updating post:", error);
             return null
         }
     }
 
-    async deletePost(id: string) {
+    async deletePost(id: string): Promise<Post | null> {
         try {  
-            return PostModel.findOneAndDelete({ _id: new mongoose.Types.ObjectId(id) })
+            return await PostModel.findOneAndDelete({ _id: new mongoose.Types.ObjectId(id) }).exec();
         } catch (error) {
             console.error("Error deleting post:", error);
-            return null
+            return null;
         }
     }
 
@@ -68,39 +70,26 @@ export class PostService {
         end_lat?: number, 
         start_long?: number, 
         end_long?: number, 
-    ){
+    ): Promise<Post[]> {
         
-        const coordinates = [start_lat, end_lat, start_long, end_long]
+        const coordinates = [start_lat, end_lat, start_long, end_long];
         if(isMissingCoordinate(coordinates)){
-            throw new MissingCoordinateException("Incomplete Coordinate Information")
+            throw new MissingCoordinateException("Incomplete Coordinate Information");
         }
             
+        const query: CoordinateQuery = {};
 
-        try {
-            const query: any = {};
-    
-            // Check for start_lat and end_lat separately
-            if (start_lat !== undefined) {
-                query.latitude = { $gte: start_lat };  // Latitude greater than or equal to start_lat
-            }
-            if (end_lat !== undefined) {
-                query.latitude = { ...query.latitude, $lte: end_lat };  // Latitude less than or equal to end_lat
-            }
-    
-            // Check for start_long and end_long separately
-            if (start_long !== undefined) {
-                query.longitude = { $gte: start_long };  // Longitude greater than or equal to start_long
-            }
-            if (end_long !== undefined) {
-                query.longitude = { ...query.longitude, $lte: end_long };  // Longitude less than or equal to end_long
-            }
-    
-            // Return the posts based on the constructed 
-            return PostModel.find(query);
-        } catch (error) {
-            console.log("Error getting posts", error);
-            return null;
+        // Check for start_long and end_long separately
+        if (start_long !== undefined) {
+            query.longitude = { $gte: start_long };  // Longitude greater than or equal to start_long
         }
+        if (end_long !== undefined) {
+            query.longitude = { ...query.longitude, $lte: end_long };  // Longitude less than or equal to end_long
+        }
+
+        // Return the posts based on the constructed 
+        return await PostModel.find(query).exec();
+    
     }    
 
     /**
@@ -111,16 +100,21 @@ export class PostService {
         end_lat?: number, 
         start_long?: number, 
         end_long?: number, 
-    ){
+    ): Promise<Post[] | null> {
+        
         try{
             const posts = await this.getPosts(start_lat, end_lat, start_long, end_long)
 
             //filter to remove all private posts
-            const publicPosts = posts?.filter(post => post.isPrivate === false)
+            const publicPosts = posts.filter(post => post.isPrivate === false)
             return publicPosts
         } catch(err){
-            console.log("Error getting posts", err);
-            return null;
+            if (err instanceof MissingCoordinateException) {
+                throw new MissingCoordinateException("Incomplete Coordinate Information");
+            } else {
+                console.log("Error getting posts", err);
+                return null;
+            }
         }
     }
 
@@ -134,55 +128,58 @@ export class PostService {
      */
     async getUserPost(
         userId: string,
-        userPostOnly: Boolean,
+        userPostOnly: boolean,
         start_lat?: number, 
         end_lat?: number, 
         start_long?: number, 
         end_long?: number, 
-    ){
+    ): Promise<Post[] | null> {
         
-        // const publicPosts = await this.getPosts(start_lat, end_lat, start_long, end_long)
-        const userPost = await PostModel.find({userId: userId})
 
         try{
+            const userPost = await PostModel.find({userId: userId})
             if(userPostOnly){
                 return userPost
             }
             else{
-                const publicPost = await this.getPublicPost(start_lat, end_lat, start_long, end_long) || [];
+                const publicPost = await this.getPublicPost(start_lat, end_lat, start_long, end_long) ?? [];
 
                 const combinedPosts = [...userPost, ...publicPost]
 
                 // Use a Set to remove duplicates based on a unique identifier (e.g., post ID)
                 const uniquePosts = Array.from(new Set(combinedPosts.map(post => post._id.toString()))) // Use post._id to uniquely identify posts
-                .map(id => combinedPosts.find(post => post._id.toString() === id ));
-
+                .map(id => combinedPosts.find(post => post._id.toString() === id )) as Post[];
                 return uniquePosts.filter(post => post != null);
             }
         }
         catch (error) {
-            console.log("Error getting posts", error);
-            return null;
+            if (error instanceof MissingCoordinateException) {
+                throw new MissingCoordinateException("Incomplete Coordinate Information");
+            } else {
+                console.log("Error getting posts", error);
+                return null;
+            }
         }
+   
     }
 
-    async getEveryPost() {
+    async getEveryPost(): Promise<Post[] | null> {
         try {
-            return PostModel.find({})
+            return await PostModel.find({}).exec();
         } catch(error) {
-            console.log("Error getting all posts", error)
-            return null
+            console.error("Error getting all posts", error);
+            return null;
         }
     }
 
     async getPostsAtLocation(lat: number, long: number, private_post: boolean) {
         try {
             if (!private_post)
-                return PostModel.find({$and:[{latitude: lat}, {longitude: long}, {isPrivate: false}]})
+                return await PostModel.find({$and:[{latitude: lat}, {longitude: long}, {isPrivate: false}]})
             else
-                return PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
+                return await PostModel.find({$and:[{latitude: lat}, {longitude: long}]})
         } catch(error) {
-            console.log("Error getting all posts at the location", error)
+            console.log("Error getting all posts at the location")
             return null
         }
     }
@@ -192,13 +189,13 @@ export class PostService {
 /**
  * Check if coordinate information is missing
  */
-function isMissingCoordinate(coordinates: Array<number|undefined>){
-    const nonNullCoordCount = coordinates.filter(c => c !== null && c !== undefined).length
+function isMissingCoordinate(coordinates: (number|undefined)[]){
+    const nonNullCoordCount = coordinates.filter(c => c !== undefined).length;
     if(nonNullCoordCount > 0 && nonNullCoordCount < 4){
-        return true
+        return true;
     }
     else{
-        return false
+        return false;
     }
 }
 

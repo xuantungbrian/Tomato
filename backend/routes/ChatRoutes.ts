@@ -1,8 +1,9 @@
 import { ChatController } from "../controllers/ChatController";
+import {Route} from "./RouteInterface";
 
 const chatController = new ChatController();
 
-export const ChatRoutes = [
+export const ChatRoutes: Route[] = [
     {
         method: "get",
         route: "/chats",            

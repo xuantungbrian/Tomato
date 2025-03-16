@@ -23,6 +23,12 @@
       - We changed the diagram so that the Search Locations and Display Map no longer include Login User as we realized that users that have not yet been logged in should be able to access these functionalities.
 - 3.3 - Functional Requirements (Display Map): 3/2/2025
       - Previously when user didn't grant the app location permission, the app would bring the view to Vancouver as default view. However, we changed this and set latitude longitude (0, 0) as the default view. This is because setting Vancouver as the default view seems like a very biased decision (especially if users are not based in Canada), hence we used (0, 0) which is the default location for a lot of location-based apps. 
+- 3.4 Non Functional Requirements: 3/14/2025
+      - Add security functional requirements - some features will be blocked without login
+- 3.3 Functional Requirements: 3/14/2025
+      - Delete failure scenario google map api is unavailable since this cannot be caught to handle failure. There is no exception, the google map returned from the function is not null, just blank when render.
+- 3.3 Functional Requirements: 3/14/2025
+      - Delete update post functional requirement since we will not implement this feature
 
 ## 2. Project Description
 Our app allows people to keep a history of all the places they have traveled to and thus acts as a travel advisory forf others and a travel journal for themselves. Our target audience is young people who like to travel and take photos. Such users typically will have a large amount of photos compiled chronologically in a photo app i.e. Google Photos, but without much sense of where they were taken. As such, our solution involves viewing and navigating around a map with pins that show the user’s past images, as well as small optional notes that they can add. Furthermore, users can receive recommendations for future travel locations based on their travel history. When viewing other people's notes, they can optionally chat with the person taking a photo to ask about the logistics of traveling there (i.e. Do they accept cash? How much equipment did you bring?)
@@ -53,11 +59,7 @@ Our app allows people to keep a history of all the places they have traveled to 
                 3. App opens the map to the user’s general location
             - **Failure scenario(s)**:
                 - 1a. User has not allowed the app to see their location
-                    - 1a1. Makes a request to the user to allow the app to access their location
-                    - 1a2. If users agrees, the map will open showing the user’s general location
-                    - 1a3. Otherwise opens the map to latitude longitude (0, 0) as opposed to their current location
-                - 2a. Google Maps API is not available
-                    - 2a1. A toast will appear telling the user that Google Maps is unavailable and to try again later
+                    - 1a3. Opens the map to latitude longitude (0, 0) as opposed to their current location
 
         2. **Displays posted pictures as pins on the map**
             - **Description**: Displays pictures posted by the user and others users as pins on the map
@@ -84,15 +86,13 @@ Our app allows people to keep a history of all the places they have traveled to 
                 3. User enters their account information and signs in
                 4. App continues as normal
             - **Failure scenario(s)**:
-                - 3a. User is unable to login
-                    - 3a1. A toast appears telling the user they were unable to login, along with the reason why and to try again
-                    - 3a2. User can try again later after fixing the problem
+                - 3a. User cancle the login by clicking outside the login box/back button
+                    - 3a1. An alert appears telling the user they were unable to login, along with the reason why
  
 3. **Manage Posts**
     - **Overview**:
         1. Create Posts
         2. Delete Posts
-        3. Update Posts
         4. View Posts
          
     
@@ -128,27 +128,7 @@ Our app allows people to keep a history of all the places they have traveled to 
                 - 4a. Post could not be deleted
                     - 4a1. A toast will appear telling the user that the post was unable to delete at this time along with the reason why
 
-        3. **Update Posts**:
-            - **Description**: User is able to update an existing post by changing the picture or description
-            - **Primary actor(s)**: User, Google Maps API 
-            - **Main success scenario**:
-                1. User clicks on the pin of post they want to update
-                2. User clicks on the Update button
-                3. User changes what they want about the post
-                4. User clicks on the Update button after filling in the desired fields
-                5. User confirms that they want to update the post
-                6. App shows the newly updated post on the map
-            - **Failure scenario(s)**:
-                - 1a. Post could not be fetched
-                    - 1a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
-                - 3a. Could not access the user’s gallery
-                    - 3a1. Makes a request to the user to allow the app to access their photos
-                    - 3a2. If users agrees, the other steps will carry on as normal
-                    - 3a3. Otherwise a toast will appear telling the user that it cannot add a picture without gallery permissions
-                - 6a. Post could not be updated
-                    - 6a1. A toast will appear telling the user that the post was unable to updated at this time along with the reason why
-
-        4. **View Posts**:
+        3. **View Posts**:
             - **Description**: User is able to view an existing post
             - **Primary actor(s)**: User, Google Maps API 
             - **Main success scenario**:
@@ -171,10 +151,6 @@ Our app allows people to keep a history of all the places they have traveled to 
                 2. User inputs the location they want to see
                 3. User clicks on the Search icon
                 4. App displays all the available posts in that area on the map
-            - **Failure scenario(s)**:
-                - 4a. Posts could not be fetched
-                    - 4a1. A toast will appear telling the user that the post was unable to retrieved at this time along with the reason why
-
 5. **Get Location Recommendations**
     - **Overview**:
         1. Suggests travel locations for the user
@@ -257,6 +233,9 @@ Our app allows people to keep a history of all the places they have traveled to 
 2. **At most 4 clicks to access any of the use cases**
     - **Description**: No more than 4 clicks are necessary to access any of the main use cases
     - **Justification**: This allows for the user to navigate the app easily and makes every use case within a comfortable reach from the user.
+3. **Login is required for upload, delete posts, view profile and chat**
+    - **Description**: Features such as upload, delete posts, view profile and chat require login before accessing these features. Trying to use these features without login will result in an alert saying that "Login is required to ...".
+    - **Justification**: For security, we decide that users use this features without login because these features alter the data or view personal information such as chats, preferences. Moreover, for post deletion, we also need to know if the current user is the owner of the post
 
 ## 4. Designs Specification
 ### **4.1. Main Components**
@@ -305,7 +284,7 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Purpose**: Retrieve chat history for a particular chat.
         3. `public static Chat createChat(String member_1, String member_2)`
             - **Purpose**: Creates a new chat between two users, returns the existing chat if one already exists between two users.
-        4. `public static Chat getChat(String userId)`
+        4. `public static Chat getChats(String userId)`
             - **Purpose**: Retrieves all chats that a user is apart of.
         5. `public static Chat deleteChat(String chatId)`
             - **Purpose**: Deletes a chat with the given id.

@@ -84,15 +84,9 @@ class ChatMessageAdapter(private var messages: MutableList<ChatMessage>, context
 
     private fun resolveName(id: String): String {
         return runBlocking {
-            try {
-                val response = HTTPRequest.sendGetRequest("${BuildConfig.SERVER_ADDRESS}/user/$id", context)
-                Log.d("CHATBOK", "Response: $response")
-                val jsonObject = response?.let { JSONObject(it) }
-                jsonObject?.getString("username") ?: ""
-            } catch (e: Exception) {
-                Log.e("CHAT", "Error fetching username", e)
-                ""
-            }
+            val response = HTTPRequest.sendGetRequest("${BuildConfig.SERVER_ADDRESS}/user/$id", context)
+            val jsonObject = response?.let { JSONObject(it) }
+            jsonObject?.getString("username") ?: ""
         }
     }
 }
