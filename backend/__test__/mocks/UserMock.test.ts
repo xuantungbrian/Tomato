@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import morgan from 'morgan';
 import request from 'supertest';
-import { UserController } from '../../controllers/UserController';
 import { UserModel } from '../../model/UserModel';
 import { UserService } from '../../service/UserService';
 import { UserRoutes } from '../../routes/UserRoutes';

@@ -16,15 +16,16 @@ app.use(morgan('tiny'));
 const userController = new UserController();
 const userService = new UserService();
 
-app.post('/user/auth', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+app.post('/user/auth', (req: Request, res: Response, next: NextFunction): void => {
     try {
-        await userController.handleGoogleSignIn(req, res);
+        void userController.handleGoogleSignIn(req, res);
     } catch (error) {
         next(error);
     }}); 
-app.get('/user/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+
+app.get('/user/:id', (req: Request, res: Response, next: NextFunction): void => {
   try {
-      await userController.getUser(req, res);
+      void userController.getUser(req, res);
   } catch (error) {
       next(error);
   }}); 
