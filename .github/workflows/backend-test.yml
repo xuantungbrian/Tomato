@@ -22,4 +22,8 @@ jobs:
         npm install
     - run: |
         cd backend
-        npm test -t User.test.ts
+        npm test
+
+  env:
+      WEB_CLIENT_ID: something
+      JWT_SECRET: somethingelse
