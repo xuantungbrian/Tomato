@@ -9,19 +9,21 @@ import { UserService } from '../../service/UserService';
 
 let mongoServer = new MongoMemoryServer();
 
-const app = express();
+const app: express.Application = express();
 app.use(express.json());  
 app.use(morgan('tiny')); 
 
 const userController = new UserController();
 const userService = new UserService();
+// app.post('/user/auth', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 app.post('/user/auth', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         await userController.handleGoogleSignIn(req, res);
     } catch (error) {
         next(error);
     }}); 
-app.get('/user/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+// app.get('/user/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+app.get('/user/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
       await userController.getUser(req, res);
   } catch (error) {
@@ -51,7 +53,7 @@ describe('Testing getUser', () => {
       firebaseToken: "user12345"
     };
 
-    const user = await userService.createUser(newUser._id, newUser.username, newUser.firebaseToken)
+    await userService.createUser(newUser._id, newUser.username, newUser.firebaseToken)
     const response = await request(app)
         .get(`/user/${newUser._id}`)
         .expect(200)
@@ -69,7 +71,7 @@ describe('Testing getUser', () => {
       firebaseToken: "user12345"
     };
 
-    const user = await userService.createUser(newUser._id, newUser.username, newUser.firebaseToken)
+    await userService.createUser(newUser._id, newUser.username, newUser.firebaseToken)
     const response = await request(app)
         .get(`/user/4321`)
         .expect(200)
