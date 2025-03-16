@@ -5,8 +5,6 @@ import morgan from 'morgan';
 import request from 'supertest';
 import { UserController } from '../../controllers/UserController';
 import { UserModel } from '../../model/UserModel';
-import jwt from 'jsonwebtoken';
-import verifyToken from '../../middleware/verifyToken';
 
 jest.mock('jsonwebtoken', () => ({
 ...jest.requireActual('jsonwebtoken'), 
@@ -56,7 +54,7 @@ beforeEach(async () => {
 
 describe('Testing handleGoogleSignIn', () => {
   it('should fail to sign in to google with faulty payload', async () => {
-    const response = await request(app)
+    await request(app)
         .post(`/user-faulty/auth`)
         .send({
           googleToken: "google",
