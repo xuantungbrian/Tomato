@@ -18,4 +18,5 @@ jobs:
           node-version: 14
       - run: cd backend
       - run: npm install
+      - run: npm install --save-dev ts-jest @types/jest
       - run: npx jest
