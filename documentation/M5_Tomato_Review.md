@@ -16,10 +16,21 @@
 
 | **Interface**                 | **Describe Group Location, No Mocks**                | **Describe Group Location, With Mocks**            | **Mocked Components**              |
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
-| **POST /user/login**          | [`tests/unmocked/authenticationLogin.test.js#L1`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | Google Authentication API, User DB |
-| **POST /study-groups/create** | ...                                                  | ...                                                | Study Group DB                     |
-| ...                           | ...                                                  | ...                                                | ...                                |
-| ...                           | ...                                                  | ...                                                | ...                                |
+| **GET /chats**          | [`backend/__test__/no_mocks/Chat.test.ts#L236`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L133`](#) | Chat DB, jwt.verify |
+| **GET /chats/:id** | [`backend/__test__/no_mocks/Chat.test.ts#L518`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L171`](#) | Chat DB, jwt.verify                     |
+| **POST /chats**                           | [`backend/__test__/no_mocks/Chat.test.ts#L158`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L112`](#) | Chat DB, jwt.verify                                |
+| **POST /chat/:id**                           | [`backend/__test__/no_mocks/Chat.test.ts#L325`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L80`](#) | Chat DB, jwt.verify                                |
+| **DELETE /chats/:id**          | [`backend/__test__/no_mocks/Chat.test.ts#L615`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L197`](#) | Chat DB, jwt.verify |
+| **DELETE /chat/:id/messages/:message_id** | [`backend/__test__/no_mocks/Chat.test.ts#L422`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L223`](#) | Chat DB, jwt.verify                     |
+| **GET /posts**                           | [`backend/__test__/no_mocks/Post.test.ts#L425`](#) | [`backend/__test__/mocks/PostMock.test.ts#L340`](#)  | Post DB                                |
+| **GET /posts-authenticated**                | [`backend/__test__/no_mocks/Post.test.ts#L192`](#) | [`backend/__test__/mocks/PostMock.test.ts#L131`](#) |  Post DB, jwt.verify, PostService.getPosts                              |
+| **GET /posts/:id**                  | [`backend/__test__/no_mocks/Post.test.ts#L166`](#) | [`backend/__test__/mocks/PostMock.test.ts#L101`](#)  | Post DB                                |
+| **PUT /posts/:id**                   | [`backend/__test__/no_mocks/Post.test.ts#L552`](#) | [`backend/__test__/mocks/PostMock.test.ts#L392`](#)  | Post DB, jwt.verify                                |
+| **POST /posts**                 | [`backend/__test__/no_mocks/Post.test.ts#L124`](#) | [`backend/__test__/mocks/PostMock.test.ts#L75`](#)   | Post DB, jwt.verify                                |
+| **DELETE /posts/:id**                 | [`backend/__test__/no_mocks/Post.test.ts#L748`](#) | [`backend/__test__/mocks/PostMock.test.ts#L426`](#)   | Post DB, jwt.verify                                |
+| **GET /recommendations**                 | [`backend/__test__/no_mocks/Recommendation.test.ts#L121`](#) | N/A | N/A                             |
+| **GET /user/:id**                 | [`backend/__test__/no_mocks/User.test.ts#L46`](#) | [`backend/__test__/mocks/UserMock.test.ts#L168`](#) | User DB                             |
+| **POST /user/auth**                 | [`backend/__test__/no_mocks/User.test.ts#L81`](#) | [`backend/__test__/mocks/UserMock.test.ts#L81`](#) & [`backend/__test__/mocks/NoPayloadUser.test.ts#L57`](#)| jwt.sign, OAuth2Client, verifyIdToken, getPayload                           |
 
 #### 2.1.2. Commit Hash Where Tests Run
 
