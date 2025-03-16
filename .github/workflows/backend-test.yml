@@ -4,7 +4,11 @@ on:
   pull_request:
   workflow_dispatch:
   push:
-    branches: [dev]
+    branches: 
+      - dev
+    paths:
+      - '.github/workflows/deploy.yml'
+      - 'backend/**'
 
 jobs:
   unit-test:
@@ -15,6 +19,5 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 14
-      - run: cd backend
       - run: npm test
 
