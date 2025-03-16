@@ -1,8 +1,7 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Response } from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import morgan from 'morgan';
-import { PostController } from '../../controllers/PostController';
 import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
 import { config } from 'dotenv';
@@ -17,7 +16,7 @@ jest.mock('jsonwebtoken', () => ({
   ...jest.requireActual('jsonwebtoken'),
   verify: jest.fn().mockImplementation((token, secret, algorithm) =>
     {
-      if (token == "90909090") {
+      if (token === "90909090") {
         return {id: "user123"}
       }
       else {
@@ -48,7 +47,7 @@ PostRoutes.forEach((route) => {
             try {
                 await route.action(req, res);
             } catch (err) {
-                console.log(err)
+                console.error('An error occurred:', err);
                 return res.sendStatus(500); // Don't expose internal server workings
             }
         },
@@ -94,13 +93,13 @@ describe('Testing createPost', () => {
       .expect(200);
   
     expect(response.body).toBeNull()
-    await spy.mockClear()
+    spy.mockClear()
   });
 })
 
 describe('Testing getPostById', () => {
   it('should fail to get a post by ID if error occurs', async () => {
-    let spy = await jest.spyOn(PostModel, "findById").mockImplementation(() => {
+    let spy = jest.spyOn(PostModel, "findById").mockImplementation(() => {
       throw new Error("Database Error 2")
     })
     const newPost = {

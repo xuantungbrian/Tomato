@@ -34,10 +34,7 @@ const app = express();
 app.use(express.json());  
 app.use(morgan('tiny')); 
 
-const userController = new UserController();
-if (userController == null) {
-  console.log("userController is null")
-}
+// const userController = new UserController();
 const userService = new UserService();
 UserRoutes.forEach((route) => {
   const middlewares = (route as any).protected ? [verifyToken] : [];
