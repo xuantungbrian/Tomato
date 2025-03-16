@@ -1,13 +1,12 @@
 module.exports = {
-    preset: 'ts-jest',  // Use ts-jest preset for transforming TypeScript
-    testEnvironment: 'node',  // Use Node.js as the test environment
+    preset: 'ts-jest', 
+    testEnvironment: 'node',
     transform: {
-      '^.+\\.ts$': 'ts-jest',  // Transform TypeScript files using ts-jest
+      '^.+\\.tsx?$': 'ts-jest',
     },
     transformIgnorePatterns: [
-      '/node_modules/',  // Default pattern to ignore files in node_modules
-      // You can add additional patterns to avoid ignoring certain node_modules
-      '<rootDir>/node_modules/some-module/',  // Example: you might need to transform this package
+      '/node_modules/', 
+      '<rootDir>/node_modules/some-module/',
     ],
     moduleFileExtensions: ['ts', 'js', 'json', 'node'],
     testTimeout: 50000,
