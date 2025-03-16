@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction, RequestHandler } from 'express';
+import express, { Response } from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import morgan from 'morgan';
@@ -6,9 +6,7 @@ import request from 'supertest';
 import { ChatController } from '../../controllers/ChatController';
 import { ChatModel } from '../../model/ChatModel';
 import { MessageModel } from '../../model/MessageModel';
-import { verify } from 'jsonwebtoken';
 import { config } from 'dotenv';
-import { SmsRegionConfig } from 'firebase-admin/lib/auth/auth-config';
 import { ChatRoutes } from '../../routes/ChatRoutes';
 import { validationResult } from 'express-validator';
 import { ChatService } from '../../service/ChatService';
@@ -28,6 +26,9 @@ jest.mock('jsonwebtoken', () => ({
   sign: jest.fn().mockReturnValue("token")
   }));
 const chatController = new ChatController();
+if (chatController === null) {
+  console.log("ChatController is null")
+}
 const chatService = new ChatService();
 
 //App routes
@@ -47,7 +48,7 @@ ChatRoutes.forEach((route) => {
             try {
                 await route.action(req, res);
             } catch (err) {
-                console.log(err)
+                console.error('An error occurred:', err);
                 return res.sendStatus(500); // Don't expose internal server workings
             }
         },
@@ -73,7 +74,7 @@ beforeEach(async () => {
   await MessageModel.deleteMany({});
 });
 
-afterEach(async () => {
+afterEach(() => {
   jest.clearAllMocks();
 })
 
@@ -105,7 +106,7 @@ describe('Testing addMessage', () => {
       .expect(200);
 
     expect(response.body).toBeNull();
-    await spy.mockClear();
+    spy.mockClear();
   });
 })
 
@@ -132,7 +133,7 @@ describe('Testing createChat', () => {
 
 describe('Testing getChats', () => {
   it('should fail to get chats if error occurs', async () => {
-    let spy = await jest.spyOn(ChatModel, "find").mockImplementation(() => {
+    let spy = jest.spyOn(ChatModel, "find").mockImplementation(() => {
       throw new Error("Database error 3")
     })
     const newChat = {
