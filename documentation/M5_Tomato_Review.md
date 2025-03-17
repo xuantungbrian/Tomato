@@ -157,21 +157,20 @@
 
 ### 5.2. Unfixed Issues per Codacy Category
 
-_(Placeholder for screenshots of Codacyâ€™s Category Breakdown table in Overview)_
+![image](https://github.com/user-attachments/assets/4dd25cbc-8ad0-4286-ab22-669e3a84bc03)
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
 _(Placeholder for screenshots of Codacyâ€™s Issues page)_
 
+
 ### 5.4. Justifications for Unfixed Issues
 
-- **Code Pattern: [Usage of Deprecated Modules](#)**
+- **Code Pattern: @typescript eslint: No unsafe member access.
+  - Justification: As stated on Piazza note @181, this warning is allowed to be unfixed.
 
-  1. **Issue**
+- **Code Pattern: @typescript eslint: No unsafe call.
+  - Justification: As stated on Piazza note @181, this warning is allowed to be unfixed.
 
-     - **Location in Git:** [`src/services/chatService.js#L31`](#)
-     - **Justification:** ...
-
-  2. ...
-
-- ...
+- **Code Pattern: @typescript eslint: No unsafe assignment.
+  - Justification: As stated on Piazza note @181, this warning is allowed to be unfixed.
