@@ -106,13 +106,13 @@ export class PostService {
             const posts = await this.getPosts(start_lat, end_lat, start_long, end_long)
 
             //filter to remove all private posts
-            const publicPosts = posts.filter(post => post.isPrivate === false)
+            const publicPosts = posts.filter(post => !post.isPrivate)
             return publicPosts
         } catch(err){
             if (err instanceof MissingCoordinateException) {
                 throw new MissingCoordinateException("Incomplete Coordinate Information");
             } else {
-                console.log("Error getting posts", err);
+                console.error("Error getting posts", err);
                 return null;
             }
         }
@@ -137,7 +137,7 @@ export class PostService {
         
 
         try{
-            const userPost = await PostModel.find({userId: userId})
+            const userPost = await PostModel.find({userId})
             if(userPostOnly){
                 return userPost
             }
@@ -149,14 +149,14 @@ export class PostService {
                 // Use a Set to remove duplicates based on a unique identifier (e.g., post ID)
                 const uniquePosts = Array.from(new Set(combinedPosts.map(post => post._id.toString()))) // Use post._id to uniquely identify posts
                 .map(id => combinedPosts.find(post => post._id.toString() === id )) as Post[];
-                return uniquePosts.filter(post => post != null);
+                return uniquePosts
             }
         }
         catch (error) {
             if (error instanceof MissingCoordinateException) {
                 throw new MissingCoordinateException("Incomplete Coordinate Information");
             } else {
-                console.log("Error getting posts", error);
+                console.error("Error getting posts", error);
                 return null;
             }
         }

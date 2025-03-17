@@ -6,24 +6,33 @@ import { PostController } from '../../controllers/PostController';
 import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
 import { config } from 'dotenv';
-import { PostService } from '../../service/PostService';
 import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
+import { timingSafeEqual } from 'crypto';
+import { verifyToken } from '../../middleware/verifyToken';
 
-const {verifyToken} = require('../../middleware/verifyToken')
+// const {verifyToken} = require('../../middleware/verifyToken')
 config();
-jest.mock('jsonwebtoken', () => ({
+jest.mock('jsonwebtoken', (): {
+  verify: jest.Mock<(token: string) => {id: string}>;
+  sign: jest.Mock<() => string>;
+} => ({
   ...jest.requireActual('jsonwebtoken'),
-  verify: jest.fn().mockImplementation((token, secret, algorithm) =>
+  verify: jest.fn().mockImplementation((token: string): {id: string} =>
     {
-      if (token == "90909090") {
-        return {id: "user123"}
+      const expectedToken = Buffer.from("90909090");
+      const receivedToken = Buffer.from(token);
+      if (receivedToken.length === expectedToken.length && 
+          timingSafeEqual(receivedToken, expectedToken)) {
+          return { id: "user123" };
       }
       else {
         throw new Error("Verify token error")
       }
     }), 
   sign: jest.fn().mockReturnValue("token")
+
   }));
+ 
 
 let mongoServer = new MongoMemoryServer();
 
@@ -33,16 +42,18 @@ app.use(morgan('tiny'));
 
 const postController = new PostController();
 
-app.post('/posts', verifyToken, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+app.post('/posts', verifyToken, (req: Request, res: Response, next: NextFunction): void => {
   try{
-    await postController.createPost(req as AuthenticatedRequest, res);
+    postController.createPost(req as AuthenticatedRequest, res)
+    .then(() => { next(); })
+   .catch((err: unknown) => { next(err); });
   } catch(err) {
     next(err);
   }}); 
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
+  const uri: string = mongoServer.getUri();
   await mongoose.connect(uri);
 });
 

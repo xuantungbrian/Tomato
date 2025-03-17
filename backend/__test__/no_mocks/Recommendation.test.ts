@@ -23,10 +23,16 @@ const middleware = (req: AuthenticatedRequest, res: Request, next: NextFunction)
   req.user = { id: 'user123' }; 
   next();
 }
-RecommendationRoutes.forEach((route) => {
-  const middlewares = (route as any).protected ? [middleware] : []; // Add verifyToken only if protected
+const VALID_ROUTE_METHODS = ['get', 'post', 'put', 'delete', 'patch']
 
-  (app as any)[route.method](
+RecommendationRoutes.forEach((route) => {
+  const middlewares = (route ).protected ? [middleware] : []; // Add verifyToken only if protected
+  
+  const method = route.method.toLowerCase();
+  if (!VALID_ROUTE_METHODS.includes(method)) {
+      throw new Error(`Unsupported HTTP method: ${method}`);
+  }
+    app[method as keyof express.Application](
       route.route,
       ...middlewares,
       route.validation,
@@ -45,9 +51,11 @@ RecommendationRoutes.forEach((route) => {
       },
   );
 });
-app.get('/recommendations-no-middlewware', async (req, res, next) : Promise<void> => {
+app.get('/recommendations-no-middlewware', (req, res, next) : void => {
     try {
-      await recommendationController.getRecommendation(req as AuthenticatedRequest, res)
+      recommendationController.getRecommendation(req as AuthenticatedRequest, res)
+      .then(() => { next(); })
+      .catch((err: unknown) => { next(err); });
     } catch(error) {
       next(error)
     }
@@ -55,9 +63,11 @@ app.get('/recommendations-no-middlewware', async (req, res, next) : Promise<void
 app.post('/posts', (req, res, next) => {
     (req as AuthenticatedRequest).user = { id: 'user123' }; 
     next();
-  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  }, (req: Request, res: Response, next: NextFunction): void => {
     try{
-      await postController.createPost(req as AuthenticatedRequest, res);
+      postController.createPost(req as AuthenticatedRequest, res)
+      .then(() => { next(); })
+      .catch((err: unknown) => { next(err); });
     } catch(err) {
       next(err);
     }});  
@@ -65,9 +75,11 @@ app.post('/posts', (req, res, next) => {
 app.post('/posts-from-other', (req, res, next) => {
     (req as AuthenticatedRequest).user = { id: 'other' }; 
     next();
-  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  }, (req: Request, res: Response, next: NextFunction): void => {
     try{
-      await postController.createPost(req as AuthenticatedRequest, res);
+      postController.createPost(req as AuthenticatedRequest, res)
+      .then(() => { next(); })
+      .catch((err: unknown) => { next(err); });
     } catch(err) {
       next(err);
     }});  
@@ -75,9 +87,11 @@ app.post('/posts-from-other', (req, res, next) => {
 app.post('/posts-from-someone', (req, res, next) => {
     (req as AuthenticatedRequest).user = { id: 'someone' }; 
     next();
-  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  }, (req: Request, res: Response, next: NextFunction): void => {
     try{
-      await postController.createPost(req as AuthenticatedRequest, res);
+      postController.createPost(req as AuthenticatedRequest, res)
+      .then(() => { next(); })
+      .catch((err: unknown) => { next(err); }); 
     } catch(err) {
       next(err);
     }}); 
@@ -85,9 +99,11 @@ app.post('/posts-from-someone', (req, res, next) => {
 app.post('/posts-from-else', (req, res, next) => {
     (req as AuthenticatedRequest).user = { id: 'else' }; 
     next();
-  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  }, (req: Request, res: Response, next: NextFunction): void => {
     try{
-      await postController.createPost(req as AuthenticatedRequest, res);
+      postController.createPost(req as AuthenticatedRequest, res)
+      .then(() => { next(); })
+      .catch((err: unknown) => { next(err); });
     } catch(err) {
       next(err);
     }}); 
@@ -95,9 +111,11 @@ app.post('/posts-from-else', (req, res, next) => {
 app.post('/posts-from-fourth', (req, res, next) => {
     (req as AuthenticatedRequest).user = { id: 'fourth' }; 
     next();
-  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+  }, (req: Request, res: Response, next: NextFunction): void => {
     try{
-      await postController.createPost(req as AuthenticatedRequest, res);
+      postController.createPost(req as AuthenticatedRequest, res)
+      .then(() => { next(); })
+      .catch((err: unknown) => { next(err); });
     } catch(err) {
       next(err);
     }}); 
@@ -105,7 +123,7 @@ app.post('/posts-from-fourth', (req, res, next) => {
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
+  const uri: string = mongoServer.getUri();
   await mongoose.connect(uri);
 });
 
@@ -1247,8 +1265,6 @@ describe('Testing getRecommendations', () => {
     const else_ = [newPost19, newPost20, newPost21, newPost22, newPost23, newPost24]
     const fourth = [newPost25, newPost26, newPost27, newPost28, newPost29, newPost30]
 
-    const main_user = "user123"
-
     for (let i = 0; i < 6; i++) {
       await request(app)
         .post('/posts') 
@@ -1626,8 +1642,6 @@ describe('Testing getRecommendations', () => {
     const else_ = [newPost19, newPost20, newPost21, newPost22, newPost23, newPost24]
     const fourth = [newPost25, newPost26, newPost27, newPost28, newPost29, newPost30]
 
-    const main_user = "user123"
-
     for (let i = 0; i < 6; i++) {
       await request(app)
         .post('/posts') 
@@ -1987,7 +2001,6 @@ describe('Testing getRecommendations', () => {
     const else_ = [newPost19, newPost20, newPost21, newPost22, newPost23, newPost24]
     const fourth = [newPost25, newPost26, newPost27, newPost28, newPost29, newPost30]
 
-    const main_user = "user123"
 
     for (let i = 0; i < 6; i++) {
       await request(app)
@@ -2354,7 +2367,6 @@ describe('Testing getRecommendations', () => {
     const else_ = [newPost19, newPost20, newPost21, newPost22, newPost23, newPost24]
     const fourth = [newPost25, newPost26, newPost27, newPost28, newPost29, newPost30]
 
-    const main_user = "user123"
 
     for (let i = 0; i < 6; i++) {
       await request(app)
@@ -2859,4 +2871,8 @@ describe('Testing getRecommendations', () => {
       .get("/recommendations-no-middlewware")
       .expect(401)
   });
+
+  it("Test mode with empty post", async() => {
+    expect(recommendationController.mode([])).toBe("")
+  })
 });

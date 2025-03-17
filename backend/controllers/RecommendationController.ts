@@ -26,8 +26,8 @@ export class RecommendationController {
         
         if(posts){
             for (const post of posts) {
-                let lat : number = post.latitude as number//? post.latitude : 0
-                let long : number = post.longitude as number//? post.longitude : 0
+                let lat : number = post.latitude
+                let long : number = post.longitude
                 const posts_at_location = await this.postService.getPostsAtLocation(lat, long, true) as Post[]
                 just_coords.push(lat.toString().concat(" ", long.toString()))
 
@@ -60,8 +60,8 @@ export class RecommendationController {
 
             if (every_post) {
                 every_post.forEach(all_post => {
-                    let lati : number = all_post.latitude as number//? all_post.latitude : 0
-                    let longi : number = all_post.longitude as number//? all_post.longitude : 0
+                    let lati : number = all_post.latitude
+                    let longi : number = all_post.longitude
                     const curr_coord : string = lati.toString().concat(" ", longi.toString())
                     if (!just_coords.includes(curr_coord)) {
                         potential_places.push(curr_coord)
@@ -70,20 +70,16 @@ export class RecommendationController {
             }
         }
 
-        let best_places = []
+        let best_places: string[] = []
 
         while (potential_places.length > 0 && best_places.length <= max) {
-            let best_place : String = this.mode(potential_places)
+            let best_place : string = this.mode(potential_places)
             best_places.push(best_place)
             potential_places = this.deleteOccurences(potential_places, best_place) as string[]
         }
 
         let best_posts : Post[] = []
-        for(let i = 0; i < max; i++) {
-            let place : String = best_places[i]
-            if (!place) {
-                break;
-            }
+        for (const place of best_places.slice(0, max)){        
             let lat : number = parseFloat(place.split(" ", 2)[0]) 
             let long : number = parseFloat(place.split(" ", 2)[1])
             let posts : Post[] = await this.postService.getPostsAtLocation(lat, long, false) as Post[]
@@ -94,14 +90,21 @@ export class RecommendationController {
         res.json({posts: best_posts})
     }
 
-    mode(arr : string[]) : any {
-        return arr.sort((a,b) =>
+    mode(arr : string[]) : string {
+        let result: string | undefined = arr.sort((a,b) =>
               arr.filter(v => v===a).length
             - arr.filter(v => v===b).length
         ).pop();
+        
+        if (result) {
+            return result;
+        }
+        else{
+            return ""
+        }
     }
 
-    deleteOccurences(a : String[], e : String) : String[] | -1 {
+    deleteOccurences(a : string[], e : string) : string[] | -1 {
         if (!a.includes(e)) {
             return -1;
         }

@@ -14,82 +14,109 @@ app.use(morgan('tiny'));
 
 const postController = new PostController();
 app.get('/posts-authenticated', (req : Request, res : Response, next : NextFunction) => {
-  (req as any).user = { id: 'user123' }; 
+  (req as AuthenticatedRequest).user = { id: 'user123' }; 
   next();
-}, (req: Request, res: Response, next: NextFunction): void => {
+},  (req: Request, res: Response, next: NextFunction): void => {
   try {
-      void postController.getAuthenticatedUserPost(req as AuthenticatedRequest, res);
+      postController.getAuthenticatedUserPost(req as AuthenticatedRequest, res)
+      .then(() => { next(); })
+     .catch((err: unknown) => { next(err); });
   } catch (error) {
       next(error);
   }
 }); 
-app.get('/posts-authenticated-not', (req: Request, res: Response, next: NextFunction): void => {
+app.get('/posts-authenticated-not',  (req: Request, res: Response, next: NextFunction): void => {
   try {
-      void postController.getAuthenticatedUserPost(req as AuthenticatedRequest, res);
+      postController.getAuthenticatedUserPost(req as AuthenticatedRequest, res)
+      .then(() => { next(); })
+     .catch((err: unknown) => { next(err); });
   } catch (error) {
       next(error);
   }
 }); 
 
 app.post('/posts', (req, res, next) => {
-  (req as any).user = { id: 'user123' };
+  (req as AuthenticatedRequest).user = { id: 'user123' };
   next();
-}, (req: Request, res: Response, next: NextFunction): void => {
+},  (req: Request, res: Response, next: NextFunction): void => {
   try{
-    void postController.createPost(req as AuthenticatedRequest, res);
+    postController.createPost(req as AuthenticatedRequest, res)
+    .then(() => { next(); })
+   .catch((err: unknown) => { next(err); });
   } catch(err) {
     next(err);
   }});
-app.post('/posts-not-authenticated', (req: Request, res: Response, next: NextFunction): void => {
+app.post('/posts-not-authenticated',  (req: Request, res: Response, next: NextFunction): void => {
   try{
-    void postController.createPost(req as AuthenticatedRequest, res);
+    postController.createPost(req as AuthenticatedRequest, res)
+    .then(() => { next(); })
+   .catch((err: unknown) => { next(err); });
   } catch(err) {
     next(err);
   }});
 app.post('/posts-from-other', (req, res, next) => {
   (req as AuthenticatedRequest).user = { id: 'other' };
   next();
-}, (req: Request, res: Response, next: NextFunction): void => {
+},  (req: Request, res: Response, next: NextFunction): void => {
   try{
-    void postController.createPost(req as AuthenticatedRequest, res);
+    postController.createPost(req as AuthenticatedRequest, res)
+    .then(() => { next(); })
+   .catch((err: unknown) => { next(err); });
   } catch(err) {
     next(err);
   }}); 
 
-app.get('/posts/:id', postController.getPostById);  
+
+  let getPostWrapper = (req: Request, res: Response): void => {
+    postController.getPostById(req as AuthenticatedRequest, res)
+    .then(() => { return; })
+    .catch((err: unknown) => { console.error(err); });
+  }
+app.get('/posts/:id', getPostWrapper);  
+
 app.put('/posts/:id', (req, res, next) => {
-  (req as any).user = { id: 'user123' }; 
+  (req as AuthenticatedRequest).user = { id: 'user123' }; 
   next();
-}, (req: Request, res: Response, next: NextFunction): void => {
+},  (req: Request, res: Response, next: NextFunction): void => {
   try{
-    void postController.updatePost(req as AuthenticatedRequest, res);
+    postController.updatePost(req as AuthenticatedRequest, res)
+    .then(() => { next(); })
+   .catch((err: unknown) => { next(err); });
   } catch(err) {
     next(err);
   }});  
-app.put('/posts-not-auth/:id', (req: Request, res: Response, next: NextFunction): void => {
+app.put('/posts-not-auth/:id',  (req: Request, res: Response, next: NextFunction): void => {
   try{
-    void postController.updatePost(req as AuthenticatedRequest, res);
+    postController.updatePost(req as AuthenticatedRequest, res)
+    .then(() => { next(); })
+   .catch((err: unknown) => { next(err); });
   } catch(err) {
     next(err);
   }});    
 app.delete('/posts/:id', (req, res, next) => {
-  (req as any).user = { id: 'user123' }; 
+  (req as AuthenticatedRequest).user = { id: 'user123' }; 
   next();
-}, (req: Request, res: Response, next: NextFunction): void => {
+},  (req: Request, res: Response, next: NextFunction): void => {
   try{
-    void postController.deletePost(req as AuthenticatedRequest, res);
+    postController.deletePost(req as AuthenticatedRequest, res)
+    .then(() => { next(); })
+   .catch((err: unknown) => { next(err); });
   } catch(err) {
     next(err);
   }});
-app.delete('/posts-not-auth/:id', (req: Request, res: Response, next: NextFunction): void => {
+app.delete('/posts-not-auth/:id',  (req: Request, res: Response, next: NextFunction): void => {
   try{
-    void postController.deletePost(req as AuthenticatedRequest, res);
+    postController.deletePost(req as AuthenticatedRequest, res)
+    .then(() => { next(); })
+   .catch((err: unknown) => { next(err); });
   } catch(err) {
     next(err);
   }});  
-app.get('/posts',  (req: Request, res: Response, next: NextFunction): void => {
+app.get('/posts',   (req: Request, res: Response, next: NextFunction): void => {
   try {
-      void postController.getPublicPost(req, res);
+      postController.getPublicPost(req, res)
+      .then(() => { next(); })
+     .catch((err: unknown) => { next(err); });
   } catch (error) {
       next(error);
   }
@@ -99,7 +126,7 @@ app.get('/posts',  (req: Request, res: Response, next: NextFunction): void => {
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
+  const uri: string = mongoServer.getUri();
   await mongoose.connect(uri);
 });
 
@@ -222,22 +249,22 @@ describe('Testing getUserPosts', () => {
       isPrivate: true,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
 
-    const thirdpost = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost3)
       .expect(200);
 
-    const fourth = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost4)
       .expect(200);
@@ -296,22 +323,22 @@ describe('Testing getUserPosts', () => {
       isPrivate: true,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
 
-    const thirdpost = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost3)
       .expect(200);
 
-    const fourth = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost4)
       .expect(200);
@@ -374,22 +401,22 @@ describe('Testing getUserPosts', () => {
       isPrivate: true,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
 
-    const thirdpost = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost3)
       .expect(200);
 
-    const fourth = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost4)
       .expect(200);
@@ -435,12 +462,12 @@ describe('Testing getPublicPosts', () => {
       isPrivate: false,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
@@ -481,12 +508,12 @@ describe('Testing getPublicPosts', () => {
       isPrivate: false,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
@@ -521,17 +548,17 @@ describe('Testing getPublicPosts', () => {
       isPrivate: false,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
 
-    const response = await request(app)
+    await request(app)
       .get(`/posts`) 
       .query({
         start_lat: 8
@@ -608,27 +635,27 @@ describe('Testing updatePost', () => {
       isPrivate: true,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
 
-    const thirdpost = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost3)
       .expect(200);
 
-    const fourth = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost4)
       .expect(200);
 
-    const response = await request(app)
+    await request(app)
       .get(`/posts-authenticated`) 
       .query({
         userPostOnly: false,
@@ -678,22 +705,22 @@ describe('Testing updatePost', () => {
       isPrivate: true,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
 
-    const thirdpost = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost3)
       .expect(200);
 
-    const fourth = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost4)
       .expect(200);
@@ -775,13 +802,13 @@ describe('Testing deletePost', () => {
       isPrivate: false,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
      
     const newid = new mongoose.Types.ObjectId(0)
-    const response = await request(app)
+    await request(app)
       .delete(`/posts/${newid}`)
       .expect(404);
   })
@@ -802,7 +829,7 @@ describe('Testing deletePost', () => {
       .send(newPost)
       .expect(200);
      
-    const response = await request(app)
+    await request(app)
       .delete(`/posts/${createdPost.body._id}`)
       .expect(401);
   })

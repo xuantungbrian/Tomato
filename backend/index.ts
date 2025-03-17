@@ -9,9 +9,9 @@ import { config } from 'dotenv';
 import startWSS from './wss';
 import { RecommendationRoutes } from './routes/RecommendationRoutes';
 import { AuthenticatedRequest } from './types/AuthenticatedRequest';
-config();
+import {verifyToken} from "./middleware/verifyToken";
 
-const {verifyToken} = require('./middleware/verifyToken')
+config();
 const app = express();
 
 app.use(express.json({limit: '100mb'}));
@@ -22,12 +22,16 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 
-
 const allRoutes = [...PostRoutes, ...UserRoutes, ...ChatRoutes, ...RecommendationRoutes]
 allRoutes.forEach((route) => {
     const middlewares = route.protected ? [verifyToken] : []; // Add verifyToken only if protected
-
-    (app as any)[route.method](
+    const allowedMethods = ['get', 'post', 'put', 'delete', 'patch'];
+    // Ensure that route.method is one of the allowed methods
+    const method = route.method.toLowerCase();
+    if (!allowedMethods.includes(method)) {
+        throw new Error(`Unsupported HTTP method: ${method}`);
+    }
+    app[method as keyof express.Application](
         route.route,
         ...middlewares,
         route.validation,
@@ -52,7 +56,7 @@ const PORT = Number(process.env.PORT) || 3000
 connectDB().then(() => {
     app.listen(PORT, '0.0.0.0' as string, () => {
         startWSS()
-        console.log(`Server is running on port ${PORT}`);
+        console.warn(`Server is running on port ${PORT}`);
       });
 
 }).catch((err: unknown) => {
