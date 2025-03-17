@@ -1,6 +1,7 @@
 package com.example.tomato
 
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -11,6 +12,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.not
@@ -46,10 +48,18 @@ class LoginUser {
     }
 
     @Test
-    fun userLoginFailed() {
+    fun userLogin() {
         // Click login button and click somewhere else to make login failed
         onView(withId(R.id.sign_in_button)).perform(click())
-        device.click(100, 100)
+        Thread.sleep(5000)
+
+        // Check if Google login window pops up
+        val chooseAccountText = device.wait(Until.findObject(By.text("Choose an account")), 1000)
+        val signInText = device.wait(Until.findObject(By.textContains("Use your Google Account")), 1000)
+        require(chooseAccountText != null || signInText != null) { "Neither 'Choose an account' nor 'Use your Google Account' was found" }
+
+        // Click back button to make login fail
+        device.pressBack()
 
         // Check login failure:
         // - An alert pops up

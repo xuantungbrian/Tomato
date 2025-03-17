@@ -65,12 +65,7 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Description**: Displays pictures posted by the user and others users as pins on the map
             - **Primary actor(s)**: User, Google Maps API 
             - **Main success scenario**:
-                1. App displays all the posts as pins on the map
-                2. App allows the users to scroll to different areas and view more posts
-            - **Failure scenario(s)**:
-                - 1a. Unable to retrieve posts
-                    - 1a1. If the user is yet to post anything, the map opens as is with no pins
-                    - 1a2. Else if the user’s posts were not able to retrieved from the database, a toast will appear telling the user that the posts were unable to be retrieved and to try again later
+                2. Users to scroll to different areas and view posts
 
 2. **Login User**
     - **Overview**:
@@ -82,12 +77,14 @@ Our app allows people to keep a history of all the places they have traveled to 
             - **Primary actor(s)**: User, Google Authenticator API
             - **Main success scenario**:
                 1. User opens the app
-                2. App prompts user to sign in using their Google Account
-                3. User enters their account information and signs in
-                4. App continues as normal
+                2. User click on "Sign in" button
+                3. Google login window pops up
+                4. User input their credentials and follow Google instructions
+                4. User goes back to map page with the sign in button replaced by their Google account logo
             - **Failure scenario(s)**:
-                - 3a. User cancle the login by clicking outside the login box/back button
-                    - 3a1. An alert appears telling the user they were unable to login, along with the reason why
+                - 4a. User cancel the login by clicking outside the login box/back button
+                    - 4a1. An alert appears telling the user they were unable to login, along with the reason why
+                    - 4a2: User click on "OKAY" to turn off the alert
  
 3. **Manage Posts**
     - **Overview**:
@@ -144,13 +141,13 @@ Our app allows people to keep a history of all the places they have traveled to 
     
     - **Detailed Flow for Each Independent Scenario**: 
         1. **Search Locations**:
-            - **Description**: Allows the user to search specific locations to see the posts from there
+            - **Description**: Allows the user to search specific locations
             - **Primary actor(s)**: User, Google Maps API
             - **Main success scenario**:
                 1. User goes to the search bar at the top of the screen
                 2. User inputs the location they want to see
-                3. User clicks on the Search icon
-                4. App displays all the available posts in that area on the map
+                3. User clicks on Enter in the keyboard
+                4. App move camera to the input location
 5. **Get Location Recommendations**
     - **Overview**:
         1. Suggests travel locations for the user
