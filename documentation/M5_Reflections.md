@@ -20,7 +20,7 @@ AI Technology was used in the creation of the MVP.
 5. 15%. The boilerplate code for the tests was initially generated with AI, but subsequently the tests had to be modified for a single use case, then the developer will write the rest of the tests using a similar syntax, but not generated with AI. 
 
 ## 2. Contributions of each team member
-- Rumbi Chinamo: 
+- Rumbi Chinamo: Backend API tests, added backend-test.yml, added backend api test documentation
 - Bryan Tanady: 
 - Xuan Tung Luu: 
 - James: Rectify code styling errors on codacy, maintain backend production, ensure automation via CI/CD tools. - 15h
