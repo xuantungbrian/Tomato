@@ -1,9 +1,6 @@
 import { UserService } from "../service/UserService";
-import { Request, Response, NextFunction } from "express";
-import { OAuth2Client } from "google-auth-library";
+import { Request, Response } from "express";
 
-const clientId = process.env.WEB_CLIENT_ID
-const client = new OAuth2Client(clientId);
 
 export class UserController {
     private userService: UserService;
@@ -14,26 +11,36 @@ export class UserController {
         this.getUser = this.getUser.bind(this)
     }
 
-    async getUser(req: Request, res: Response, next: NextFunction) { 
+    /**
+     * Given a user id in the request params, return the user object.
+     */
+    async getUser(req: Request, res: Response): Promise<void> { 
         const userId = req.params.id
-        return res.status(200).json(await this.userService.getUser(userId));
+        res.status(200).json(await this.userService.getUser(userId));
     }
 
-    async handleGoogleSignIn(req: Request, res: Response, next: NextFunction){ //TODO: Not just google now, need better naming
+    /**
+     * Given a google token and a firebase token generated in the FrontEnd, handle
+     * user sign in by generating JWT token and create user if not exists.
+     */
+    async handleGoogleSignIn(req: Request, res: Response): Promise<void> { 
         try{
-            const { googleToken, firebaseToken } = (req as any).body;
+            const { googleToken, firebaseToken } = req.body;
             
             if(!googleToken || !firebaseToken) {
-                return res.status(400).json({message: "No Token provided"});
+                res.status(400).json({message: "No Token provided"});
+                return
             }
 
-            const result = await this.userService.signInWithGoogle(googleToken, firebaseToken); //TODO: Not just google now, need better naming
-            return res.status(200).json(result)
+            const result = await this.userService.signInWithGoogle(googleToken as string, firebaseToken as string); //TODO: Not just google now, need better naming
+            res.status(200).json(result)
+            return
 
         }
         catch(err){
-            console.log("ERROR: ", err)
-            return res.status(400).json({message: err})
+            console.error("ERROR: ", err)
+            res.status(400).json({message: err})
+            return
         }
     }
 

@@ -39,3 +39,7 @@ google-services.json
 node_modules/
 
 serviceAccountKey.json
+
+yarn.lock
+
+coverage
