@@ -809,7 +809,7 @@ describe('Testing deletePost', () => {
      
     const newid = new mongoose.Types.ObjectId(0)
     await request(app)
-      .delete(`/posts/${newid}`)
+      .delete(`/posts/${newid.toString()}`)
       .expect(404);
   })
 
