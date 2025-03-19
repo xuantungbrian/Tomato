@@ -703,11 +703,4 @@
 
 ### 5.4. Justifications for Unfixed Issues
 
-- **Code Pattern: @typescript eslint: No unsafe member access.
-  - Justification: As stated on Piazza note @181, this warning is allowed to be unfixed.
-
-- **Code Pattern: @typescript eslint: No unsafe call.
-  - Justification: As stated on Piazza note @181, this warning is allowed to be unfixed.
-
-- **Code Pattern: @typescript eslint: No unsafe assignment.
-  - Justification: As stated on Piazza note @181, this warning is allowed to be unfixed.
+- No Issues.
