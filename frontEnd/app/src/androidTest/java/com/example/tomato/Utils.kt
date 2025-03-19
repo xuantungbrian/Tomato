@@ -94,7 +94,7 @@ object Utils {
                 val addAccountButton = device.wait(Until.findObject(By.text("Add another account")), 10000)
                 addAccountButton.click()
 
-                val emailField = device.wait(Until.findObject(By.clazz("android.widget.EditText")), 5000)
+                val emailField = device.wait(Until.findObject(By.clazz("android.widget.EditText")), 15000)
                 assertNotNull(emailField)
                 emailField.text = googleEmail
             }
