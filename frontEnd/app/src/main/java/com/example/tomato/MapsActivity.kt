@@ -110,10 +110,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     handleSignIn(result)
                 } catch (e: GetCredentialException) {
                     Log.d(TAG, "Get credential exception", e)
-                    AlertDialog.Builder(this@MapsActivity)
-                        .setTitle("Login failed: ${e.message}")
-                        .setNegativeButton("Okay", null)
-                        .show()
                 }
             }
         }
@@ -148,7 +144,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         // Request location permissions first
         if (LocationPermission.checkLocationPermission(this)) {
-            initMap()
+            val mapFragment = supportFragmentManager
+                .findFragmentById(R.id.mapFragment) as SupportMapFragment
+            mapFragment.getMapAsync(this)
         } else {
             LocationPermission.requestLocationPermission(this)
         }
@@ -162,16 +160,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                initMap()
+                val mapFragment = supportFragmentManager
+                    .findFragmentById(R.id.mapFragment) as SupportMapFragment
+                mapFragment.getMapAsync(this)
             }
         }
     }
 
-    private fun initMap() {
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.mapFragment) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-    }
+//    private fun initMap() {
+//        val mapFragment = supportFragmentManager
+//            .findFragmentById(R.id.mapFragment) as SupportMapFragment
+//        mapFragment.getMapAsync(this)
+//    }
 
     private fun getUserLocation() {
         if (LocationPermission.checkLocationPermission(this)) {
@@ -182,9 +182,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f))
                 }
             }
-        } else {
-            val userLatLng = LatLng(0.0, 0.0)
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f))
         }
     }
 
@@ -203,7 +200,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
-
     private fun initSearchLocation(){
         // Initialize Places Client and Session Token
         placesClient = Places.createClient(this)
@@ -239,7 +235,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
             },
 
-        )
+            )
 
         autoCompleteTextView.setOnEditorActionListener { _, actionId, event ->
             val isEnterPressed = actionId == EditorInfo.IME_ACTION_SEARCH ||
@@ -358,6 +354,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (LocationPermission.checkLocationPermission(this)) {
             mMap.isMyLocationEnabled = true
             getUserLocation()
+
         }
 
         mMap.setOnMarkerClickListener { marker ->

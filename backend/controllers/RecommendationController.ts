@@ -11,6 +11,9 @@ export class RecommendationController {
         this.postService = new PostService();
     }
 
+    /**
+     * Get a list of recommended posts for the user making the request.
+     */
     getRecommendation = async (req: Request, res: Response) => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
@@ -90,6 +93,9 @@ export class RecommendationController {
         res.json({posts: best_posts})
     }
 
+    /**
+     * Find the mode of an array of strings.
+     */
     mode(arr : string[]) : string {
         let result: string | undefined = arr.sort((a,b) =>
               arr.filter(v => v===a).length
@@ -104,12 +110,17 @@ export class RecommendationController {
         }
     }
 
-    deleteOccurences(a : string[], e : string) : string[] | -1 {
-        if (!a.includes(e)) {
+    /**
+     * Delete all occurences of a string in an array.
+     * @returns -1 if the string is not in the array. Otherwise, return the array
+     * with the string removed.
+     */
+    deleteOccurences(originalArr : string[], toBeDeleted : string) : string[] | -1 {
+        if (!originalArr.includes(toBeDeleted)) {
             return -1;
         }
     
-        return a.filter(
-            (item) => item !== e);
+        return originalArr.filter(
+            (item) => item !== toBeDeleted);
     }
 }

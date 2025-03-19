@@ -58,5 +58,6 @@ class SearchLocations {
                 assertEquals(-123.0075756, target.longitude, 0.001)
             }
         }
+        Thread.sleep(10000)
     }
 }

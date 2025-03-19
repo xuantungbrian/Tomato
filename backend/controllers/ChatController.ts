@@ -10,7 +10,10 @@ export class ChatController {
     constructor() {
         this.chatService = new ChatService();
     }
-
+    
+    /**
+     * Given two user ids in the request body, create a new chat.
+     */
     createChat = async (req: Request, res: Response) => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
@@ -29,6 +32,9 @@ export class ChatController {
         res.json(await this.chatService.createChat(chat.member_1 as string, chat.member_2 as string))
     }
 
+    /**
+     * Get a list of chats involving an authenticated user.
+     */
     getChats = async (req: Request, res: Response): Promise<void> => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
@@ -39,6 +45,9 @@ export class ChatController {
         res.json(await this.chatService.getChats(userId));
     }
 
+    /**
+     * Get a list of messages in a chat.
+     */
     getChatMessages = async (req: Request, res: Response): Promise<void> => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
@@ -58,6 +67,9 @@ export class ChatController {
         res.json(await this.chatService.getChatMessages(chatId));
     }
 
+    /**
+     * Add a message to a chat whose id is provided in the request params.
+     */
     addMessage = async (req: Request, res: Response) => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
@@ -77,7 +89,10 @@ export class ChatController {
         res.json(await this.chatService.addMessage(chatroom_id, message.sender as string, message.message as string))
     }
 
-  
+    
+    /**
+     * Delete a message from a chat whose id is provided in the request params.
+     */
     deleteMessage = async (req: Request, res: Response) => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
@@ -97,6 +112,9 @@ export class ChatController {
         res.json(await this.chatService.deleteMessage(messageId))
     }
 
+    /**
+     * Delete a chatroom whose id is provided in the request params.
+     */
     deleteChat = async (req: Request, res: Response) => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
