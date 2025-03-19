@@ -113,13 +113,18 @@ object Utils {
             nextButton.click()
             Thread.sleep(5000)
 
-            val agreeButton = device.wait(Until.findObject(By.text("I agree")), 5000)
+            var agreeButton = device.wait(Until.findObject(By.text("I agree")), 5000)
             assertNotNull(agreeButton)
             agreeButton.click()
 
             val acceptButton = device.wait(Until.findObject(By.text("ACCEPT")), 5000)
             assertNotNull(acceptButton)
             acceptButton.click()
+
+            try {
+                agreeButton = device.wait(Until.findObject(By.text("Agree and share")), 10000)
+                agreeButton.click()
+            } catch (_: Exception) {}
         }
         Thread.sleep(10000)
     }
