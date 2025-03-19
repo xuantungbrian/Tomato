@@ -689,16 +689,16 @@
 
 ### 5.1. Commit Hash Where Codacy Ran
 
-`88b37f15cb88c7fc934fb6c80fb607555e8088a0`
+`bfd6d20b6d820a4c798bf2f37c4374229c692094`
 
 ### 5.2. Unfixed Issues per Codacy Category
 
-![image](https://github.com/user-attachments/assets/d9e24d16-d6e4-4a73-badf-caf170ef7535)
+![image](images/issues_breakdown.png)
 
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
-_(Placeholder for screenshots of Codacyâ€™s Issues page)_
+![image](images/unfixed_issue.png)
 
 
 ### 5.4. Justifications for Unfixed Issues
