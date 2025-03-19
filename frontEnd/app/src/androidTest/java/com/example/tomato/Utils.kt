@@ -82,10 +82,22 @@ object Utils {
         val myAccountButton = device.wait(Until.findObject(By.text(googleEmail)), 10000)
         if (myAccountButton != null) {
             myAccountButton.click()
+            try {
+                val agreeButton = device.wait(Until.findObject(By.text("Agree and share")), 10000)
+                agreeButton.click()
+            } catch (_: Exception) {}
         } else {
-            val emailField = device.wait(Until.findObject(By.clazz("android.widget.EditText")), 5000)
-            assertNotNull(emailField)
-            emailField.text = googleEmail
+            try {
+                val emailField = device.wait(Until.findObject(By.clazz("android.widget.EditText")), 5000)
+                emailField.text = googleEmail
+            } catch (_: Exception) {
+                val addAccountButton = device.wait(Until.findObject(By.text("Add another account")), 10000)
+                addAccountButton.click()
+
+                val emailField = device.wait(Until.findObject(By.clazz("android.widget.EditText")), 5000)
+                assertNotNull(emailField)
+                emailField.text = googleEmail
+            }
 
             var nextButton = device.wait(Until.findObject(By.text("NEXT")), 5000)
             assertNotNull(nextButton)
@@ -99,6 +111,7 @@ object Utils {
             nextButton = device.wait(Until.findObject(By.text("NEXT")), 5000)
             assertNotNull(nextButton)
             nextButton.click()
+            Thread.sleep(5000)
 
             val agreeButton = device.wait(Until.findObject(By.text("I agree")), 5000)
             assertNotNull(agreeButton)
