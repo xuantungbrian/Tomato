@@ -21,6 +21,6 @@ AI Technology was used in the creation of the MVP.
 
 ## 2. Contributions of each team member
 - Rumbi Chinamo: Backend API tests, added backend-test.yml, added backend api test documentation
-- Bryan Tanady: 
+- Bryan Tanady: All frontend codacy update, some backend codacy, and code documentation - 15h
 - Xuan Tung Luu: Frontend E2E test, non-functional requirement - 16hr
 - James: Rectify code styling errors on codacy, maintain backend production, ensure automation via CI/CD tools. - 15h
