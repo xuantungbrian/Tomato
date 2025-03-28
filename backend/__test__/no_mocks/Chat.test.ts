@@ -624,7 +624,7 @@ describe("Testing getChatMessages", () => {
       member_2: "new"
     };
 
-    const chat = await request(app)
+    await request(app)
       .post('/chats') 
       .send(newChat) 
       .expect(200);
@@ -632,7 +632,7 @@ describe("Testing getChatMessages", () => {
     const newId = new mongoose.Types.ObjectId(0)
 
     await request(app)
-      .get(`/chats/${newId}`)
+      .get(`/chats/${newId.toString()}`)
       .expect(404)
   });
 })
@@ -663,7 +663,7 @@ describe("Testing deleteChats", () => {
   it('should fail to delete non-existant chat', async () => {
     const newId = new mongoose.Types.ObjectId(0)
     await request(app)
-      .delete(`/chats/${newId}`) 
+      .delete(`/chats/${newId.toString()}`) 
       .expect(404);
   });
 
