@@ -90,7 +90,6 @@ export class RecommendationController {
                 best_posts.push(post)
             }
         }
-        console.log(`POST: ${best_posts}`)
         res.json({posts: best_posts || []})
     }
 
