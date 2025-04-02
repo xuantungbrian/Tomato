@@ -4,7 +4,8 @@
 
 | **Change Date**   | **Modified Sections** | **Rationale** |
 | ----------------- | --------------------- | ------------- |
-| 3/14/2025         | Non Functional Requirements: Added security requirement where some features (upload, view profile, chat) are blocked if they are not signed in.  |  Our app allows some features for non-signed in user, such as viewing public post, searching location. However, some features require user to be registered because it requires user's credential (such as posting and chats), hence these features should be blocked. 
+| 3/14/2025         | Non Functional Requirements: Added security requirement where some features (upload, view profile, chat) are blocked if they are not signed in.  |  Our app allows some features for non-signed in user, such as viewing public post, searching location. However, some features require user to be registered because it requires user's credential (such as posting and chats), hence these features should be blocked. |
+| 4/1/2025          | 2.1.3 Explanation on how to run the tests: Added further detail to the instructions to run the backend unit tests. | The previous instructions did not include important factors such as installing dependencies and writing a .env file. These are being included now as these are things that the tests cannot run without. |
   
 
 ---
@@ -55,6 +56,15 @@
      ```
      cd backend
      ```
+3. **Install all dependencies**
+   - Install the needed dependencies:
+     ```
+     npm install
+     ```
+4. **Write the .env file**
+   - Take all the fields from [`backend/example_dotenv.txt`]
+   - Put in random placeholder values for the fields that are not filled in
+   - Write a .env file using all those fields
 
 3. **Run the tests**
    - Run the test as so:
