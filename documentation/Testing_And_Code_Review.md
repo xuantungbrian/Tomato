@@ -18,21 +18,21 @@
 
 | **Interface**                 | **Describe Group Location, No Mocks**                | **Describe Group Location, With Mocks**            | **Mocked Components**              |
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
-| **GET /chats**          | [`backend/__test__/no_mocks/Chat.test.ts#L236`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L133`](#) | Chat |
-| **GET /chats/:id** | [`backend/__test__/no_mocks/Chat.test.ts#L518`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L171`](#) | Chat                   |
-| **POST /chats**                           | [`backend/__test__/no_mocks/Chat.test.ts#L158`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L112`](#) | Chat, jwt.verify                                |
-| **POST /chat/:id**                           | [`backend/__test__/no_mocks/Chat.test.ts#L325`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L80`](#) | Chat, jwt.verify                                |
-| **DELETE /chats/:id**          | [`backend/__test__/no_mocks/Chat.test.ts#L615`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L197`](#) | Chat, jwt.verify |
-| **DELETE /chat/:id/messages/:message_id** | [`backend/__test__/no_mocks/Chat.test.ts#L422`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L223`](#) | Chat, jwt.verify                     |
-| **GET /posts**                           | [`backend/__test__/no_mocks/Post.test.ts#L425`](#) | [`backend/__test__/mocks/PostMock.test.ts#L340`](#)  | Post                               |
-| **GET /posts-authenticated**                | [`backend/__test__/no_mocks/Post.test.ts#L192`](#) | [`backend/__test__/mocks/PostMock.test.ts#L131`](#) |  Post, jwt.verify, PostService.getPosts                              |
-| **GET /posts/:id**                  | [`backend/__test__/no_mocks/Post.test.ts#L166`](#) | [`backend/__test__/mocks/PostMock.test.ts#L101`](#)  | Post                              |
-| **PUT /posts/:id**                   | [`backend/__test__/no_mocks/Post.test.ts#L552`](#) | [`backend/__test__/mocks/PostMock.test.ts#L392`](#)  | Post, jwt.verify                                |
-| **POST /posts**                 | [`backend/__test__/no_mocks/Post.test.ts#L124`](#) | [`backend/__test__/mocks/PostMock.test.ts#L75`](#)   | Post, jwt.verify                                |
-| **DELETE /posts/:id**                 | [`backend/__test__/no_mocks/Post.test.ts#L748`](#) | [`backend/__test__/mocks/PostMock.test.ts#L426`](#)   | Post, jwt.verify                                |
-| **GET /recommendations**                 | [`backend/__test__/no_mocks/Recommendation.test.ts#L121`](#) | N/A |Recommendation System                            |
-| **GET /user/:id**                 | [`backend/__test__/no_mocks/User.test.ts#L46`](#) | [`backend/__test__/mocks/UserMock.test.ts#L168`](#) | User DB                             |
-| **POST /user/auth**                 | [`backend/__test__/no_mocks/User.test.ts#L81`](#) | [`backend/__test__/mocks/UserMock.test.ts#L81`](#) & [`backend/__test__/mocks/NoPayloadUser.test.ts#L57`](#)| User                          |
+| **GET /chats**          | [`backend/__test__/no_mocks/Chat.test.ts#L106`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L137`](#) | Chat |
+| **GET /chats/:id** | [`backend/__test__/no_mocks/Chat.test.ts#L396`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L174`](#) | Chat                   |
+| **POST /chats**                           | [`backend/__test__/no_mocks/Chat.test.ts#L28`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L116`](#) | Chat, jwt.verify                                |
+| **POST /chat/:id**                           | [`backend/__test__/no_mocks/Chat.test.ts#L194`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L84`](#) | Chat, jwt.verify                                |
+| **DELETE /chats/:id**          | [`backend/__test__/no_mocks/Chat.test.ts#L499`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L200`](#) | Chat, jwt.verify |
+| **DELETE /chat/:id/messages/:message_id** | [`backend/__test__/no_mocks/Chat.test.ts#L294`](#) | [`backend/__test__/mocks/ChatMocks.test.ts#L226`](#) | Chat, jwt.verify                     |
+| **GET /posts**                           | [`backend/__test__/no_mocks/Post.test.ts#L331`](#) | [`backend/__test__/mocks/PostMock.test.ts#L356`](#)  | Post                               |
+| **GET /posts-authenticated**                | [`backend/__test__/no_mocks/Post.test.ts#L98`](#) | [`backend/__test__/mocks/PostMock.test.ts#L147`](#) |  Post, jwt.verify, PostService.getPosts                              |
+| **GET /posts/:id**                  | [`backend/__test__/no_mocks/Post.test.ts#L66`](#) | [`backend/__test__/mocks/PostMock.test.ts#L117`](#)  | Post                              |
+| **PUT /posts/:id**                   | [`backend/__test__/no_mocks/Post.test.ts#L458`](#) | [`backend/__test__/mocks/PostMock.test.ts#L408`](#)  | Post, jwt.verify                                |
+| **POST /posts**                 | [`backend/__test__/no_mocks/Post.test.ts#L24`](#) | [`backend/__test__/mocks/PostMock.test.ts#L91`](#)   | Post, jwt.verify                                |
+| **DELETE /posts/:id**                 | [`backend/__test__/no_mocks/Post.test.ts#L678`](#) | [`backend/__test__/mocks/PostMock.test.ts#L442`](#)   | Post, jwt.verify                                |
+| **GET /recommendations**                 | [`backend/__test__/no_mocks/Recommendation.test.ts#L65`](#) | N/A |Recommendation System                            |
+| **GET /user/:id**                 | [`backend/__test__/no_mocks/User.test.ts#L26`](#) | [`backend/__test__/mocks/UserMock.test.ts#L177`](#) | User DB                             |
+| **POST /user/auth**                 | [`backend/__test__/no_mocks/User.test.ts#L68`](#) | [`backend/__test__/mocks/UserMock.test.ts#L90`](#) & [`backend/__test__/mocks/NoPayloadUser.test.ts#L42`](#)| User                          |
 
 #### 2.1.2. Commit Hash Where Tests Run
 
