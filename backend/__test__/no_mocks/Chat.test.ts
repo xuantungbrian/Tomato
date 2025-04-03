@@ -377,6 +377,10 @@ describe("Testing addMessage", () => {
     expect(response.body.sender).toBe(main_user); 
     expect(response.body.message).toBe("hi"); 
     expect(response.body.chatroom_id).toBe(chat.body._id); 
+
+    await request(app)
+      .post(`/chat/%20`)
+      .expect(400) 
   });
 
   it('should fail to add a message from a non-sender user', async () => {
@@ -478,6 +482,14 @@ describe('Testing deleteMessage', () => {
     expect(response.body.message).toBe("hi"); 
     expect(response.body.chatroom_id).toBe(chat.body._id); 
     expect(deleted).toBeNull()
+
+    await request(app)
+      .delete(`/chat/%20/messages/%20`)
+      .expect(400)
+
+    await request(app)
+      .delete(`/chats/%20`)
+      .expect(400)
   });
 
   it('should fail to delete non-existant message', async () => {
@@ -584,6 +596,10 @@ describe("Testing getChatMessages", () => {
     expect(response.body[1].sender).toBe(main_user); 
     expect(response.body[1].message).toBe("whats up"); 
     expect(response.body[1].chatroom_id).toBe(chat.body._id); 
+
+    await request(app)
+      .get(`/chats/%20`)
+      .expect(400)
   });
 
   it('should fail to get messages of unauthorized chat', async () => {

@@ -49,10 +49,15 @@ export class ChatController {
      * Get a list of messages in a chat.
      */
     getChatMessages = async (req: Request, res: Response): Promise<void> => {
-        if (!isAuthenticatedRequest(req)) {
-            res.status(401).json({ message: "Unauthorized" });
+        if (!isAuthenticatedRequest(req)) {res.status(401).json({ message: "Unauthorized" });
             return;
         }
+
+        if(!req.params.id || req.params.id.trim() === ""){
+            res.status(400).json({ error: 'ID is required' });
+            return
+        }
+        
         const chatId = req.params.id
         let user = req.user.id
         const chat = await ChatModel.findById(chatId);
@@ -77,6 +82,10 @@ export class ChatController {
         }
         let message = req.body
         let user = req.user.id
+        if(!req.params.id || req.params.id.trim() === ""){
+            res.status(400).json({ error: 'ID is required' });
+            return
+        }
         if (!message.sender || !message.message) {
             res.status(400).send({message: "Bad Request"})
             return;
@@ -85,6 +94,7 @@ export class ChatController {
             res.status(401).send({message: "Unauthorized"})
             return;
         }
+
         let chatroom_id = req.params.id
         res.json(await this.chatService.addMessage(chatroom_id, message.sender as string, message.message as string))
     }
@@ -96,6 +106,10 @@ export class ChatController {
     deleteMessage = async (req: Request, res: Response) => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
+            return
+        }
+        if(!req.params.message_id || req.params.id.trim() === ""){
+            res.status(400).json({ error: 'ID is required' });
             return
         }
         const messageId = req.params.message_id
@@ -118,6 +132,10 @@ export class ChatController {
     deleteChat = async (req: Request, res: Response) => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
+            return
+        }
+        if(!req.params.id || req.params.id.trim() === ""){
+            res.status(400).json({ error: 'ID is required' });
             return
         }
         const chatId = req.params.id

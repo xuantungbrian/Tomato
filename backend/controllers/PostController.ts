@@ -110,6 +110,10 @@ export class PostController {
      * Given post id in the request params, return the post data.
      */
     getPostById = async (req: Request, res: Response) => {
+        if(!req.params.id || req.params.id.trim() === ""){
+            res.status(400).json({ error: 'ID is required' });
+            return
+        }
         const postId = req.params.id
         const [postData] = await Promise.all([
             this.postService.getPostById(postId)
@@ -126,6 +130,10 @@ export class PostController {
             res.status(401).json({ message: "Unauthorized" });
             return;
         }
+        if(!req.params.id || req.params.id.trim() === ""){
+            res.status(400).json({ error: 'ID is required' });
+            return
+        }
         const postId = req.params.id
         const updatedPost = req.body as Post
         updatedPost.userId = req.user.id
@@ -139,6 +147,10 @@ export class PostController {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
             return;
+        }
+        if(!req.params.id || req.params.id.trim() === ""){
+            res.status(400).json({ error: 'ID is required' });
+            return
         }
         const postId = req.params.id
 

@@ -15,6 +15,10 @@ export class UserController {
      * Given a user id in the request params, return the user object.
      */
     async getUser(req: Request, res: Response): Promise<void> { 
+        if(!req.params.id || req.params.id.trim() === ""){
+            res.status(400).json({ error: 'ID is required' });
+            return
+        }
         const userId = req.params.id
         res.status(200).json(await this.userService.getUser(userId));
     }
