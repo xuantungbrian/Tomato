@@ -361,6 +361,8 @@ Our app allows people to keep a history of all the places they have traveled to 
     - **Validation**: Both the suggestion algorithm and the user's own posts will be given in priority stacks based on on-screen proximity to each other, and hence the number of pins and how crowded they are can be managed.
 2. [**At most 4 clicks to access any of the use cases**](#nfr2)
     - **Validation**: UI will be designed such that the central functionality of the app (i.e. the map) will have navigation to each use case so that it will not become cumbersome to use. The map will be the home page of the app, which already eliminates one click before most of the functionality.
+3.[**Security: Some features are not accessible by user**](#nfr2)
+    - **Validation**: We will design the UI to block the interfaces to reach the blocked functionality. Furthermore, routes should be divided into protected and not protected, such that protected routes are those reserved for authenticated users.
 
 
 
