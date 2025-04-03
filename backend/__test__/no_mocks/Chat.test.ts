@@ -218,6 +218,10 @@ describe("Testing addMessage", () => {
     expect(response.body.sender).toBe(main_user); 
     expect(response.body.message).toBe("hi"); 
     expect(response.body.chatroom_id).toBe(chat.body._id); 
+
+    await request(app)
+      .post(`/chat/%20`)
+      .expect(400) 
   });
 
   it('should fail to add a message from a non-sender user', async () => {
@@ -319,6 +323,14 @@ describe('Testing deleteMessage', () => {
     expect(response.body.message).toBe("hi"); 
     expect(response.body.chatroom_id).toBe(chat.body._id); 
     expect(deleted).toBeNull()
+
+    await request(app)
+      .delete(`/chat/%20/messages/%20`)
+      .expect(400)
+
+    await request(app)
+      .delete(`/chats/%20`)
+      .expect(400)
   });
 
   it('should fail to delete non-existant message', async () => {
@@ -425,6 +437,10 @@ describe("Testing getChatMessages", () => {
     expect(response.body[1].sender).toBe(main_user); 
     expect(response.body[1].message).toBe("whats up"); 
     expect(response.body[1].chatroom_id).toBe(chat.body._id); 
+
+    await request(app)
+      .get(`/chats/%20`)
+      .expect(400)
   });
 
   it('should fail to get messages of unauthorized chat', async () => {
@@ -465,7 +481,7 @@ describe("Testing getChatMessages", () => {
       member_2: "new"
     };
 
-    const chat = await request(app)
+    await request(app)
       .post('/chats') 
       .send(newChat) 
       .expect(200);
@@ -473,7 +489,7 @@ describe("Testing getChatMessages", () => {
     const newId = new mongoose.Types.ObjectId(0)
 
     await request(app)
-      .get(`/chats/${newId}`)
+      .get(`/chats/${newId.toString()}`)
       .expect(404)
   });
 })
@@ -504,7 +520,7 @@ describe("Testing deleteChats", () => {
   it('should fail to delete non-existant chat', async () => {
     const newId = new mongoose.Types.ObjectId(0)
     await request(app)
-      .delete(`/chats/${newId}`) 
+      .delete(`/chats/${newId.toString()}`) 
       .expect(404);
   });
 

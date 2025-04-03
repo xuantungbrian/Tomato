@@ -15,7 +15,7 @@ export class UserService {
         try {
             const newUser: IUser = new UserModel({ 
                 _id: userId, 
-                username: username, 
+                username, 
                 firebaseToken: [firebaseToken]
               });
             console.log("Created new user")
@@ -78,14 +78,13 @@ export class UserService {
         }
 
         // Check if user exists, otherwise create a new one
-        let user: IUser|null = await this.getUser(payload.sub as string);
-    
+        let user: IUser|null = await this.getUser(payload.sub as string);    
         if (!user) {
             user = await this.createUser(payload.sub as string, payload.name as string, firebaseToken);
         } else {
             if (!user.firebaseToken.includes(firebaseToken)) {
                 user.firebaseToken.push(firebaseToken);
-                await user.updateOne(); //TODO: Need to invalidate the token when user sign out
+                await user.save(); //TODO: Need to invalidate the token when user sign out
             }            
         } 
         
@@ -96,10 +95,10 @@ export class UserService {
         });
 
         let userID = null
+
         if (user) {
             userID = user._id
         }
-
         return { token: jwtToken, userID };
     }
 

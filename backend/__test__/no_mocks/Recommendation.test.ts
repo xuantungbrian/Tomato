@@ -2793,12 +2793,12 @@ describe('Testing getRecommendations', () => {
         .post('/posts-from-someone') 
         .send(newPost2) 
         .expect(200);
-    const response = await request(app)
+    await request(app)
       .get("/recommendations-no-middlewware")
       .expect(401)
   });
 
-  it("Test mode with empty post", async() => {
+  it("Test mode with empty post", () => {
     expect(recommendationController.mode([])).toBe("")
   })
 });

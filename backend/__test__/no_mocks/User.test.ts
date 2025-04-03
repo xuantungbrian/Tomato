@@ -41,6 +41,10 @@ describe('Testing getUser', () => {
     expect(response.body._id).toBe(newUser._id);
     expect(response.body.username).toBe(newUser.username);
     expect(response.body.firebaseToken).toStrictEqual([newUser.firebaseToken]);
+
+    await request(app)
+      .get(`/user/%20`)
+      .expect(400)
   });
 
   it('tries to get a non-existant user', async () => {

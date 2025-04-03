@@ -86,6 +86,10 @@ describe('Testing getPostById', () => {
 
     expect(response.body.postData).toHaveProperty('_id');
     expect(response.body.postData.userId).toBe(newPost.userId);
+
+    await request(app)
+    .get(`/posts/%20`)
+    .expect(400);
   });
 })
 
@@ -474,6 +478,11 @@ describe('Testing updatePost', () => {
       .expect(200);
 
     expect(response.body.note).toBe('Updated note');
+
+    await request(app)
+      .put(`/posts/%20`)
+      .send(updatedPost)
+      .expect(400);
   });
 
   it('should fail to get authenticated posts because of incorrect coordinates', async () => {
@@ -693,6 +702,10 @@ describe('Testing deletePost', () => {
     await request(app)
       .delete(`/posts/${newid.toString()}`)
       .expect(404);
+
+    await request(app)
+      .delete(`/posts/%20`)
+      .expect(400);
   })
 
   it('should fail to allow an unauthorized user to delete a post', async () => {
