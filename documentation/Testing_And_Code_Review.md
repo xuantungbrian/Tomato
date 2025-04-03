@@ -4,7 +4,8 @@
 
 | **Change Date**   | **Modified Sections** | **Rationale** |
 | ----------------- | --------------------- | ------------- |
-| 3/14/2025         | Non Functional Requirements: Added security requirement where some features (upload, view profile, chat) are blocked if they are not signed in.  |  Our app allows some features for non-signed in user, such as viewing public post, searching location. However, some features require user to be registered because it requires user's credential (such as posting and chats), hence these features should be blocked. 
+| 3/14/2025         | Non Functional Requirements: Added security requirement where some features (upload, view profile, chat) are blocked if they are not signed in.  |  Our app allows some features for non-signed in user, such as viewing public post, searching location. However, some features require user to be registered because it requires user's credential (such as posting and chats), hence these features should be blocked. |
+| 4/1/2025          | 2.1.3 Explanation on how to run the tests: Added further detail to the instructions to run the backend unit tests. | The previous instructions did not include important factors such as installing dependencies and writing a .env file. These are being included now as these are things that the tests cannot run without. |
   
 
 ---
@@ -35,7 +36,7 @@
 
 #### 2.1.2. Commit Hash Where Tests Run
 
-`b6e173c425ba3be316cecce6f53c99b23a3ae174`
+`88b37f15cb88c7fc934fb6c80fb607555e8088a0`
 
 #### 2.1.3. Explanation on How to Run the Tests
 
@@ -55,6 +56,15 @@
      ```
      cd backend
      ```
+3. **Install all dependencies**
+   - Install the needed dependencies:
+     ```
+     npm install
+     ```
+4. **Write the .env file**
+   - Take all the fields from [`backend/example_dotenv.txt`]
+   - Put in random placeholder values for the fields that are not filled in
+   - Write a .env file using all those fields
 
 3. **Run the tests**
    - Run the test as so:
@@ -84,7 +94,7 @@
 | **Non-Functional Requirement**  | **Location in Git**                              |
 | ------------------------------- | ------------------------------------------------ |
 | **Usability (No more than 4 clicks to any feature)** | [`frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToChat.kt`](../frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToChat.kt),  [`frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToCreatePost.kt`](../frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToCreatePost.kt),  [`frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToDeletePost.kt`](../frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToDeletePost.kt),  [`frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToLogin.kt`](../frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToLogin.kt),  [`frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToRecommendation.kt`](../frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToRecommendation.kt),  [`frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToSearchLocation.kt`](../frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToSearchLocation.kt),  [`frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToViewPost.kt`](../frontEnd/app/src/androidTest/java/com/example/tomato/AtMostFourClicksToViewPost.kt)
-| **Feature Security (No access to some feature if not login)**          | [`frontEnd/app/src/androidTest/java/com/example/tomato/Security.kt`](../frontEnd/app/src/androidTest/java/com/example/tomato/Security.kt) |
+| **Feature Security (No access to upload/delete post, view profile, chat feature if not login)**          | [`frontEnd/app/src/androidTest/java/com/example/tomato/Security.kt`](../frontEnd/app/src/androidTest/java/com/example/tomato/Security.kt) |
 
 ### 3.2. Test Verification and Logs
 
@@ -689,24 +699,18 @@
 
 ### 5.1. Commit Hash Where Codacy Ran
 
-`[Insert Commit SHA here]`
+`65aa6e9e4ed97737c90253a991ea199a77bcf0ea`
 
 ### 5.2. Unfixed Issues per Codacy Category
 
-![image](https://github.com/user-attachments/assets/4dd25cbc-8ad0-4286-ab22-669e3a84bc03)
+![image](images/issues_breakdown.png)
+
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
-_(Placeholder for screenshots of Codacyâ€™s Issues page)_
+![image](images/unfixed_issue.png)
 
 
 ### 5.4. Justifications for Unfixed Issues
 
-- **Code Pattern: @typescript eslint: No unsafe member access.
-  - Justification: As stated on Piazza note @181, this warning is allowed to be unfixed.
-
-- **Code Pattern: @typescript eslint: No unsafe call.
-  - Justification: As stated on Piazza note @181, this warning is allowed to be unfixed.
-
-- **Code Pattern: @typescript eslint: No unsafe assignment.
-  - Justification: As stated on Piazza note @181, this warning is allowed to be unfixed.
+- No Issues.
