@@ -17,7 +17,7 @@ object HTTPRequest {
      */
     suspend fun sendGetRequest(url: String, context: Context): String? {
 
-        // Use IO dispatcher to perform network operations (connect to backend)
+        // Use IO dis:patcher to perform network operations (connect to backend)
         return withContext(Dispatchers.IO){
             val client = OkHttpClient()
 
@@ -48,10 +48,6 @@ object HTTPRequest {
                 null
             } catch (e: SecurityException) {
                 Log.e("HTTPRequest", "SecurityException: $e")
-                e.printStackTrace()
-                null
-            } catch (e: Exception) {
-                Log.e("HTTPRequest", "Exception: $e")
                 e.printStackTrace()
                 null
             }
