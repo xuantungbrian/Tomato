@@ -1,15 +1,9 @@
-import express, { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import morgan from 'morgan';
-import { PostController } from '../../controllers/PostController';
 import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
 import { config } from 'dotenv';
-import { PostService } from '../../service/PostService';
-import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
 
-const {verifyToken} = require('../../middleware/verifyToken')
 config();
 jest.mock('jsonwebtoken', () => ({
   ...jest.requireActual('jsonwebtoken'),
@@ -26,19 +20,7 @@ jest.mock('jsonwebtoken', () => ({
   }));
 
 let mongoServer = new MongoMemoryServer();
-
-const app = express();
-app.use(express.json());  
-app.use(morgan('tiny')); 
-
-const postController = new PostController();
-
-app.post('/posts', verifyToken, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try{
-    await postController.createPost(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }}); 
+const {app} = require('../app');
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
@@ -73,7 +55,7 @@ describe('Testing verifyToken', () => {
     };
   
     const response = await request(app)
-      .post('/posts') 
+      .post('/posts-verify') 
       .send(newPost)
       .expect(401);
 
@@ -94,7 +76,7 @@ describe('Testing verifyToken', () => {
     const old_process_env = process.env
     process.env = {}
     const response = await request(app)
-      .post('/posts') 
+      .post('/posts-verify') 
       .send(newPost)
       .set('Authorization', 'Bearer 90909090')
       .expect(500);
@@ -115,7 +97,7 @@ describe('Testing verifyToken', () => {
     };
 
     const response = await request(app)
-      .post('/posts') 
+      .post('/posts-verify') 
       .send(newPost)
       .set('Authorization', 'Bearer 90909790')
       .expect(400);

@@ -1,101 +1,10 @@
-import express, { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import morgan from 'morgan';
-import { PostController } from '../../controllers/PostController';
 import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
-import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
+
+const {app} = require('../app');
 let mongoServer = new MongoMemoryServer();
-
-const app = express();
-app.use(express.json());  
-app.use(morgan('tiny')); 
-
-const postController = new PostController();
-app.get('/posts-authenticated', (req : Request, res : Response, next : NextFunction) => {
-  (req as any).user = { id: 'user123' }; 
-  next();
-}, (req: Request, res: Response, next: NextFunction): void => {
-  try {
-      void postController.getAuthenticatedUserPost(req as AuthenticatedRequest, res);
-  } catch (error) {
-      next(error);
-  }
-}); 
-app.get('/posts-authenticated-not', (req: Request, res: Response, next: NextFunction): void => {
-  try {
-      void postController.getAuthenticatedUserPost(req as AuthenticatedRequest, res);
-  } catch (error) {
-      next(error);
-  }
-}); 
-
-app.post('/posts', (req, res, next) => {
-  (req as any).user = { id: 'user123' };
-  next();
-}, (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void postController.createPost(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }});
-app.post('/posts-not-authenticated', (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void postController.createPost(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }});
-app.post('/posts-from-other', (req, res, next) => {
-  (req as AuthenticatedRequest).user = { id: 'other' };
-  next();
-}, (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void postController.createPost(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }}); 
-
-app.get('/posts/:id', postController.getPostById);  
-app.put('/posts/:id', (req, res, next) => {
-  (req as any).user = { id: 'user123' }; 
-  next();
-}, (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void postController.updatePost(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }});  
-app.put('/posts-not-auth/:id', (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void postController.updatePost(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }});    
-app.delete('/posts/:id', (req, res, next) => {
-  (req as any).user = { id: 'user123' }; 
-  next();
-}, (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void postController.deletePost(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }});
-app.delete('/posts-not-auth/:id', (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void postController.deletePost(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }});  
-app.get('/posts',  (req: Request, res: Response, next: NextFunction): void => {
-  try {
-      void postController.getPublicPost(req, res);
-  } catch (error) {
-      next(error);
-  }
-});  
- 
-
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();

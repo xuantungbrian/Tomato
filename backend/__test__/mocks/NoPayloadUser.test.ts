@@ -1,9 +1,6 @@
-import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import morgan from 'morgan';
 import request from 'supertest';
-import { UserController } from '../../controllers/UserController';
 import { UserModel } from '../../model/UserModel';
 
 jest.mock('jsonwebtoken', () => ({
@@ -24,18 +21,7 @@ jest.mock("google-auth-library", () => {
 });
 
 let mongoServer = new MongoMemoryServer();
-
-const app = express();
-app.use(express.json());  
-app.use(morgan('tiny')); 
-
-const userController = new UserController();
-app.post('/user-faulty/auth', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-        await userController.handleGoogleSignIn(req, res);
-    } catch (error) {
-        next(error);
-    }});  
+const {app} = require('../app');
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();

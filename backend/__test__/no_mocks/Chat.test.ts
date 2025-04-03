@@ -1,144 +1,14 @@
-import express, {Request, Response, NextFunction} from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import morgan from 'morgan';
 import request from 'supertest';
-import { ChatController } from '../../controllers/ChatController';
 import { ChatModel } from '../../model/ChatModel';
 import { MessageModel } from '../../model/MessageModel';
-import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
 import { ChatService } from '../../service/ChatService';
 import 'dotenv/config';
 
 let mongoServer = new MongoMemoryServer();
-
-const app = express();
-app.use(express.json());  
-app.use(morgan('tiny')); 
-
-const chatController = new ChatController();
+const {app} = require('../app');
 const chatService = new ChatService();
-
-//App routes
-// createChat routes for testing
-app.post('/chats', (req, res, next) => {
-  (req as AuthenticatedRequest).user = { id: 'user123' };
-  next();
-}, (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void chatController.createChat(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }}); 
-app.post('/chats-string', (req, res, next) => {
-  (req as AuthenticatedRequest).user = { id: 'string' }; 
-  next();
-}, (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void chatController.createChat(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }}); 
-app.post('/chats-no-middleware', (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void chatController.createChat(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }});
-// getChatMessages routes for testing
-app.get('/chats/:id', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; 
-    next();
-  }, (req: Request, res: Response, next: NextFunction): void => {
-    try{
-      void chatController.getChatMessages(req as AuthenticatedRequest, res);
-    } catch(err) {
-      next(err);
-    }});  
-app.get('/chats-no-middleware/:id', (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void chatController.getChatMessages(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }});  
-
-// getChats routes for testing
-app.get('/chats', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; 
-    next();
-  },(req: Request, res: Response, next: NextFunction): void => {
-    try{
-      void chatController.getChats(req as AuthenticatedRequest, res);
-    } catch(err) {
-      next(err);
-    }});  
-app.get('/chats-unauthorized', (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void chatController.getChats(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }});  
-
-// addMessage routes for testing
-app.post('/chat/:id', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; 
-    next();
-  },(req: Request, res: Response, next: NextFunction): void => {
-    try{
-      void chatController.addMessage(req as AuthenticatedRequest, res);
-    } catch(err) {
-      next(err);
-    }});
-app.post('/chat-string/:id', (req, res, next) => {
-    (req as any).user = { id: 'string' }; 
-    next();
-  }, (req: Request, res: Response, next: NextFunction): void => {
-    try{
-      void chatController.addMessage(req as AuthenticatedRequest, res);
-    } catch(err) {
-      next(err);
-    }});
-app.post('/chat-no-middleware/:id', (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void chatController.addMessage(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }});
-
-// deleteChat routes for testing
-app.delete('/chats/:id', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; 
-    next();
-  }, (req: Request, res: Response, next: NextFunction): void => {
-    try{
-      void chatController.deleteChat(req as AuthenticatedRequest, res);
-    } catch(err) {
-      next(err);
-    }});
-app.delete('/chats-no-middleware/:id', (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void chatController.deleteChat(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }});
-
-// deleteMessage routes for testing
-app.delete('/chat/:id/messages/:message_id', (req, res, next) => {
-    (req as any).user = { id: 'user123' }; 
-    next();
-  }, (req: Request, res: Response, next: NextFunction): void => {
-    try{
-      void chatController.deleteMessage(req as AuthenticatedRequest, res);
-    } catch(err) {
-      next(err);
-    }});
-app.delete('/chat-no-middleware/:id/messages/:message_id', (req: Request, res: Response, next: NextFunction): void => {
-  try{
-    void chatController.deleteMessage(req as AuthenticatedRequest, res);
-  } catch(err) {
-    next(err);
-  }});
-
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();

@@ -1,34 +1,12 @@
-import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import morgan from 'morgan';
 import request from 'supertest';
-import { UserController } from '../../controllers/UserController';
 import { UserModel } from '../../model/UserModel';
 import { UserService } from '../../service/UserService';
 
 let mongoServer = new MongoMemoryServer();
-
-const app = express();
-app.use(express.json());  
-app.use(morgan('tiny')); 
-
-const userController = new UserController();
 const userService = new UserService();
-
-app.post('/user/auth', (req: Request, res: Response, next: NextFunction): void => {
-    try {
-        void userController.handleGoogleSignIn(req, res);
-    } catch (error) {
-        next(error);
-    }}); 
-
-app.get('/user/:id', (req: Request, res: Response, next: NextFunction): void => {
-  try {
-      void userController.getUser(req, res);
-  } catch (error) {
-      next(error);
-  }}); 
+const {app} = require('../app');
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();

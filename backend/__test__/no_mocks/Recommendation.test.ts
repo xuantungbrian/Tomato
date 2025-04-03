@@ -1,24 +1,17 @@
-import express, { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import morgan from 'morgan';
 import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
-import { RecommendationController } from '../../controllers/RecommendationController';
-import { PostController } from '../../controllers/PostController';
 import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
 import { RecommendationRoutes } from '../../routes/RecommendationRoutes';
 import { validationResult } from 'express-validator';
 import 'dotenv/config';
 
 let mongoServer = new MongoMemoryServer();
-const app: express.Application = express();
-app.use(express.json());  
-app.use(morgan('tiny'));
+const {app} = require('../app');
+console.log(app);
 
-
-const recommendationController = new RecommendationController();
-const postController = new PostController();
 const middleware = (req: AuthenticatedRequest, res: Request, next: NextFunction) => {
   req.user = { id: 'user123' }; 
   next();
@@ -45,63 +38,6 @@ RecommendationRoutes.forEach((route) => {
       },
   );
 });
-app.get('/recommendations-no-middlewware', async (req, res, next) : Promise<void> => {
-    try {
-      await recommendationController.getRecommendation(req as AuthenticatedRequest, res)
-    } catch(error) {
-      next(error)
-    }
-  });  
-app.post('/posts', (req, res, next) => {
-    (req as AuthenticatedRequest).user = { id: 'user123' }; 
-    next();
-  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try{
-      await postController.createPost(req as AuthenticatedRequest, res);
-    } catch(err) {
-      next(err);
-    }});  
-
-app.post('/posts-from-other', (req, res, next) => {
-    (req as AuthenticatedRequest).user = { id: 'other' }; 
-    next();
-  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try{
-      await postController.createPost(req as AuthenticatedRequest, res);
-    } catch(err) {
-      next(err);
-    }});  
-
-app.post('/posts-from-someone', (req, res, next) => {
-    (req as AuthenticatedRequest).user = { id: 'someone' }; 
-    next();
-  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try{
-      await postController.createPost(req as AuthenticatedRequest, res);
-    } catch(err) {
-      next(err);
-    }}); 
-
-app.post('/posts-from-else', (req, res, next) => {
-    (req as AuthenticatedRequest).user = { id: 'else' }; 
-    next();
-  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try{
-      await postController.createPost(req as AuthenticatedRequest, res);
-    } catch(err) {
-      next(err);
-    }}); 
-
-app.post('/posts-from-fourth', (req, res, next) => {
-    (req as AuthenticatedRequest).user = { id: 'fourth' }; 
-    next();
-  }, async(req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try{
-      await postController.createPost(req as AuthenticatedRequest, res);
-    } catch(err) {
-      next(err);
-    }}); 
-
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
