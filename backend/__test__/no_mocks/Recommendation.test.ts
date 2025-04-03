@@ -7,8 +7,10 @@ import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
 import { RecommendationRoutes } from '../../routes/RecommendationRoutes';
 import { validationResult } from 'express-validator';
 import 'dotenv/config';
+import { RecommendationController } from '../../controllers/RecommendationController';
 
 let mongoServer = new MongoMemoryServer();
+const recommendationController = new RecommendationController();
 const {app} = require('../app');
 console.log(app);
 
@@ -16,10 +18,16 @@ const middleware = (req: AuthenticatedRequest, res: Request, next: NextFunction)
   req.user = { id: 'user123' }; 
   next();
 }
-RecommendationRoutes.forEach((route) => {
-  const middlewares = (route as any).protected ? [middleware] : []; // Add verifyToken only if protected
+const VALID_ROUTE_METHODS = ['get', 'post', 'put', 'delete', 'patch']
 
-  (app as any)[route.method](
+RecommendationRoutes.forEach((route) => {
+  const middlewares = (route ).protected ? [middleware] : []; // Add verifyToken only if protected
+  
+  const method = route.method.toLowerCase();
+  if (!VALID_ROUTE_METHODS.includes(method)) {
+      throw new Error(`Unsupported HTTP method: ${method}`);
+  }
+    app[method as keyof Express.Application](
       route.route,
       ...middlewares,
       route.validation,
@@ -41,7 +49,7 @@ RecommendationRoutes.forEach((route) => {
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
+  const uri: string = mongoServer.getUri();
   await mongoose.connect(uri);
 });
 
@@ -1183,8 +1191,6 @@ describe('Testing getRecommendations', () => {
     const else_ = [newPost19, newPost20, newPost21, newPost22, newPost23, newPost24]
     const fourth = [newPost25, newPost26, newPost27, newPost28, newPost29, newPost30]
 
-    const main_user = "user123"
-
     for (let i = 0; i < 6; i++) {
       await request(app)
         .post('/posts') 
@@ -1562,8 +1568,6 @@ describe('Testing getRecommendations', () => {
     const else_ = [newPost19, newPost20, newPost21, newPost22, newPost23, newPost24]
     const fourth = [newPost25, newPost26, newPost27, newPost28, newPost29, newPost30]
 
-    const main_user = "user123"
-
     for (let i = 0; i < 6; i++) {
       await request(app)
         .post('/posts') 
@@ -1923,7 +1927,6 @@ describe('Testing getRecommendations', () => {
     const else_ = [newPost19, newPost20, newPost21, newPost22, newPost23, newPost24]
     const fourth = [newPost25, newPost26, newPost27, newPost28, newPost29, newPost30]
 
-    const main_user = "user123"
 
     for (let i = 0; i < 6; i++) {
       await request(app)
@@ -2290,7 +2293,6 @@ describe('Testing getRecommendations', () => {
     const else_ = [newPost19, newPost20, newPost21, newPost22, newPost23, newPost24]
     const fourth = [newPost25, newPost26, newPost27, newPost28, newPost29, newPost30]
 
-    const main_user = "user123"
 
     for (let i = 0; i < 6; i++) {
       await request(app)
@@ -2795,4 +2797,8 @@ describe('Testing getRecommendations', () => {
       .get("/recommendations-no-middlewware")
       .expect(401)
   });
+
+  it("Test mode with empty post", async() => {
+    expect(recommendationController.mode([])).toBe("")
+  })
 });

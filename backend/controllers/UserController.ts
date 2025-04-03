@@ -11,11 +11,18 @@ export class UserController {
         this.getUser = this.getUser.bind(this)
     }
 
+    /**
+     * Given a user id in the request params, return the user object.
+     */
     async getUser(req: Request, res: Response): Promise<void> { 
         const userId = req.params.id
         res.status(200).json(await this.userService.getUser(userId));
     }
 
+    /**
+     * Given a google token and a firebase token generated in the FrontEnd, handle
+     * user sign in by generating JWT token and create user if not exists.
+     */
     async handleGoogleSignIn(req: Request, res: Response): Promise<void> { 
         try{
             const { googleToken, firebaseToken } = req.body;
@@ -25,7 +32,7 @@ export class UserController {
                 return
             }
 
-            const result = await this.userService.signInWithGoogle(googleToken, firebaseToken); //TODO: Not just google now, need better naming
+            const result = await this.userService.signInWithGoogle(googleToken as string, firebaseToken as string); //TODO: Not just google now, need better naming
             res.status(200).json(result)
             return
 

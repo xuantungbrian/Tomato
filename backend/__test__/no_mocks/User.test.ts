@@ -10,7 +10,7 @@ const {app} = require('../app');
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
+  const uri: string = mongoServer.getUri();
   await mongoose.connect(uri);
 });
 
@@ -32,6 +32,7 @@ describe('Testing getUser', () => {
     };
 
     await userService.createUser(newUser._id, newUser.username, newUser.firebaseToken)
+
     const response = await request(app)
         .get(`/user/${newUser._id}`)
         .expect(200)

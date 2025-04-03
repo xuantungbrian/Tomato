@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import morgan from 'morgan';
 import request from 'supertest';
-import { ChatController } from '../../controllers/ChatController';
 import { ChatModel } from '../../model/ChatModel';
 import { MessageModel } from '../../model/MessageModel';
 import { config } from 'dotenv';
@@ -11,8 +10,8 @@ import { ChatRoutes } from '../../routes/ChatRoutes';
 import { validationResult } from 'express-validator';
 import { ChatService } from '../../service/ChatService';
 import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
+import { verifyToken } from '../../middleware/verifyToken'
 
-const {verifyToken} = require('../../middleware/verifyToken')
 let mongoServer = new MongoMemoryServer();
 
 const app = express();
@@ -20,45 +19,49 @@ config();
 app.use(express.json());  
 app.use(morgan('tiny')); 
 
-jest.mock('jsonwebtoken', () => ({
+jest.mock('jsonwebtoken', (): {
+  verify: jest.Mock<(token: string) => {id: string}>;
+  sign: jest.Mock<() => string>;
+} => ({
   ...jest.requireActual('jsonwebtoken'), 
-  verify: jest.fn().mockReturnValue({id: "user123"}), 
+  verify: jest.fn().mockReturnValue({ id: "user123" }),
   sign: jest.fn().mockReturnValue("token")
   }));
-const chatController = new ChatController();
-if (chatController === null) {
-  console.log("ChatController is null")
-}
+
 const chatService = new ChatService();
+const VALID_ROUTE_METHODS = ['get', 'post', 'put', 'delete', 'patch']
 
 //App routes
 ChatRoutes.forEach((route) => {
-    const middlewares = (route as any).protected ? [verifyToken] : []; 
-
-    (app as any)[route.method](
-        route.route,
-        ...middlewares,
-        route.validation,
-        async (req: AuthenticatedRequest, res: Response) => {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                /* If there are validation errors, send a response with the error messages */
-                return res.status(400).send({ errors: errors.array() });
-            }
-            try {
-                await route.action(req, res);
-            } catch (err) {
-                console.error('An error occurred:', err);
-                return res.sendStatus(500); // Don't expose internal server workings
-            }
-        },
+    const middlewares = (route).protected ? [verifyToken] : []; 
+    const method = route.method.toLowerCase();
+    if (!VALID_ROUTE_METHODS.includes(method)) {
+        throw new Error(`Unsupported HTTP method: ${method}`);
+    }
+    app[method as keyof express.Application](
+      route.route,
+      ...middlewares,
+      route.validation,
+      async (req: AuthenticatedRequest, res: Response) => {
+          const errors = validationResult(req);
+          if (!errors.isEmpty()) {
+              /* If there are validation errors, send a response with the error messages */
+              return res.status(400).send({ errors: errors.array() });
+          }
+          try {
+              await route.action(req, res);
+          } catch (err) {
+              console.error('An error occurred:', err);
+              return res.sendStatus(500); // Don't expose internal server workings
+          }
+      },
     );
 });
 
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
+  const uri: string = mongoServer.getUri();
   await mongoose.connect(uri);
 });
 
@@ -80,7 +83,7 @@ afterEach(() => {
 
 describe('Testing addMessage', () => {
   it('should fail to add a message if an error occurs', async () => {
-    let spy = await jest.spyOn(MessageModel.prototype, "save").mockImplementation(() => {
+    let spy = jest.spyOn(MessageModel.prototype, "save").mockImplementation(() => {
       throw new Error("Database error 1")
     })
     const newChat = {
@@ -146,7 +149,6 @@ describe('Testing getChats', () => {
       member_2: "other"
     };
   
-    const main_user = "user123"
     await request(app)
       .post('/chats') 
       .send(newChat) 
@@ -165,13 +167,13 @@ describe('Testing getChats', () => {
       .expect(200);
 
     expect(response.body).toBeNull()
-    await spy.mockClear()
+    spy.mockClear()
   });
 })
 
 describe('Testing getChatMessages', () => {
   it('should fail to get messages if error occurs', async () => {
-    let spy = await jest.spyOn(MessageModel, "find").mockImplementation(() => {
+    let spy = jest.spyOn(MessageModel, "find").mockImplementation(() => {
       throw new Error("Database error 4")
     })
     const newChat = {
@@ -191,13 +193,13 @@ describe('Testing getChatMessages', () => {
       .expect(200)
 
     expect(response.body).toBeNull();
-    await spy.mockClear()
+    spy.mockClear()
   });
 })
 
 describe('Testing deleteChat', () => {
   it('should fail to delete chat if error occurs', async () => {
-    let spy = await jest.spyOn(ChatModel, "deleteOne").mockImplementation(() => {
+    let spy = jest.spyOn(ChatModel, "deleteOne").mockImplementation(() => {
       throw new Error("Database error 5")
     })
     const newChat = {
@@ -217,13 +219,13 @@ describe('Testing deleteChat', () => {
       .expect(200);
       
     expect(response.body).toBeNull()
-    await spy.mockClear()
+    spy.mockClear()
   });
 })
 
 describe('Testing deleteMessage', () => {
   it('should fail to delete message if error occurs', async () => {
-    let spy = await jest.spyOn(MessageModel.prototype, "deleteOne").mockImplementation(() => {
+    let spy = jest.spyOn(MessageModel.prototype, "deleteOne").mockImplementation(() => {
       throw new Error("Database error 6")
     })
 
@@ -255,13 +257,13 @@ describe('Testing deleteMessage', () => {
       .expect(200)
 
     expect(response.body).toBeNull()
-    await spy.mockClear()
+    spy.mockClear()
   });
 })
 
 describe('Testing getChat', () => {
   it('should fail to get chat by id if error occurs', async () => {
-    let spy = await jest.spyOn(ChatModel, "findById").mockImplementation(() => {
+    let spy = jest.spyOn(ChatModel, "findById").mockImplementation(() => {
       throw new Error("Database error 6")
     })
     const newChat = {
@@ -274,7 +276,6 @@ describe('Testing getChat', () => {
       member_2: "other"
     };
     
-    const main_user = "user123"
     await request(app)
       .post('/chats') 
       .send(newChat) 
@@ -287,8 +288,8 @@ describe('Testing getChat', () => {
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
     
-    const response = await chatService.getChat(chat.body._id);
+    const response = await chatService.getChat(chat.body._id as string);
     expect(response).toBeNull()
-    await spy.mockClear()
+    spy.mockClear()
   });
 })

@@ -6,14 +6,20 @@ import request from 'supertest';
 import { UserModel } from '../../model/UserModel';
 import { UserService } from '../../service/UserService';
 import { UserRoutes } from '../../routes/UserRoutes';
-import verifyToken from '../../middleware/verifyToken';
+import {verifyToken} from '../../middleware/verifyToken';
 import { validationResult } from 'express-validator';
+import * as jwt from 'jsonwebtoken'; 
 
-jest.mock('jsonwebtoken', () => ({
-...jest.requireActual('jsonwebtoken'),
-verify: jest.fn().mockReturnValue({id: "user123"}), 
-sign: jest.fn().mockReturnValue("token")
-}));
+jest.mock('jsonwebtoken', (): {
+  verify: jest.Mock<jwt.JwtPayload, [string, string]>;
+  sign: jest.Mock<string, [jwt.JwtPayload, string, jwt.SignOptions?]>;
+} => {
+  return {
+    verify: jest.fn().mockReturnValue({ id: "user123" } as jwt.JwtPayload),
+    sign: jest.fn().mockReturnValue("token" as string),
+  };
+});
+
 jest.mock("google-auth-library", () => {
   return {
       OAuth2Client: jest.fn().mockImplementation(() => ({
@@ -33,12 +39,17 @@ const app = express();
 app.use(express.json());  
 app.use(morgan('tiny')); 
 
+const VALID_ROUTE_METHODS = ['get', 'post', 'put', 'delete', 'patch']
+
 // const userController = new UserController();
 const userService = new UserService();
 UserRoutes.forEach((route) => {
-  const middlewares = (route as any).protected ? [verifyToken] : [];
-
-  (app as any)[route.method](
+  const middlewares = (route ).protected ? [verifyToken] : [];
+   const method = route.method.toLowerCase();
+    if (!VALID_ROUTE_METHODS.includes(method)) {
+        throw new Error(`Unsupported HTTP method: ${method}`);
+    }
+      app[method as keyof express.Application](
       route.route,
       ...middlewares,
       route.validation,
@@ -62,7 +73,7 @@ UserRoutes.forEach((route) => {
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
+  const uri: string = mongoServer.getUri();
   await mongoose.connect(uri);
 });
 
@@ -84,7 +95,7 @@ describe('Testing handleGoogleSignIn', () => {
       firebaseToken: "user12345"
     };
 
-    const user = await userService.createUser(newUser._id, newUser.username, newUser.firebaseToken)
+    await userService.createUser(newUser._id, newUser.username, newUser.firebaseToken)
     const response = await request(app)
         .post(`/user/auth`)
         .send({
@@ -128,7 +139,7 @@ describe('Testing handleGoogleSignIn', () => {
   it('should fail if process.env are not set', async () => {
     const old_processes = process.env;
     process.env = {}
-    const response1 = await request(app)
+    await request(app)
       .post(`/user/auth`)
       .send({
         googleToken: "google",
@@ -136,7 +147,7 @@ describe('Testing handleGoogleSignIn', () => {
       })
       .expect(400)
     process.env.WEB_CLIENT_ID = "string"
-    const response2 = await request(app)
+    await request(app)
       .post(`/user/auth`)
       .send({
         googleToken: "google",

@@ -21,6 +21,9 @@ export class PostController {
         this.postService = new PostService();
     }
 
+    /**
+     * Given post data in the request body, create a new post.
+     */
     createPost = async (req: Request, res: Response) => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
@@ -41,6 +44,10 @@ export class PostController {
         res.json(await this.postService.createPost(post))
     }
 
+    /**
+     * Get a list of public posts within a given location. This request can be 
+     * made by non-authenticated users.
+     */
     getPublicPost = async (req: Request, res: Response): Promise<void> => {
         try {
             const { parsedStartLat, parsedEndLat, parsedStartLong, parsedEndLong } = parseLocationParam(req)
@@ -61,7 +68,9 @@ export class PostController {
         }
     };
 
-
+    /**
+     * Get a list of posts made by an authenticated user.
+     */
     getAuthenticatedUserPost = async (req: Request, res: Response) => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
@@ -88,7 +97,7 @@ export class PostController {
 
         catch(err){
             if(err instanceof MissingCoordinateException){
-                console.log("User Provided Invalid coordinate: ", err)
+                console.error("User Provided Invalid coordinate: ", err)
                 res.status(400).json({ message: "Incomplete coordinate" });
                 return
             }
@@ -97,6 +106,9 @@ export class PostController {
 
     }
 
+    /**
+     * Given post id in the request params, return the post data.
+     */
     getPostById = async (req: Request, res: Response) => {
         const postId = req.params.id
         const [postData] = await Promise.all([
@@ -106,6 +118,9 @@ export class PostController {
         res.json({ postData });
     }
 
+    /**
+     * Update a post belonging to the user making the request.
+     */
     updatePost = async (req: Request, res: Response): Promise<void> => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });
@@ -117,6 +132,9 @@ export class PostController {
         res.json(await this.postService.updatePost(postId, updatedPost))
     }
 
+    /**
+     * Delete a post belonging to the user making the request.
+     */
     deletePost = async (req: Request, res: Response): Promise<void> => {
         if (!isAuthenticatedRequest(req)) {
             res.status(401).json({ message: "Unauthorized" });

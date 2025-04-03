@@ -3,28 +3,37 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import request from 'supertest';
 import { PostModel } from '../../model/PostModel';
 import { config } from 'dotenv';
+import { timingSafeEqual } from 'crypto';
 
 config();
-jest.mock('jsonwebtoken', () => ({
+jest.mock('jsonwebtoken', (): {
+  verify: jest.Mock<(token: string) => {id: string}>;
+  sign: jest.Mock<() => string>;
+} => ({
   ...jest.requireActual('jsonwebtoken'),
-  verify: jest.fn().mockImplementation((token, secret, algorithm) =>
+  verify: jest.fn().mockImplementation((token: string): {id: string} =>
     {
-      if (token == "90909090") {
-        return {id: "user123"}
+      const expectedToken = Buffer.from("90909090");
+      const receivedToken = Buffer.from(token);
+      if (receivedToken.length === expectedToken.length && 
+          timingSafeEqual(receivedToken, expectedToken)) {
+          return { id: "user123" };
       }
       else {
         throw new Error("Verify token error")
       }
     }), 
   sign: jest.fn().mockReturnValue("token")
+
   }));
+ 
 
 let mongoServer = new MongoMemoryServer();
 const {app} = require('../app');
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
+  const uri: string = mongoServer.getUri();
   await mongoose.connect(uri);
 });
 

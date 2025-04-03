@@ -165,13 +165,11 @@ _(Placeholder for screenshots of Codacyâ€™s Issues page)_
 
 ### 5.4. Justifications for Unfixed Issues
 
-- **Code Pattern: [Usage of Deprecated Modules](#)**
+- **Code Pattern: @typescript eslint: No unsafe member access.
+  - Justification: As stated on Piazza note @181, this warning is allowed to be unfixed.
 
-  1. **Issue**
+- **Code Pattern: @typescript eslint: No unsafe call.
+  - Justification: As stated on Piazza note @181, this warning is allowed to be unfixed.
 
-     - **Location in Git:** [`src/services/chatService.js#L31`](#)
-     - **Justification:** ...
-
-  2. ...
-
-- ...
+- **Code Pattern: @typescript eslint: No unsafe assignment.
+  - Justification: As stated on Piazza note @181, this warning is allowed to be unfixed.

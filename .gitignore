@@ -42,4 +42,4 @@ serviceAccountKey.json
 
 yarn.lock
 
-backend/coverage/
+coverage

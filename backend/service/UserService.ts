@@ -4,11 +4,18 @@ import { OAuth2Client, TokenPayload } from "google-auth-library";
 
 export class UserService {
 
-    async createUser(id: string, name: string, firebaseToken: string): Promise<IUser|null> {
+    /**
+     * Create a new user with the given id, name and firebase token
+     * @param userId
+     * @param username
+     * @param firebaseToken 
+     * @returns A promise that resolves to the created user
+     */
+    async createUser(userId: string, username: string, firebaseToken: string): Promise<IUser|null> {
         try {
             const newUser: IUser = new UserModel({ 
-                _id: id, 
-                username: name, 
+                _id: userId, 
+                username: username, 
                 firebaseToken: [firebaseToken]
               });
             console.log("Created new user")
@@ -21,11 +28,16 @@ export class UserService {
           }
     }
 
-    async getUser(id: string): Promise<IUser|null> {
+    /**
+     * Retrieve a user by its ID.
+     * @param userId 
+     * @returns A promise that resolves to the user.
+     */
+    async getUser(userId: string): Promise<IUser|null> {
         try {
-            const user: IUser|null = await UserModel.findById(id)
+            const user: IUser|null = await UserModel.findById(userId)
             if(!user){
-                console.warn("USER NOT FOUND: ", id)
+                console.warn("USER NOT FOUND: ", userId)
                 return null;
             }
             return user
@@ -35,6 +47,13 @@ export class UserService {
         }
     }
 
+    /**
+     * Generate a JWT token for the user with the given Google token and Firebase token.
+     * If the user does not exist, create a new user.
+     * @param googleToken
+     * @param firebaseToken 
+     * @returns A promise that resolves to the JWT token and user ID
+     */
     async signInWithGoogle(googleToken: string, firebaseToken: string){
         // Verify Google token
         if (!process.env.WEB_CLIENT_ID) {
@@ -62,11 +81,11 @@ export class UserService {
         let user: IUser|null = await this.getUser(payload.sub as string);
     
         if (!user) {
-            user = await this.createUser(payload.sub, payload.name, firebaseToken);
+            user = await this.createUser(payload.sub as string, payload.name as string, firebaseToken);
         } else {
             if (!user.firebaseToken.includes(firebaseToken)) {
                 user.firebaseToken.push(firebaseToken);
-                user.updateOne(); //TODO: Need to invalidate the token when user sign out
+                await user.updateOne(); //TODO: Need to invalidate the token when user sign out
             }            
         } 
         

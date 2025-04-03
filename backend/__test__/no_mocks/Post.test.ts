@@ -8,7 +8,7 @@ let mongoServer = new MongoMemoryServer();
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
+  const uri: string = mongoServer.getUri();
   await mongoose.connect(uri);
 });
 
@@ -131,22 +131,22 @@ describe('Testing getUserPosts', () => {
       isPrivate: true,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
 
-    const thirdpost = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost3)
       .expect(200);
 
-    const fourth = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost4)
       .expect(200);
@@ -205,22 +205,22 @@ describe('Testing getUserPosts', () => {
       isPrivate: true,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
 
-    const thirdpost = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost3)
       .expect(200);
 
-    const fourth = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost4)
       .expect(200);
@@ -283,22 +283,22 @@ describe('Testing getUserPosts', () => {
       isPrivate: true,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
 
-    const thirdpost = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost3)
       .expect(200);
 
-    const fourth = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost4)
       .expect(200);
@@ -344,12 +344,12 @@ describe('Testing getPublicPosts', () => {
       isPrivate: false,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
@@ -390,12 +390,12 @@ describe('Testing getPublicPosts', () => {
       isPrivate: false,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
@@ -430,17 +430,17 @@ describe('Testing getPublicPosts', () => {
       isPrivate: false,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
 
-    const response = await request(app)
+    await request(app)
       .get(`/posts`) 
       .query({
         start_lat: 8
@@ -517,27 +517,27 @@ describe('Testing updatePost', () => {
       isPrivate: true,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
 
-    const thirdpost = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost3)
       .expect(200);
 
-    const fourth = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost4)
       .expect(200);
 
-    const response = await request(app)
+    await request(app)
       .get(`/posts-authenticated`) 
       .query({
         userPostOnly: false,
@@ -587,22 +587,22 @@ describe('Testing updatePost', () => {
       isPrivate: true,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
     
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .expect(200);
 
-    const thirdpost = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost3)
       .expect(200);
 
-    const fourth = await request(app)
+    await request(app)
       .post('/posts-from-other')
       .send(newPost4)
       .expect(200);
@@ -684,14 +684,14 @@ describe('Testing deletePost', () => {
       isPrivate: false,
     };
 
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .expect(200);
      
     const newid = new mongoose.Types.ObjectId(0)
-    const response = await request(app)
-      .delete(`/posts/${newid}`)
+    await request(app)
+      .delete(`/posts/${newid.toString()}`)
       .expect(404);
   })
 
@@ -711,7 +711,7 @@ describe('Testing deletePost', () => {
       .send(newPost)
       .expect(200);
      
-    const response = await request(app)
+    await request(app)
       .delete(`/posts/${createdPost.body._id}`)
       .expect(401);
   })

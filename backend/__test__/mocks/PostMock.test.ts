@@ -9,15 +9,24 @@ import { PostService } from '../../service/PostService';
 import { PostRoutes } from '../../routes/PostRoutes';
 import { validationResult } from 'express-validator';
 import { AuthenticatedRequest } from '../../types/AuthenticatedRequest';
+import { timingSafeEqual } from 'crypto';
+import {verifyToken} from '../../middleware/verifyToken';
+import type { JwtPayload, SignOptions} from 'jsonwebtoken';
 
-const {verifyToken} = require('../../middleware/verifyToken')
+
 config();
-jest.mock('jsonwebtoken', () => ({
+jest.mock('jsonwebtoken', (): {
+  verify: jest.Mock<JwtPayload, [string, string]>;
+  sign: jest.Mock<string, [JwtPayload, string, SignOptions?]>;
+} => ({
   ...jest.requireActual('jsonwebtoken'),
-  verify: jest.fn().mockImplementation((token, secret, algorithm) =>
+  verify: jest.fn().mockImplementation((token: string):  {id: string}=>
     {
-      if (token === "90909090") {
-        return {id: "user123"}
+      const expectedToken = Buffer.from("90909090");
+      const receivedToken = Buffer.from(token);
+      if (receivedToken.length === expectedToken.length && 
+          timingSafeEqual(receivedToken, expectedToken)) {
+          return { id: "user123" };
       }
       else {
         return {id: "other"}
@@ -25,6 +34,11 @@ jest.mock('jsonwebtoken', () => ({
     }),
   sign: jest.fn().mockReturnValue("token")
   }));
+
+
+
+const VALID_ROUTE_METHODS = ['get', 'post', 'put', 'delete', 'patch']
+
 let mongoServer = new MongoMemoryServer();
 const app = express();
 app.use(express.json());  
@@ -32,31 +46,34 @@ app.use(morgan('tiny'));
 
 const postService = new PostService();
 PostRoutes.forEach((route) => {
-    const middlewares = (route as any).protected ? [verifyToken] : []; // Add verifyToken only if protected
-
-    (app as any)[route.method](
-        route.route,
-        ...middlewares,
-        route.validation,
-        async (req: AuthenticatedRequest, res: Response) => {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                /* If there are validation errors, send a response with the error messages */
-                return res.status(400).send({ errors: errors.array() });
-            }
-            try {
-                await route.action(req, res);
-            } catch (err) {
-                console.error('An error occurred:', err);
-                return res.sendStatus(500); // Don't expose internal server workings
-            }
-        },
+  const middlewares = (route ).protected ? [verifyToken] : []; // Add verifyToken only if protected
+  const method = route.method.toLowerCase();
+  if (!VALID_ROUTE_METHODS.includes(method)) {
+      throw new Error(`Unsupported HTTP method: ${method}`);
+  }
+  app[method as keyof express.Application](
+      route.route,
+      ...middlewares,
+      route.validation,
+      async (req: AuthenticatedRequest, res: Response) => {
+          const errors = validationResult(req);
+          if (!errors.isEmpty()) {
+              /* If there are validation errors, send a response with the error messages */
+              return res.status(400).send({ errors: errors.array() });
+          }
+          try {
+              await route.action(req, res);
+          } catch (err) {
+              console.error('An error occurred:', err);
+              return res.sendStatus(500); // Don't expose internal server workings
+          }
+      },
     );
 });
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
+  const uri: string = mongoServer.getUri();
   await mongoose.connect(uri);
 });
 
@@ -73,7 +90,7 @@ beforeEach(async () => {
 
 describe('Testing createPost', () => {
   it('should fail to create a post if an error occurs', async () => {
-    let spy = await jest.spyOn(PostModel.prototype, "save").mockImplementation(() => {
+    let spy = jest.spyOn(PostModel.prototype, "save").mockImplementation(() => {
       throw new Error("Database Error 1")
     })
     const newPost = {
@@ -129,7 +146,7 @@ describe('Testing getPostById', () => {
 
 describe('Testing getUserPosts', () => {
   it('should fail to get authenticated posts if error occurs', async () => {
-    let spy = await jest.spyOn(PostModel, "find").mockImplementation(() => {
+    let spy = jest.spyOn(PostModel, "find").mockImplementation(() => {
       throw new Error("Database Error 3")
     })
     const newPost = {
@@ -152,13 +169,13 @@ describe('Testing getUserPosts', () => {
       isPrivate: false,
     };
   
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
       
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .set('Authorization', 'Bearer 90909090')
@@ -177,11 +194,11 @@ describe('Testing getUserPosts', () => {
       .expect(200);
   
     expect(response.body).toBeNull()
-    await spy.mockClear()
+    spy.mockClear()
   });
 
   it('should fail to get all posts if error occurs', async () => {
-    let spy = await jest.spyOn(PostService.prototype, "getPosts").mockImplementation(() => {
+    let spy = jest.spyOn(PostService.prototype, "getPosts").mockImplementation(() => {
       throw new Error("Database Error 9");
     })
     const newPost = {
@@ -214,19 +231,19 @@ describe('Testing getUserPosts', () => {
       isPrivate: true,
     };
       
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
           
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
 
-    const otherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost3)
       .set('Authorization', 'Bearer 90909080')
@@ -244,13 +261,13 @@ describe('Testing getUserPosts', () => {
     expect(response.body[0].latitude).toBe(newPost.latitude);
     expect(response.body[1].latitude).toBe(newPost2.latitude);
     expect(response.body.length).toEqual(2);
-    await spy.mockClear()
+    spy.mockClear()
   });
 })
 
 describe('Testing getEveryPost', () => {
   it('should fail to get every post if error occurs', async () => {
-    let spy = await jest.spyOn(PostModel, "find").mockImplementation(() => {
+    let spy = jest.spyOn(PostModel, "find").mockImplementation(() => {
       throw new Error("Database Error 7")
     })
     const newPost = {
@@ -273,13 +290,13 @@ describe('Testing getEveryPost', () => {
       isPrivate: false,
     };
   
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
       
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .set('Authorization', 'Bearer 90909090')
@@ -288,13 +305,13 @@ describe('Testing getEveryPost', () => {
     const response = await postService.getEveryPost();
   
     expect(response).toBeNull()
-    await spy.mockClear()
+    spy.mockClear()
   });
 })
 
 describe('Testing getPostAtLocation', () => {
   it('should fail to get post at location if error occurs', async () => {
-    let spy = await jest.spyOn(PostModel, "find").mockImplementation(() => {
+    let spy = jest.spyOn(PostModel, "find").mockImplementation(() => {
       throw new Error("Database Error 8")
     })
     const newPost = {
@@ -317,13 +334,13 @@ describe('Testing getPostAtLocation', () => {
       isPrivate: false,
     };
   
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
       
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .set('Authorization', 'Bearer 90909090')
@@ -332,13 +349,13 @@ describe('Testing getPostAtLocation', () => {
     const response = await postService.getPostsAtLocation(40.7128, -74.0060, true);
   
     expect(response).toBeNull()
-    await spy.mockClear()
+    spy.mockClear()
   });
 })
 
 describe('Testing getPublicPosts', () => {
   it('should fail to get public posts in range if error occurs', async () => {
-    let spy = await jest.spyOn(PostModel, "find").mockImplementation(() => {
+    let spy = jest.spyOn(PostModel, "find").mockImplementation(() => {
       throw new Error("Database Error 4")
     })
     const newPost = {
@@ -361,13 +378,13 @@ describe('Testing getPublicPosts', () => {
       isPrivate: false,
     };
   
-    const createdPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost)
       .set('Authorization', 'Bearer 90909090')
       .expect(200);
       
-    const anotherPost = await request(app)
+    await request(app)
       .post('/posts')
       .send(newPost2)
       .set('Authorization', 'Bearer 90909090')
@@ -384,13 +401,13 @@ describe('Testing getPublicPosts', () => {
       .expect(200);
   
     expect(response.body).toBeNull()
-    await spy.mockClear()
+    spy.mockClear()
   });
 })
 
 describe('Testing updatePost', () => {
   it('should fail to update a post if error occurs', async () => {
-    let spy = await jest.spyOn(PostModel, "findByIdAndUpdate").mockImplementation(() => {
+    let spy = jest.spyOn(PostModel, "findByIdAndUpdate").mockImplementation(() => {
       throw new Error("Database Error 5")
     })
     const newPost = {
@@ -418,13 +435,13 @@ describe('Testing updatePost', () => {
       .expect(200);
 
     expect(response.body).toBeNull();
-    await spy.mockClear()
+    spy.mockClear()
   });
 })
 
 describe('Testing deletePost', () => {
   it('should fail to delete a post if error occurs', async () => {
-    let spy = await jest.spyOn(PostModel, "findOneAndDelete").mockImplementation(() => {
+    let spy = jest.spyOn(PostModel, "findOneAndDelete").mockImplementation(() => {
       throw new Error("Database Error 6")
     })
     const newPost = {
@@ -449,6 +466,6 @@ describe('Testing deletePost', () => {
       .expect(200);
         
     expect(response.body).toBeNull()
-    await spy.mockClear()
+    spy.mockClear()
   });
 });
