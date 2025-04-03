@@ -111,7 +111,7 @@ object Utils {
             nextButton = device.wait(Until.findObject(By.text("NEXT")), 5000)
             assertNotNull(nextButton)
             nextButton.click()
-            Thread.sleep(5000)
+            Thread.sleep(3000)
 
             var agreeButton = device.wait(Until.findObject(By.text("I agree")), 5000)
             assertNotNull(agreeButton)
@@ -126,6 +126,6 @@ object Utils {
                 agreeButton.click()
             } catch (_: Exception) {}
         }
-        Thread.sleep(10000)
+        Thread.sleep(5000)
     }
 }

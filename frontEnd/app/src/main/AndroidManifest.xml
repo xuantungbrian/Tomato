@@ -21,7 +21,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".ChooseChatActivity"
+            android:name=".activity.ChooseChatActivity"
             android:exported="false" />
 
         <provider
@@ -35,22 +35,22 @@
         </provider>
 
         <activity
-            android:name=".PostActivity"
+            android:name=".activity.PostActivity"
             android:exported="false" />
         <activity
-            android:name=".ChooseLocationActivity"
+            android:name=".activity.ChooseLocationActivity"
             android:exported="false" />
         <activity
-            android:name=".ProfileActivity"
+            android:name=".activity.ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".ChoosePostVisibilityActivity"
+            android:name=".activity.ChoosePostVisibilityActivity"
             android:exported="false" />
         <activity
-            android:name=".UploadPostActivity"
+            android:name=".activity.UploadPostActivity"
             android:exported="false" />
         <activity
-            android:name=".ChatActivity"
+            android:name=".activity.ChatActivity"
             android:exported="false" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
@@ -78,7 +78,7 @@
         <!-- </intent-filter> -->
         <!-- </activity> -->
         <activity
-            android:name=".MapsActivity"
+            android:name=".activity.MapsActivity"
             android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
@@ -88,7 +88,7 @@
         </activity>
 
         <service
-            android:name=".MyFirebaseMessagingService"
+            android:name=".com.example.tomato.helper.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
