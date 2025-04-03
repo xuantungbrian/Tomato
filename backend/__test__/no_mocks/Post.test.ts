@@ -86,11 +86,13 @@ describe('Testing getPostById', () => {
 
     expect(response.body.postData).toHaveProperty('_id');
     expect(response.body.postData.userId).toBe(newPost.userId);
-
-    await request(app)
-    .get(`/posts/%20`)
-    .expect(400);
   });
+
+  it('should fail to get a post by ID from a request with an invalid parameter', async () => {
+    await request(app)
+      .get(`/posts/%20`)
+      .expect(400);
+  })
 })
 
 describe('Testing getUserPosts', () => {
@@ -478,12 +480,31 @@ describe('Testing updatePost', () => {
       .expect(200);
 
     expect(response.body.note).toBe('Updated note');
+  });
+
+  it('should fail to update a post from a request with an invalid parameter', async () => {
+    const newPost = {
+      userId: 'user123',
+      latitude: 40.7128,
+      longitude: -74.0060,
+      images: ["string", "image/jpeg"],
+      date: new Date(),
+      note: 'Test post',
+      isPrivate: false,
+    };
+
+    const createdPost = await request(app)
+      .post('/posts')
+      .send(newPost)
+      .expect(200);
+
+    const updatedPost = { ...createdPost.body, note: 'Updated note' };
 
     await request(app)
       .put(`/posts/%20`)
       .send(updatedPost)
       .expect(400);
-  });
+  })
 
   it('should fail to get authenticated posts because of incorrect coordinates', async () => {
     const newPost = {
@@ -702,7 +723,9 @@ describe('Testing deletePost', () => {
     await request(app)
       .delete(`/posts/${newid.toString()}`)
       .expect(404);
+  })
 
+  it('should fail to delete a post from a request with an invalid parameter', async () => {
     await request(app)
       .delete(`/posts/%20`)
       .expect(400);

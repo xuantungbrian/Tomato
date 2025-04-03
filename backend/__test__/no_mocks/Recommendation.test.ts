@@ -2797,8 +2797,10 @@ describe('Testing getRecommendations', () => {
       .get("/recommendations-no-middlewware")
       .expect(401)
   });
+});
 
+describe('Testing mode', () => {
   it("Test mode with empty post", () => {
     expect(recommendationController.mode([])).toBe("")
   })
-});
+})

@@ -41,13 +41,15 @@ describe('Testing getUser', () => {
     expect(response.body._id).toBe(newUser._id);
     expect(response.body.username).toBe(newUser.username);
     expect(response.body.firebaseToken).toStrictEqual([newUser.firebaseToken]);
+  });
 
+  it('should fail to get user from id from request with an invalid parameter', async () => {
     await request(app)
       .get(`/user/%20`)
       .expect(400)
-  });
+  })
 
-  it('tries to get a non-existant user', async () => {
+  it('should fail to get a non-existant user', async () => {
     const newUser = {
       _id: "1234",
       username: "user123",
